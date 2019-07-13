@@ -14,17 +14,28 @@
 
 bool DFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
+    int pr1 = 0;
+    int pr2 = 0;
     if (op1 == '*') {
-        return true;
-    } else if (op2 == '*') {
-        return false;
-    } else if (op1 == '&' || op1 == '|' ) {
-        return true;
+        pr1 = 3;
+    } else if (op1 == '|') {
+        pr1 = 2;
+    } else if (op1 == '&') {
+        pr1 = 1;
     }
-    return false;
+    
+    if (op2 == '*') {
+        pr2 = 3;
+    } else if (op2 == '|') {
+        pr2 = 2;
+    } else if (op2 == '&') {
+        pr2 = 1;
+    }
+    
+    return pr1 >= pr2;
 }
 /*
- 实现将正则表达式转为NFA，使用二叉树表示
+    实现将正则表达式转为NFA，使用二叉树表示
  */
 JBinaryTree<char> * DFA::Reg2Syntax(JString& reg, int offset, int* end) {
     LOG_FUNCTION_ENTRY;
