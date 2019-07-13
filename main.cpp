@@ -12,12 +12,41 @@
 #include "DFA.hpp"
 #include "JLog.hpp"
 #include "JString.hpp"
+#include "JGraph.hpp"
+#include "JSet.hpp"
 
 using namespace std;
 
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
+    
+//    JSet<char> set;
+//    set.Add('d');
+//    set.Add('d');
+//    set.Add('e');
+//    set.Add('d');
+//    set.Add('e');
+//    set.Echo();
+//    JList<char> ll;
+//    for (int i = 0; i < 60; i++) {
+//        ll.Add('q');
+//    }
+//    ll.Echo();
+    JGraph<char> graph;
+    graph.AddVerter('a');
+    graph.AddVerter('c');
+    graph.AddVerter('d');
+    graph.AddVerter('a');
+//    for (int i = 0; i < 50; i++) {
+//        graph.AddVerter('q');
+//    }
+    graph.AddArc(1, 2);
+    graph.AddArc(1, 0);
+    graph.AddArc(1, 3);
+    graph.AddArc(3, 0);
+    graph.AddArc(1, 2);
+    graph.Echo();
     
     DFA dfa;
     dfa.Reg("(qa|b)*abb");

@@ -8,6 +8,7 @@
 
 #ifndef Hello_hpp
 #define Hello_hpp
+#include "JList.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -24,6 +25,7 @@ public:
     
     void set(int i) {
         this->i = i;
+        
     }
 };
 
