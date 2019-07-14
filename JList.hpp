@@ -13,53 +13,141 @@
 
 template<class T>
 class JList {
-protected:
-    static const int SIZE_INITIAL = 50;
-    static const int SIZE_GROWTH = 30;
+private:
+    static const int BLOCK_SIZE_INITIAL = 5;
+    static const int BLOCK_TOTAL_MARGIN = 2;
     
-    T *data = NULL;
+    class Block {
+    public:
+        T *data = NULL;
+        Block *next = NULL;
+        Block *prev = NULL;
+        Block() {
+            data = new T[BLOCK_SIZE_INITIAL];
+        }
+    };
+    
+    Block *head = NULL;
+    Block *tail = NULL;
+    int blockTotal = 0;
     int length = 0;
-    int size = SIZE_INITIAL;
     
-    bool Initialize() {
+protected:
+    bool _Initialize() {
         LOG_FUNCTION_ENTRY;
-        data = new T[SIZE_INITIAL];
+        head = new Block;
+        tail = head;
+        blockTotal = 1;
+        length = 0;
         return true;
     }
     
-    bool Expand() {
+    bool _Closure() {
         LOG_FUNCTION_ENTRY;
-        int nsize = size + SIZE_GROWTH;
-        T *p = new T[nsize];
-        for (int i = 0; i < length; i++) {
-            p[i] = data[i];
+        Block *p = NULL;
+        while (head != NULL) {
+            p = head;
+            head = head->next;
+            delete p;
         }
-        delete [] data;
-        data = p;
+        
+        tail = NULL;
+        blockTotal = 0;
+        length = 0;
+        return true;
+    }
+    
+    bool _TryExpand() {
+        LOG_FUNCTION_ENTRY;
+        if (length >= BLOCK_SIZE_INITIAL * blockTotal) {
+            Block *p = new Block;
+            p->prev = tail;
+            tail->next = p;
+            tail = tail->next;
+            
+            blockTotal++;
+            return true;
+        }
+        return false;
+    }
+    
+    bool _TryReduce() {
+        LOG_FUNCTION_ENTRY;
+        if (length < BLOCK_SIZE_INITIAL * (blockTotal - BLOCK_TOTAL_MARGIN)) {
+            Block *p = tail;
+            tail = tail->prev;
+            tail->next = NULL;
+            delete p;
+            
+            blockTotal--;
+            return true;
+        }
+        return false;
+    }
+    
+    T& _Get(int index) {
+        LOG_FUNCTION_ENTRY;
+        int j = index / BLOCK_SIZE_INITIAL;
+        int i = index % BLOCK_SIZE_INITIAL;
+        Block *p = head;
+        for (int x = 0; x < j; x++) {
+            p = p->next;
+        }
+        return p->data[i];
+    }
+    
+    int _Add(const T& t) {
+        LOG_FUNCTION_ENTRY;
+        int i = length;
+        
+        _Get(length++) = t;
+        
+        _TryExpand();
+        LOG_DEBUG("length = ", length, ", data = ", t);
+        return i;
+    }
+    
+    bool _Delete(int index) {
+        LOG_FUNCTION_ENTRY;
+        
+        _Get(index) = _Get(--length);
+        
+        _TryReduce();
+        LOG_DEBUG("length = ", length);
+        return true;
+    }
+    
+    bool _Set(int index, const T& t) {
+        LOG_FUNCTION_ENTRY;
+        
+        _Get(index) = t;
         return true;
     }
     
 public:
     JList() {
         LOG_FUNCTION_ENTRY;
-        Initialize();
+        _Initialize();
     }
     
     ~JList() {
         LOG_FUNCTION_ENTRY;
-        delete [] data;
+        _Closure();
     }
     
-    JList(JList& s) {
+    JList(const JList& jl) {
         LOG_FUNCTION_ENTRY;
-        Initialize();
-        for (int i = 0; i < s.length; i++) {
-            this->data[i] = s.data[i];
-            length++;
-            
-            if (length >= size) {
-                Expand();
+        _Initialize();
+        int j = jl.length / BLOCK_SIZE_INITIAL;
+        int i = jl.length % BLOCK_SIZE_INITIAL;
+        Block *p = jl.head;
+        for (int t1 = 0; t1 < j; t1++, p = p->next) {
+            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
+                this->_Add(p->data[t2]);
             }
+        }
+        for (int t = 0; t < i; t++) {
+            this->_Add(p->data[t]);
         }
     }
     
@@ -68,62 +156,79 @@ public:
     }
     
     T& Get(int index) {
-        return data[index];
+        LOG_FUNCTION_ENTRY;
+        if (index < 0 || index >= length) {
+            LOG_WARN("length = ", length, ", index = ", index);
+        }
+        return _Get(index);
     }
     
     T& GetTail() {
-        return data[length - 1];
-    }
-    
-    void Set(int index, const T& t) {
-        data[index] = t;
+        return _Get(length - 1);
     }
     
     int Add() {
         LOG_FUNCTION_ENTRY;
+        int i = length;
+        
         length++;
-        if (length >= size) {
-            Expand();
-        }
+        
+        _TryExpand();
         LOG_DEBUG("length = ", length);
-        return length - 1;
+        return i;
     }
     
     int Add(const T& t) {
         LOG_FUNCTION_ENTRY;
-        data[length] = t;
-        length++;
-        if (length >= size) {
-            Expand();
-        }
-        LOG_DEBUG("data = ", t, ", length = ", length);
-        return length - 1;
+        return _Add(t);
     }
     
-    void Delete(int index) {
+    bool Delete(int index) {
         LOG_FUNCTION_ENTRY;
-        for (int i = index; i < length; i++) {
-            data[i] = data[i+1];
+        if (index < 0 || index >= length) {
+            LOG_WARN("length = ", length, ", index = ", index);
+            return false;
         }
-        length--;
-        LOG_DEBUG("data = ", data[length], ", length = ", length);
+        return _Delete(index);
     }
     
-    void DeleteTail() {
+    bool DeleteTail() {
         LOG_FUNCTION_ENTRY;
+        LOG_DEBUG("length = ", length);
+        if (length < 0) {
+           return false;
+        }
         length--;
-        LOG_DEBUG("data = ", data[length], ", length = ", length);
+        return true;
+    }
+    
+    bool Set(int index, const T& t) {
+        LOG_FUNCTION_ENTRY;
+        if (index < 0 || index >= length) {
+            LOG_WARN("length = ", length, ", index = ", index);
+            return false;
+        }
+        return _Set(index, t);
     }
     
     void Echo() {
+        LOG_INFO("length: ", length, ", blockTotal = ", blockTotal);
         for (int i = 0; i < length; i++) {
-            LOG_INFO(data[i]);
+            LOG_INFO("i", i, ": ", _Get(i));
         }
     }
     
     friend std::ostream& operator << (std::ostream& os, const JList& jl) {
-        for (int i = 0; i < jl.length; i++) {
-            os << jl.data[i] << ", ";
+        int j = jl.length / BLOCK_SIZE_INITIAL;
+        int i = jl.length % BLOCK_SIZE_INITIAL;
+        Block *p = jl.head;
+        for (int t1 = 0; t1 < j; t1++, p = p->next) {
+            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
+                os << p->data[t2] << ", ";
+            }
+        }
+        for (int t = 0; t < i; t++) {
+            os << p->data[t] << ", ";
         }
         return os;
     }
