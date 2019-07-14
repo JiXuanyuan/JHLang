@@ -29,13 +29,13 @@ protected:
     
     bool Expand() {
         LOG_FUNCTION_ENTRY;
-//        int nsize = size + SIZE_GROWTH;
-//        T *p = new T[nsize];
-//        for (int i = 0; i < length; i++) {
-//            p[i] = data[i];
-//        }
-//        delete [] data;
-//        data = p;
+        int nsize = size + SIZE_GROWTH;
+        T *p = new T[nsize];
+        for (int i = 0; i < length; i++) {
+            p[i] = data[i];
+        }
+        delete [] data;
+        data = p;
         return true;
     }
     

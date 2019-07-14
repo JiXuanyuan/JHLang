@@ -70,30 +70,4 @@ public:
     }
 };
 
-//template<class T>
-//BinaryTree<T>* BinaryTree<T>::Merge(BinaryTree<T> *lchild, BinaryTree<T> *rchild)
-//{
-//    this->lchild = lchild;
-//    this->rchild = rchild;
-//    return this;
-//}
-//
-//template<class T>
-//void BinaryTree<T>::Traverse(BinaryTree<T> *tree)
-//{
-//    if (tree == NULL) return;
-//    Traverse(tree->lchild);
-//    Traverse(tree->rchild);
-//    cout << tree->Node() << endl;
-//}
-//
-//template<class T>
-//void BinaryTree<T>::Destory(BinaryTree<T> *tree)
-//{
-//    if (tree == NULL) return;
-//    delete tree;
-//    Destory(tree->lchild);
-//    Destory(tree->rchild);
-//}
-
 #endif /* JBinaryTree_hpp */

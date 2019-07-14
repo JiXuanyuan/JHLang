@@ -12,31 +12,6 @@
 #include "JBinaryTree.hpp"
 #include "JStack.hpp"
 
-bool DFA::OperatorPrecede(char op1, char op2) {
-    // 比较 '&', '|', '*' 运算的优先级
-    int pr1 = 0;
-    int pr2 = 0;
-    if (op1 == '*') {
-        pr1 = 3;
-    } else if (op1 == '|') {
-        pr1 = 2;
-    } else if (op1 == '&') {
-        pr1 = 1;
-    }
-    
-    if (op2 == '*') {
-        pr2 = 3;
-    } else if (op2 == '|') {
-        pr2 = 2;
-    } else if (op2 == '&') {
-        pr2 = 1;
-    }
-    
-    return pr1 >= pr2;
-}
-/*
-    实现将正则表达式转为NFA，使用二叉树表示
- */
 JBinaryTree<char> * DFA::Reg2Syntax(JString& reg, int offset, int* end) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("reg = ", reg, ", offset = ", offset);
@@ -104,5 +79,110 @@ JBinaryTree<char> * DFA::Reg2Syntax(JString& reg, int offset, int* end) {
         *end = i;
         LOG_INFO("end = ", *end);
     }
+    return opn;
+}
+
+bool DFA::OperatorPrecede(char op1, char op2) {
+    // 比较 '&', '|', '*' 运算的优先级
+    int pr1 = 0;
+    int pr2 = 0;
+    if (op1 == '*') {
+        pr1 = 3;
+    } else if (op1 == '|') {
+        pr1 = 2;
+    } else if (op1 == '&') {
+        pr1 = 1;
+    }
+    
+    if (op2 == '*') {
+        pr2 = 3;
+    } else if (op2 == '|') {
+        pr2 = 2;
+    } else if (op2 == '&') {
+        pr2 = 1;
+    }
+    
+    return pr1 >= pr2;
+}
+
+JBinaryTree<DFA::Node> * DFA::CreateNode(JString& reg, int index) {
+    JBinaryTree<Node> * n = new JBinaryTree<Node>;
+    n->Node().Assign(reg.Get(index), index);
+    return n;
+}
+
+JBinaryTree<DFA::Node> * DFA::CreateOperatorNode(char op, JStack<JBinaryTree<Node> *> & nodes) {
+    // 顶点、左节点、右节点
+    JBinaryTree<Node> *fn = NULL;
+    JBinaryTree<Node> *ln = NULL;
+    JBinaryTree<Node> *rn = NULL;
+    
+    fn = new JBinaryTree<Node>;
+    fn->Node().Assign(op);
+    
+    rn = nodes.Pop();
+    ln = nodes.Pop();
+    fn = fn->Merge(ln, rn);
+    return fn;
+}
+
+/*
+    实现将正则表达式转为NFA，使用二叉树表示
+ */
+JBinaryTree<DFA::Node> * DFA::Reg2NFA(JString& reg, int& i, char endChar) {
+    LOG_FUNCTION_ENTRY;
+    LOG_INFO("start, reg = ", reg, ", i = ", i);
+    JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
+    JStack<JBinaryTree<Node> *> nodes(NULL);
+    char op;
+    char ch;
+    // 操作符节点、符号节点
+    JBinaryTree<Node> *opn = NULL;
+    JBinaryTree<Node> *chn = NULL;
+    // 顶点、左节点、右节点
+    JBinaryTree<Node> *fn = NULL;
+    
+    int l = reg.Length();
+    for (; i < l; i++) {
+        ch = reg.Get(i);
+        
+        if (ch == '\\') {   // 转义符
+            op = '&';
+            chn = CreateNode(reg, ++i);
+        } else if (ch == '(') {
+            op = '&';
+            chn = Reg2NFA(reg, ++i, ')');
+        } else if (ch == endChar) {
+            LOG_INFO("ch = ", ch, ", break");
+            break;
+        } else if (ch == '*') {
+            op = '*';
+            chn = NULL;
+        } else if (ch == '|') {
+            op = '|';
+            chn = CreateNode(reg, ++i);
+        } else {
+            op = '&';
+            chn = CreateNode(reg, i);
+        }
+        LOG_INFO("ch = ", ch, ", op = ", op);
+        
+        while (OperatorPrecede(ops.GetTop(), op)) {
+            fn = CreateOperatorNode(ops.Pop(), nodes);
+            nodes.Push(fn);
+        }
+        
+        ops.Push(op);
+        nodes.Push(chn);
+    }
+    
+    do {
+        fn = CreateOperatorNode(ops.Pop(), nodes);
+        nodes.Push(fn);
+    } while (ops.GetTop() != '\0');
+    
+    // 返回值
+    LOG_INFO("end, i = ", i);
+    opn = nodes.Pop();
     return opn;
 }

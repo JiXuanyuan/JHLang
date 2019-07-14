@@ -7,7 +7,7 @@
 //
 
 #include <iostream>
-#include "Hello.hpp"
+//#include "Hello.hpp"
 #include "JBinaryTree.hpp"
 #include "DFA.hpp"
 #include "JLog.hpp"
@@ -49,7 +49,7 @@ int main(int argc, const char * argv[]) {
     graph.Echo();
     
     DFA dfa;
-    dfa.Reg("(qa|b)*abb");
+    dfa.Reg("(qa|b)*a\\*bb");
     dfa.Reg2NFA();
     
     return 0;
