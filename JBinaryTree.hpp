@@ -34,9 +34,19 @@ public:
             JBinaryTree<T>::Destory(tree);
         }
         
-        void Traverse(Interface *impl) {
+        void TraversePreorder(Interface *impl) {
             LOG_FUNCTION_ENTRY;
-            JBinaryTree<T>::Traverse(tree, impl);
+            JBinaryTree<T>::TraversePreorder(tree, impl);
+        }
+        
+        void TraverseInorder(Interface *impl) {
+            LOG_FUNCTION_ENTRY;
+            JBinaryTree<T>::TraverseInorder(tree, impl);
+        }
+        
+        void TraversePostorder(Interface *impl) {
+            LOG_FUNCTION_ENTRY;
+            JBinaryTree<T>::TraversePostorder(tree, impl);
         }
         
         Root& operator = (JBinaryTree<T> *tree) {
@@ -45,15 +55,6 @@ public:
             return *this;
         }
     };
-    
-//    template<class Arg>
-//    class InterfaceArg {
-//    public:
-//        Arg arg;
-//        InterfaceArg() {}
-//        InterfaceArg(Arg& arg) : arg(arg) {}
-//        virtual void Visit(JBinaryTree<T> *tree) = 0;
-//    };
     
     JBinaryTree() {
         LOG_FUNCTION_ENTRY;
@@ -87,15 +88,41 @@ public:
         return this;
     }
     
-    static void Traverse(JBinaryTree<T> *tree, Interface *impl) {
+    static void TraversePreorder(JBinaryTree<T> *tree, Interface *impl) {
         if (tree == NULL) return;
         if (impl == NULL) {
             LOG_WARN("impl == NULL");
             return;
         }
         impl->Visit(tree);
-        Traverse(tree->lchild, impl);
-        Traverse(tree->rchild, impl);
+        TraversePreorder(tree->lchild, impl);
+        TraversePreorder(tree->rchild, impl);
+    }
+    
+    static void TraverseInorder(JBinaryTree<T> *tree, Interface *impl) {
+        if (tree == NULL) return;
+        if (impl == NULL) {
+            LOG_WARN("impl == NULL");
+            return;
+        }
+        TraverseInorder(tree->lchild, impl);
+        impl->Visit(tree);
+        TraverseInorder(tree->rchild, impl);
+    }
+    
+    static void TraversePostorder(JBinaryTree<T> *tree, Interface *impl) {
+        if (tree == NULL) return;
+        if (impl == NULL) {
+            LOG_WARN("impl == NULL");
+            return;
+        }
+        TraversePostorder(tree->lchild, impl);
+        TraversePostorder(tree->rchild, impl);
+        impl->Visit(tree);
+    }
+    
+    static void Traverse(JBinaryTree<T> *tree, Interface *impl) {
+        TraversePreorder(tree, impl);
     }
     
     static void Destory(JBinaryTree<T> *tree) {

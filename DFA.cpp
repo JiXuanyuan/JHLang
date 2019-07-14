@@ -15,6 +15,7 @@
 /*
     实现将正则表达式转为语法树，旧函数
  */
+/*
 JBinaryTree<char> * DFA::Reg2Syntax_old(JString& reg, int offset, int* end) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("reg = ", reg, ", offset = ", offset);
@@ -84,7 +85,8 @@ JBinaryTree<char> * DFA::Reg2Syntax_old(JString& reg, int offset, int* end) {
     }
     return opn;
 }
-
+*/
+ 
 bool DFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
     int pr1 = 0;
@@ -108,13 +110,13 @@ bool DFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-JBinaryTree<DFA::Node> * DFA::CreateNode(JString& reg, int index) {
+JBinaryTree<DFA::Node> * DFA::CreateNodeCharacter(JString& reg, int index) {
     JBinaryTree<Node> * n = new JBinaryTree<Node>;
     n->Node().Assign(reg.Get(index), index);
     return n;
 }
 
-JBinaryTree<DFA::Node> * DFA::CreateOperatorNode(char op, JStack<JBinaryTree<Node> *> & nodes) {
+JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *> & nodes) {
     // 顶点、左节点、右节点
     JBinaryTree<Node> *fn = NULL;
     JBinaryTree<Node> *ln = NULL;
@@ -151,7 +153,7 @@ JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
         
         if (ch == '\\') {   // 转义符
             op = '&';
-            chn = CreateNode(reg, ++i);
+            chn = CreateNodeCharacter(reg, ++i);
         } else if (ch == '(') {
             op = '&';
             chn = Reg2Syntax(reg, ++i, ')');
@@ -163,15 +165,15 @@ JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
             chn = NULL;
         } else if (ch == '|') {
             op = '|';
-            chn = CreateNode(reg, ++i);
+            chn = CreateNodeCharacter(reg, ++i);
         } else {
             op = '&';
-            chn = CreateNode(reg, i);
+            chn = CreateNodeCharacter(reg, i);
         }
         LOG_INFO("ch = ", ch, ", op = ", op);
         
         while (OperatorPrecede(ops.GetTop(), op)) {
-            fn = CreateOperatorNode(ops.Pop(), nodes);
+            fn = CreateNodeOperator(ops.Pop(), nodes);
             nodes.Push(fn);
         }
         
@@ -180,7 +182,7 @@ JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     }
     
     do {
-        fn = CreateOperatorNode(ops.Pop(), nodes);
+        fn = CreateNodeOperator(ops.Pop(), nodes);
         nodes.Push(fn);
     } while (ops.GetTop() != '\0');
     
