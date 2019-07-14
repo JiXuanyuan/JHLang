@@ -17,6 +17,11 @@
 
 using namespace std;
 
+//#ifdef DEBUG
+//    #undef DEBUG
+//    #define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
+//#endif
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";

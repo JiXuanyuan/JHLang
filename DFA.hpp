@@ -41,14 +41,7 @@ private:
         }
     };
     
-//    class Status {
-//        JString *reg;
-//        char *i;
-//        char end;
-//    };
-//
     JString reg;
-//    JBinaryTree<Node> nfa;
     
 public:
     class Pchar : public JBinaryTree<char>::Interface {
@@ -65,12 +58,10 @@ public:
     
     DFA() {
         LOG_FUNCTION_ENTRY;
-        JBinaryTree<Node> nfa;
     }
     
     ~DFA() {
         LOG_FUNCTION_ENTRY;
-//        JBinaryTree<char>::Destory(nfa);
     }
     
     bool Reg(const char *reg) {
@@ -87,11 +78,11 @@ public:
     bool Reg2NFA() {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("reg = ", reg);
-        JBinaryTree<char> *opn = NULL;
-        opn = Reg2Syntax(reg, 0, NULL);
-        Pchar pc;
-        JBinaryTree<char>::Traverse(opn, &pc);
-        JBinaryTree<char>::Destory(opn);
+//        JBinaryTree<char> *opn = NULL;
+//        opn = Reg2Syntax(reg, 0, NULL);
+//        Pchar pc;
+//        JBinaryTree<char>::Traverse(opn, &pc);
+//        JBinaryTree<char>::Destory(opn);
         
         JBinaryTree<Node> *nodes = NULL;
         nodes = Reg2NFA(reg);

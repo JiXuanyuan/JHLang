@@ -60,7 +60,7 @@ public:
         std::cout << v << std::endl;
     }
     template<class T>
-    static void Rope(T& v) {
+    static void Rope(T v) {
         std::cout << v << std::endl;
     }
     
@@ -88,7 +88,7 @@ public:
         _Rope(args...);
     }
     template<class T, class... Types>
-    static void Rope(T& v, Types... args) {
+    static void Rope(T v, Types... args) {
         std::cout << v;
         _Rope(args...);
     }
@@ -156,11 +156,13 @@ private:
 
 #include <stdio.h>
 
+#define LOG_LEVEL_ALL           0
 #define LOG_LEVEL_DEBUG         1
 #define LOG_LEVEL_INFO          2
 #define LOG_LEVEL_WARN          3
 #define LOG_LEVEL_ERROR         4
-#define LOG_ACROSS_LEVEL        LOG_LEVEL_INFO
+#define LOG_LEVEL_OFF           9
+#define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
 
 #define _LOG(level, tag, ...)    \
         do { \
@@ -175,16 +177,16 @@ private:
 #define LOG_INFO(...)           _LOG(LOG_LEVEL_INFO, "INFO", __VA_ARGS__)
 #define LOG_WARN(...)           _LOG(LOG_LEVEL_WARN, "WARN", __VA_ARGS__)
 #define LOG_ERROR(...)          _LOG(LOG_LEVEL_ERROR, "ERROR", __VA_ARGS__)
-#define LOG_FUNCTION_ENTRY      LOG_DEBUG("Function entry")
+#define LOG_FUNCTION_ENTRY      _LOG(LOG_LEVEL_ALL, "Function entry", "")
 
 /*
-    开发模式：DEBUG（调试）、BATE（内测）、 其他
+    开发模式：DEBUG（调试）、INFO、 其他
  */
 #ifdef DEBUG
-//    #undef LOG_ACROSS_LEVEL
-//    #define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
+    #undef LOG_ACROSS_LEVEL
+    #define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
 #else
-#ifdef BATE
+#ifdef INFO
     #undef LOG_ACROSS_LEVEL
     #define LOG_ACROSS_LEVEL        LOG_LEVEL_INFO
 #else

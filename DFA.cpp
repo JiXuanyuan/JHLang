@@ -12,8 +12,14 @@
 #include "JBinaryTree.hpp"
 #include "JStack.hpp"
 
+/*
+    实现将正则表达式转为NFA，使用二叉树表示
+    新函数为：
+        JBinaryTree<Node> * Reg2NFA(JString& reg, int& i, char endChar)
+ */
 JBinaryTree<char> * DFA::Reg2Syntax(JString& reg, int offset, int* end) {
     LOG_FUNCTION_ENTRY;
+    LOG_INFO("新函数为：JBinaryTree<Node> * Reg2NFA(JString& reg, int& i, char endChar)");
     LOG_INFO("reg = ", reg, ", offset = ", offset);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
     JStack<JBinaryTree<char> *> nodes(NULL);
