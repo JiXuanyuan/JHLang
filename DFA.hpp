@@ -20,8 +20,8 @@ private:
     public:
         // type: 1.操作符节点，2.符号位置节点
         int type = 0;
-        int regIndex;
         char var;
+        int regIndex;
         void Assign(char op) {
             type = 1;
             var = op;
@@ -43,18 +43,11 @@ private:
     
     JString reg;
     
-public:
-    class Pchar : public JBinaryTree<char>::Interface {
-        virtual void func(JBinaryTree<char> *tree) {
-            LOG_INFO(tree->Node());
-        }
-    };
+    void hello() {
+        LOG_INFO("hello, reg = ", this->reg);
+    }
     
-    class PNode : public JBinaryTree<Node>::Interface {
-        virtual void func(JBinaryTree<Node> *tree) {
-            LOG_INFO(tree->Node());
-        }
-    };
+public:
     
     DFA() {
         LOG_FUNCTION_ENTRY;
@@ -63,6 +56,17 @@ public:
     ~DFA() {
         LOG_FUNCTION_ENTRY;
     }
+    
+    friend class PNode;
+    class PNode : public JBinaryTree<Node>::Interface {
+    public:
+        virtual void Visit(JBinaryTree<Node> *tree) {
+            LOG_INFO(tree->Node());
+        }
+    };
+    
+
+    
     
     bool Reg(const char *reg) {
         LOG_FUNCTION_ENTRY;
@@ -78,23 +82,27 @@ public:
     bool Reg2NFA() {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("reg = ", reg);
-//        JBinaryTree<char> *opn = NULL;
-//        opn = Reg2Syntax(reg, 0, NULL);
-//        Pchar pc;
-//        JBinaryTree<char>::Traverse(opn, &pc);
-//        JBinaryTree<char>::Destory(opn);
         
-        JBinaryTree<Node> *nodes = NULL;
-        nodes = Reg2NFA(reg);
+        JBinaryTree<Node>::Root root;
+        root = Reg2Syntax(reg);
+        
         PNode pn;
-        JBinaryTree<Node>::Traverse(nodes, &pn);
-        JBinaryTree<Node>::Destory(nodes);
+        root.Traverse(&pn);
+        
+        Syntax2NFA syn2nfa(this);
+        root.Traverse(&syn2nfa);
         
         return true;
     }
     
-    JBinaryTree<char> * Reg2Syntax(JString& reg, int offset, int* end);
+    /*
+        实现将正则表达式转为语法树，旧函数
+     */
+    JBinaryTree<char> * Reg2Syntax_old(JString& reg, int offset, int* end);
     
+    /*
+        比较 '&', '|', '*' 运算的优先级
+     */
     bool OperatorPrecede(char op1, char op2);
     
     JBinaryTree<Node> * CreateNode(JString& reg, int index);
@@ -102,15 +110,28 @@ public:
     JBinaryTree<Node> * CreateOperatorNode(char op, JStack<JBinaryTree<Node> *> & nodes);
     
     /*
-        实现将正则表达式转为NFA，使用二叉树表示
+        实现将正则表达式转为语法树
      */
-    JBinaryTree<Node> * Reg2NFA(JString& reg) {
+    JBinaryTree<Node> * Reg2Syntax(JString& reg) {
         int i = 0;
-        return Reg2NFA(reg, i, '\0');
+        return Reg2Syntax(reg, i, '\0');
     }
     
-    JBinaryTree<Node> * Reg2NFA(JString& reg, int& i, char endChar);
+    JBinaryTree<Node> * Reg2Syntax(JString& reg, int& i, char endChar);
+    
+    /*
+        实现将正则表达式转为NFA，使用二叉树表示
+     */
+    friend class Syntax2NFA;
+    class Syntax2NFA : public JBinaryTree<Node>::Interface {
+    public:
+        DFA *self;
+        Syntax2NFA(DFA *self) : self(self) {}
+        virtual void Visit(JBinaryTree<Node> *tree) {
+            LOG_INFO(tree->Node());
+            self->hello();
+        }
+    };
 };
-
 
 #endif /* DFA_hpp */

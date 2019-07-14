@@ -9,6 +9,11 @@
 #ifndef JLog_hpp
 #define JLog_hpp
 
+#ifdef DEBUG
+    #undef DEBUG
+    #define INFO
+#endif
+
 #include <iostream>
 
 /*
@@ -182,6 +187,10 @@ private:
 /*
     开发模式：DEBUG（调试）、INFO、 其他
  */
+#ifdef ALL
+    #undef LOG_ACROSS_LEVEL
+    #define LOG_ACROSS_LEVEL        LOG_LEVEL_ALL
+#else
 #ifdef DEBUG
     #undef LOG_ACROSS_LEVEL
     #define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
@@ -198,6 +207,7 @@ private:
     #define LOG_INFO(...)
     #undef LOG_FUNCTION_ENTRY
     #define LOG_FUNCTION_ENTRY
+#endif
 #endif
 #endif
 

@@ -20,8 +20,40 @@ private:
 public:
     class Interface {
     public:
-        virtual void func(JBinaryTree<T> *tree) = 0;
+        virtual void Visit(JBinaryTree<T> *tree) = 0;
     };
+    
+    class Root {
+    private:
+        JBinaryTree<T> *tree = NULL;
+    public:
+        Root() {}
+        Root(JBinaryTree<T> *tree) : tree(tree) {}
+        ~Root() {
+            LOG_FUNCTION_ENTRY;
+            JBinaryTree<T>::Destory(tree);
+        }
+        
+        void Traverse(Interface *impl) {
+            LOG_FUNCTION_ENTRY;
+            JBinaryTree<T>::Traverse(tree, impl);
+        }
+        
+        Root& operator = (JBinaryTree<T> *tree) {
+            LOG_FUNCTION_ENTRY;
+            this->tree = tree;
+            return *this;
+        }
+    };
+    
+//    template<class Arg>
+//    class InterfaceArg {
+//    public:
+//        Arg arg;
+//        InterfaceArg() {}
+//        InterfaceArg(Arg& arg) : arg(arg) {}
+//        virtual void Visit(JBinaryTree<T> *tree) = 0;
+//    };
     
     JBinaryTree() {
         LOG_FUNCTION_ENTRY;
@@ -33,7 +65,7 @@ public:
     
     ~JBinaryTree() {
         LOG_FUNCTION_ENTRY;
-        LOG_INFO(" del ", Node());
+        LOG_DEBUG(" del ", Node());
     }
 
     T& Node() {
@@ -57,7 +89,11 @@ public:
     
     static void Traverse(JBinaryTree<T> *tree, Interface *impl) {
         if (tree == NULL) return;
-        impl->func(tree);
+        if (impl == NULL) {
+            LOG_WARN("impl == NULL");
+            return;
+        }
+        impl->Visit(tree);
         Traverse(tree->lchild, impl);
         Traverse(tree->rchild, impl);
     }
@@ -68,6 +104,7 @@ public:
         Destory(tree->rchild);
         delete tree;
     }
+    
 };
 
 #endif /* JBinaryTree_hpp */
