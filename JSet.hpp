@@ -17,14 +17,24 @@ class JSet : public JList<T> {
 public:
     int Add(const T& t) {
         LOG_FUNCTION_ENTRY;
-        
-        for (int i = 0; i < JList<T>::length; i++) {
+        int l = JList<T>::length;
+        for (int i = 0; i < l; i++) {
             if (t == JList<T>::data[i]) {
                 return i;
             }
         }
         
         return JList<T>::Add(t);
+    }
+    
+    int Add(const JSet<T>& t) {
+        LOG_FUNCTION_ENTRY;
+        int l = t.length;
+        for (int i = 0; i < l; i++) {
+            Add(t.JList<T>::data[i]);
+        }
+        
+        return JList<T>::length;
     }
     
 };

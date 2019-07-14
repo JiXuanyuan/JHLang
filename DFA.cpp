@@ -144,7 +144,7 @@ JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     // 操作符节点、符号节点
     JBinaryTree<Node> *opn = NULL;
     JBinaryTree<Node> *chn = NULL;
-    // 顶点、左节点、右节点
+    // 顶点
     JBinaryTree<Node> *fn = NULL;
     
     int l = reg.Length();

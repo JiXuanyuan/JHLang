@@ -13,8 +13,8 @@
 #include "JString.hpp"
 #include "JBinaryTree.hpp"
 #include "JStack.hpp"
-#include "JGraph.hpp"
 #include "JSet.hpp"
+#include "JGraph.hpp"
 
 class DFA {
 private:
@@ -70,6 +70,7 @@ private:
     };
     
     JString reg;
+    JGraph<char> dfa;
     
     /*
      实现将正则表达式转为语法树，旧函数
@@ -173,6 +174,20 @@ public:
         return tree->Node().nullable;
     }
     
+//    JSet<int> * FirstPosition(JBinaryTree<Node> *tree) {
+//        if (tree == NULL) {
+//            return NULL;
+//        }
+//        return &tree->Node().firstPos;
+//    }
+//
+//    JSet<int> * LastPosition(JBinaryTree<Node> *tree) {
+//        if (tree == NULL) {
+//            return NULL;
+//        }
+//        return &tree->Node().lastPos;
+//    }
+    
     void ObtainNodeNullable(JBinaryTree<Node> *tree) {
         // 后序遍历处理
         if (tree == NULL) {
@@ -202,42 +217,86 @@ public:
         LOG_WARN("Node, type = 0");
     }
     
-    bool ObtainNodeFirstPosition(JBinaryTree<Node> *tree) {
+    void ObtainNodeFirstPosition(JBinaryTree<Node> *tree) {
         // 后序遍历处理
         if (tree == NULL) {
-            return true;
-        } else if (tree->Node().IsCharacter()) {
-            return false;
-        } else if (tree->Node().IsOperator()) {
-            char ch = tree->Node().Value();
-            if (ch == '*') {
-                return true;
-            } else if (ch == '|') {
-                return NodeNullable(tree->LeftChild()) || NodeNullable(tree->RightChild());
-            } else if (ch == '&') {
-                return NodeNullable(tree->LeftChild()) && NodeNullable(tree->RightChild());
-            }
+            LOG_WARN("tree == NULL");
+            return;
         }
-        return true;
+        
+        Node& n = tree->Node();
+        
+        if (n.IsCharacter()) {
+            n.firstPos.Add(n.RegIndex());
+            return;
+        }
+        
+        if (n.IsOperator()) {
+            char ch = n.Value();
+            if (ch == '*') {
+                if (tree->LeftChild() != NULL) {
+                    n.firstPos.Add(tree->LeftChild()->Node().firstPos);
+                }
+            } else if (ch == '|') {
+                if (tree->LeftChild() != NULL) {
+                    n.firstPos.Add(tree->LeftChild()->Node().firstPos);
+                }
+                if (tree->RightChild() != NULL) {
+                    n.firstPos.Add(tree->RightChild()->Node().firstPos);
+                }
+            } else if (ch == '&') {
+                if (tree->LeftChild() != NULL) {
+                    n.firstPos.Add(tree->LeftChild()->Node().firstPos);
+                }
+                if (tree->RightChild() != NULL && NodeNullable(tree->LeftChild())) {
+                    n.firstPos.Add(tree->RightChild()->Node().firstPos);
+                }
+            }
+            return;
+        }
+        
+        LOG_WARN("Node, type = 0");
     }
     
-    bool ObtainNodeLastPosition(JBinaryTree<Node> *tree) {
+    void ObtainNodeLastPosition(JBinaryTree<Node> *tree) {
         // 后序遍历处理
         if (tree == NULL) {
-            return true;
-        } else if (tree->Node().IsCharacter()) {
-            return false;
-        } else if (tree->Node().IsOperator()) {
-            char ch = tree->Node().Value();
-            if (ch == '*') {
-                return true;
-            } else if (ch == '|') {
-                return NodeNullable(tree->LeftChild()) || NodeNullable(tree->RightChild());
-            } else if (ch == '&') {
-                return NodeNullable(tree->LeftChild()) && NodeNullable(tree->RightChild());
-            }
+            LOG_WARN("tree == NULL");
+            return;
         }
-        return true;
+        
+        Node& n = tree->Node();
+        
+        if (n.IsCharacter()) {
+            n.lastPos.Add(n.RegIndex());
+            return;
+        }
+        
+        if (n.IsOperator()) {
+            char ch = n.Value();
+            if (ch == '*') {
+                if (tree->LeftChild() != NULL) {
+                    n.lastPos.Add(tree->LeftChild()->Node().lastPos);
+                }
+            } else if (ch == '|') {
+                if (tree->LeftChild() != NULL) {
+                    n.lastPos.Add(tree->LeftChild()->Node().lastPos);
+                }
+                if (tree->RightChild() != NULL) {
+                    n.lastPos.Add(tree->RightChild()->Node().lastPos);
+                }
+            } else if (ch == '&') {
+                if (tree->LeftChild() != NULL && NodeNullable(tree->RightChild())) {
+                    n.lastPos.Add(tree->LeftChild()->Node().lastPos);
+                }
+                if (tree->RightChild() != NULL) {
+                    n.lastPos.Add(tree->RightChild()->Node().lastPos);
+                }
+            }
+            return;
+        }
+        
+        LOG_WARN("Node, type = 0");
     }
     
     /*
@@ -250,16 +309,13 @@ public:
         JGraph<char> *nfa;
         Syntax2NFA(DFA *self, JGraph<char> *nfa) : self(self), nfa(nfa) {}
         virtual void Visit(JBinaryTree<Node> *tree) {
-            LOG_INFO(tree->Node());
-            
             self->ObtainNodeNullable(tree);
-            LOG_INFO("Nullable, ", self->NodeNullable(tree));
-//            LOG_INFO("Nullable, ", self->NodeNullable(tree));
+            self->ObtainNodeFirstPosition(tree);
+            self->ObtainNodeLastPosition(tree);
             
-            
-            
-            
-            
+            LOG_INFO(tree->Node(), ", Nullable: ", tree->Node().nullable);
+            LOG_INFO("FirstPosition: ", tree->Node().firstPos);
+            LOG_INFO("LastPosition: ", tree->Node().lastPos);
         }
     };
     
