@@ -150,23 +150,6 @@ public:
     
     JBinaryTree<Node> * Reg2Syntax(JString& reg, int& i, char endChar);
     
-//    bool NodeNullable(JBinaryTree<Node> *tree) {
-//        if (tree == NULL) {
-//            return true;
-//        } else if (tree->Node().IsCharacter()) {
-//            return false;
-//        } else if (tree->Node().IsOperator()) {
-//            char ch = tree->Node().Value();
-//            if (ch == '*') {
-//               return true;
-//            } else if (ch == '|') {
-//                return NodeNullable(tree->LeftChild()) || NodeNullable(tree->RightChild());
-//            } else if (ch == '&') {
-//                return NodeNullable(tree->LeftChild()) && NodeNullable(tree->RightChild());
-//            }
-//        }
-//        return true;
-//    }
     bool NodeNullable(JBinaryTree<Node> *tree) {
         if (tree == NULL) {
             return true;
@@ -174,21 +157,7 @@ public:
         return tree->Node().nullable;
     }
     
-//    JSet<int> * FirstPosition(JBinaryTree<Node> *tree) {
-//        if (tree == NULL) {
-//            return NULL;
-//        }
-//        return &tree->Node().firstPos;
-//    }
-//
-//    JSet<int> * LastPosition(JBinaryTree<Node> *tree) {
-//        if (tree == NULL) {
-//            return NULL;
-//        }
-//        return &tree->Node().lastPos;
-//    }
-    
-    void ObtainNodeNullable(JBinaryTree<Node> *tree) {
+    /*void ObtainNodeNullable(JBinaryTree<Node> *tree) {
         // 后序遍历处理
         if (tree == NULL) {
             LOG_WARN("tree == NULL");
@@ -297,6 +266,59 @@ public:
         }
         
         LOG_WARN("Node, type = 0");
+    }*/
+//
+    void ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+        if (left && tree->LeftChild() != NULL) {
+            tree->Node().firstPos.Add(tree->LeftChild()->Node().firstPos);
+        }
+        
+        if (right && tree->RightChild() != NULL) {
+            tree->Node().firstPos.Add(tree->RightChild()->Node().firstPos);
+        }
+    }
+    
+    void ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+        if (left && tree->LeftChild() != NULL) {
+            tree->Node().lastPos.Add(tree->LeftChild()->Node().lastPos);
+        }
+        
+        if (right && tree->RightChild() != NULL) {
+            tree->Node().lastPos.Add(tree->RightChild()->Node().lastPos);
+        }
+    }
+    
+    void ObtainNodeNullableAndPosition(JBinaryTree<Node> *tree) {
+        // 后序遍历处理，遍历过程tree不为NULL
+        Node& n = tree->Node();
+        
+        if (n.IsCharacter()) {
+            n.nullable = false;
+            n.firstPos.Add(n.RegIndex());
+            n.lastPos.Add(n.RegIndex());
+            return;
+        }
+        
+        if (n.IsOperator()) {
+            char ch = n.Value();
+            if (ch == '*') {
+                n.nullable = true;
+                // *操作，右节点为NULL，同(true, true)
+                ObtainNodeFirstPosition(tree, true, false);
+                ObtainNodeLastPosition(tree, true, false);
+            } else if (ch == '|') {
+                n.nullable = NodeNullable(tree->LeftChild()) || NodeNullable(tree->RightChild());
+                ObtainNodeFirstPosition(tree, true, true);
+                ObtainNodeLastPosition(tree, true, true);
+            } else if (ch == '&') {
+                n.nullable = NodeNullable(tree->LeftChild()) && NodeNullable(tree->RightChild());
+                ObtainNodeFirstPosition(tree, true, NodeNullable(tree->LeftChild()));
+                ObtainNodeLastPosition(tree, NodeNullable(tree->RightChild()), true);
+            }
+            return;
+        }
+        
+        LOG_WARN("Node, type = 0");
     }
     
     /*
@@ -309,9 +331,9 @@ public:
         JGraph<char> *nfa;
         Syntax2NFA(DFA *self, JGraph<char> *nfa) : self(self), nfa(nfa) {}
         virtual void Visit(JBinaryTree<Node> *tree) {
-            self->ObtainNodeNullable(tree);
-            self->ObtainNodeFirstPosition(tree);
-            self->ObtainNodeLastPosition(tree);
+            self->ObtainNodeNullableAndPosition(tree);
+//            self->ObtainNodeFirstPosition(tree);
+//            self->ObtainNodeLastPosition(tree);
             
             LOG_INFO(tree->Node(), ", Nullable: ", tree->Node().nullable);
             LOG_INFO("FirstPosition: ", tree->Node().firstPos);
