@@ -29,9 +29,9 @@ public:
     
     int Add(const JSet<T>& t) {
         LOG_FUNCTION_ENTRY;
-        int l = JList<T>::Length();
+        int l = t.JList<T>::Length();
         for (int i = 0; i < l; i++) {
-            Add(JList<T>::Get(i));
+            Add(t.JList<T>::Get(i));
         }
         
         return JList<T>::Length();

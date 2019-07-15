@@ -14,37 +14,48 @@
 #include "JSet.hpp"
 
 template<class T>
-class JGraph {
-private:
-    class Vertex {
-    public:
-        T t;
-        JSet<int> arcs;
-    };
-    JList<Vertex> vertexs;
+class JGraphVertex {
 public:
-    JGraph() {
-        
-    }
+    T t;
+    JSet<int> arcs;
     
-    ~JGraph() {
-        
+    friend std::ostream& operator << (std::ostream& os, const JGraphVertex& v) {
+        os << "{ vertex: "<< v.t << "; arcs: " << v.arcs << " }";
+        return os;
     }
-    
-    void AddVerter(T t) {
-        vertexs.Add();
-        vertexs.GetTail().t = t;
+};
+
+template<class T>
+class JGraph : public JList<JGraphVertex<T>> {
+public:
+    int AddVerter(T t) {
+        LOG_FUNCTION_ENTRY;
+        int i = JList<JGraphVertex<T>>::Length();
+        JList<JGraphVertex<T>>::Add();
+        JList<JGraphVertex<T>>::GetTail().t = t;
+        return i;
     }
     
     void AddArc(int start, int end) {
-        vertexs.Get(start).arcs.Add(end);
+        LOG_FUNCTION_ENTRY;
+        JList<JGraphVertex<T>>::Get(start).arcs.Add(end);
     }
     
-    void Echo() {
-        for (int i = 0; i < vertexs.Length(); i++) {
-            LOG_INFO("v: ", vertexs.Get(i).t, ", arc: ", vertexs.Get(i).arcs);
-        }
-    }
+//    Vertex& Get(int index) {
+//        return vertexs._Get(index);
+//    }
+    
+//    Vertex& Get(int index) {
+//        return vertexs.Get(index);
+//    }
+    
+//    void Echo() {
+//        int l = JList<JGraphVertex<T>>::Length();
+//        for (int i = 0; i < l; i++) {
+//            JGraphVertex<T>& p = JList<JGraphVertex<T>>::Get(i);
+//            LOG_INFO("v", i, ": ", p.t, ", arc: ", p.arcs);
+//        }
+//    }
     
 };
 
