@@ -123,7 +123,7 @@ inline JBinaryTree<DFA::Node> * DFA::CreateNodeCharacter(JString& reg, int index
     return n;
 }
 
-inline JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *> & nodes) {
+inline JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *>& nodes) {
     // 顶点、左节点、右节点
     JBinaryTree<Node> *fn = NULL;
     JBinaryTree<Node> *ln = NULL;
@@ -141,6 +141,11 @@ inline JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryT
 /*
     实现将正则表达式转为语法树
  */
+JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg) {
+    int i = 0;
+    return Reg2Syntax(reg, i, '\0');
+}
+
 JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);

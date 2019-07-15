@@ -76,15 +76,6 @@ private:
     JString reg;
     JGraph<char> dfa;
     
-    /*
-     实现将正则表达式转为语法树，旧函数
-     */
-//    JBinaryTree<char> * Reg2Syntax_old(JString& reg, int offset, int* end);
-    
-//    void hello() {
-//        LOG_INFO("hello, reg = ", this->reg);
-//    }
-    
 public:
     
     DFA() {
@@ -137,7 +128,7 @@ public:
     
     
     /*
-     实现将正则表达式转为语法树
+        实现将正则表达式转为语法树
      */
     bool OperatorPrecede(char op1, char op2);
     
@@ -145,15 +136,12 @@ public:
     
     JBinaryTree<Node> * CreateNodeOperator(char op, JStack<JBinaryTree<Node> *> & nodes);
     
-    JBinaryTree<Node> * Reg2Syntax(JString& reg) {
-        int i = 0;
-        return Reg2Syntax(reg, i, '\0');
-    }
+    JBinaryTree<Node> * Reg2Syntax(JString& reg);
     
     JBinaryTree<Node> * Reg2Syntax(JString& reg, int& i, char endChar);
     
     /*
-     实现将正则表达式转为语法树
+        实现将正则表达式转为语法树
      */
     bool NodeNullable(JBinaryTree<Node> *tree);
     
@@ -164,7 +152,7 @@ public:
     void ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree);
     
     /*
-     实现将正则表达式转为语法树
+        实现将正则表达式转为语法树
      */
     void ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos);
     
