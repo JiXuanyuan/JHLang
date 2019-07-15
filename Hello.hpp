@@ -42,7 +42,7 @@ public:
         lis.Add('d');
         lis.Add('e');
         for (int i = 0; i < 40; i++) {
-            lis.Add('q');
+            lis.Add('A' + i);
         }
         lis.Echo();
         
@@ -53,6 +53,20 @@ public:
         lis.Delete(0);
         lis.Echo();
         LOG_INFO(lis);
+        
+        lis.Add();
+        lis.Add();
+        lis.Echo();
+        
+        lis.Clean();
+        lis.Echo();
+        
+        lis.Add();
+        lis.Add();
+        for (int i = 0; i < 40; i++) {
+            lis.Add('A' + i);
+        }
+        lis.Echo();
         
         LOG_INFO("==============Hello world!==============");
         JSet<char> set;
@@ -189,6 +203,24 @@ public:
         classify.Pray('w').Add(1124);
         classify.Pray('w').Add(1124);
         LOG_INFO(classify);
+        
+        LOG_INFO("==============Hello world!==============");
+        JList<char> lis2;
+        for (int i = 0; i < 40; i++) {
+            lis2.Add('A' + i);
+        }
+        lis2.Echo();
+        JList<char>::Iterator it = lis2.ObtainIterator();
+        for (;it.HasNext();) {
+            LOG_INFO(it.Next());
+        }
+        
+        LOG_INFO(lis2);
+        JList<char>::Iterator it2 = lis2.ObtainIterator();
+        while (it2.HasNext()) {
+            LOG_INFO(it2.Next());
+        }
+        
         
         LOG_INFO("==============Hello world!==============");
     }

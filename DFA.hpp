@@ -117,11 +117,10 @@ public:
         JBinaryTree<Node>::Root root;
         root = Reg2Syntax(reg);
         
-//        PNode pn;
-//        root.TraversePostorder(&pn);
-        
         Syntax2NFA syn2nfa(this);
         root.TraversePostorder(&syn2nfa);
+        ObtainNFA(&syn2nfa);
+        
         
         NFA2DFA(root.Tree(), &syn2nfa);
         
@@ -168,8 +167,12 @@ public:
     class Syntax2NFA : public JBinaryTree<Node>::Interface {
     public:
         DFA *self;
+        // 1.followPos顶点中存放着reg字符位置，可映射到reg字符
+        // 2.pos2ver由reg字符位置映射到followPos顶点
         JGraph<int> followPos;
         JMap<int, int> pos2ver;
+        
+        JGraph<char> NFA;
         
         Syntax2NFA(DFA *self) : self(self) {}
         
@@ -181,48 +184,77 @@ public:
         }
     };
     
-    void NFA2DFA(JBinaryTree<Node> *tree, Syntax2NFA *nfa) {
-        JNetwork<int, char> dfa;
-        JSet<JSet<int>> ver2stat;
+    void ObtainNFA(Syntax2NFA* syn2nfa) {
+        for (JGraph<int>::Iterator it = syn2nfa->followPos.ObtainIterator(); it.HasNext();) {
+            JGraphVertex<int>& ver = it.Next();
+            syn2nfa->NFA.AddVerter(reg.Get(ver.val));
+            syn2nfa->NFA.GetTail().arcs.Add(ver.arcs);
+        }
+        LOG_INFO("NFA: ", syn2nfa->NFA);
+    }
+    
+    
+    void NFA2DFA(JBinaryTree<Node> *tree, Syntax2NFA* syn2nfa) {
+        JNetwork<int, char> DFA;
+        JSet<JSet<int>> Dstatus;
+        JMap<int, int> stat2ver;
         
-        JStack<int> dstat(-1);
+        JStack<int> Ustat(-1);
         JMap<char, JSet<int>> classify;
         
         
-        int ext = ver2stat.Add(tree->Node().firstPos);
+        // 获取初始NFA开始节点
+        JSet<int> firstStatus;
+        LOG_INFO("firstPos:", tree->Node().firstPos);
+        for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
+            firstStatus.Add(syn2nfa->pos2ver.Get(it.Next()));
+        }
+        LOG_INFO("firstStatus:", firstStatus);
+        
+        
+        // 检测状态是否标记
+        int ext = Dstatus.Add(firstStatus);
         if (ext != JSet<int>::FALG_EXIST) {
-            dstat.Push(ext);
-            dfa.AddVerter(ext);
+            Ustat.Push(ext);
+            int val = DFA.AddVerter(ext);
+            stat2ver.Add(ext, val);
         }
         
         
-//        while (dstat.GetTop() != -1) {
-            int i = dstat.Pop();
-            JSet<int>& stat = ver2stat.Get(i);
-        
+        while (Ustat.GetTop() != -1) {
+            int statPos = Ustat.Pop();
             
+            JSet<int>& stat = Dstatus.Get(statPos);
+            LOG_INFO("transform status:", stat);
+            for (JSet<int>::Iterator it1 = stat.ObtainIterator(); it1.HasNext();) {
+                int verPos = it1.Next();
+                JGraphVertex<char> ver = syn2nfa->NFA.Get(verPos);
+                char key = ver.val;
+                LOG_INFO("ver: ", verPos, ", key:", key);
+                for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
+                    classify.Pray(key).Add(it2.Next());
+                }
+            }
+            LOG_INFO("classify: ", classify);
             
-//        }
-        
-        
-        
-        LOG_INFO("srart:", ver2stat);
-        LOG_INFO("end:", tree->Node().lastPos);
-        JSet<int> set;
-        set.Add(tree->Node().firstPos);
-        
-        ver2stat.Add(set);
-        LOG_INFO("srart:", ver2stat);
-        set.Add(432);
-        ver2stat.Add(set);
-        LOG_INFO("srart:", ver2stat);
-//        JSet<int> stat
-        
-//        nfa->pos2ver
-        
-        
-        
-        
+            // 检测状态是否标记
+            for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
+                int ext = Dstatus.Add(it.Next().value);
+                if (ext != JSet<int>::FALG_EXIST) {
+                    Ustat.Push(ext);
+                    int val = DFA.AddVerter(ext);
+                    stat2ver.Add(ext, val);
+                }
+            }
+            
+            classify.Clean();
+            LOG_INFO("classify: ", classify);
+            
+        }
+        LOG_INFO("DFA: ", DFA);
+        LOG_INFO("Dstatus: ", Dstatus);
+    
+        // 转换
         
     }
     

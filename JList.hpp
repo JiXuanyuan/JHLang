@@ -109,9 +109,18 @@ private:
     
     bool _Delete(int index) {
         LOG_FUNCTION_ENTRY;
+        if (index < 0 || index >= length) {
+            LOG_WARN("length = ", length, ", index = ", index);
+            return false;
+        }
         
-        _Get(index) = _Get(--length);
+        int tail = length - 1;
+        if (index < tail) {
+            _Get(index) = _Get(tail);
+        }
+        _Get(tail) = _Get(length);
         
+        length--;
         _TryReduce();
         LOG_DEBUG("length = ", length, ", index = ", index);
         return true;
@@ -119,6 +128,10 @@ private:
     
     bool _Set(int index, const T& t) {
         LOG_FUNCTION_ENTRY;
+        if (index < 0 || index >= length) {
+            LOG_WARN("length = ", length, ", index = ", index);
+            return false;
+        }
         
         _Get(index) = t;
         LOG_DEBUG("length = ", length, ", index = ", index, ", data = ", t);
@@ -192,10 +205,6 @@ public:
     
     bool Delete(int index) {
         LOG_FUNCTION_ENTRY;
-        if (index < 0 || index >= length) {
-            LOG_WARN("length = ", length, ", index = ", index);
-            return false;
-        }
         return _Delete(index);
     }
     
@@ -205,16 +214,19 @@ public:
         if (length < 0) {
            return false;
         }
-        length--;
-        return true;
+        
+        return _Delete(length - 1);
+    }
+    
+    void Clean() {
+        LOG_FUNCTION_ENTRY;
+        while (length > 0) {
+            _Delete(length - 1);
+        }
     }
     
     bool Set(int index, const T& t) {
         LOG_FUNCTION_ENTRY;
-        if (index < 0 || index >= length) {
-            LOG_WARN("length = ", length, ", index = ", index);
-            return false;
-        }
         return _Set(index, t);
     }
     
@@ -226,25 +238,13 @@ public:
         }
     }
     
-//    friend bool operator == (const JList& l1, const JList& l2) {
-//        //        os << "{ vertex: "<< v.t << "; arcs: " << v.arcs << " }";
-//        // 排序、比较
-//        return false;
-//    }
+    //    friend bool operator == (const JList& l1, const JList& l2) {
+    //        //        os << "{ vertex: "<< v.t << "; arcs: " << v.arcs << " }";
+    //        // 排序、比较
+    //        return false;
+    //    }
     
     friend std::ostream& operator << (std::ostream& os, const JList& jl) {
-//        int j = jl.length / BLOCK_SIZE_INITIAL;
-//        int i = jl.length % BLOCK_SIZE_INITIAL;
-//        Block *p = jl.head;
-//        for (int t1 = 0; t1 < j; t1++, p = p->next) {
-//            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
-//                os << p->data[t2] << ", ";
-//            }
-//        }
-//        for (int t = 0; t < i; t++) {
-//            os << p->data[t] << ", ";
-//        }
-        
         os << "[ ";
         int l = jl.Length();
         for (int i = 0; i < l; i++) {
@@ -253,6 +253,24 @@ public:
         os << "]";
         
         return os;
+    }
+    
+    class Iterator {
+    private:
+        int i = 0;
+        JList<T> *jl;
+    public:
+        Iterator(JList<T> *jl) : jl(jl) {}
+        bool HasNext() const {
+            return i < jl->Length();
+        }
+        T& Next() {
+            return jl->Get(i++);
+        }
+    };
+    
+    Iterator ObtainIterator() {
+        return Iterator(this);
     }
     
 };
