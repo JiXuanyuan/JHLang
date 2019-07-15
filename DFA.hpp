@@ -128,7 +128,7 @@ public:
     
     
     /*
-        实现将正则表达式转为语法树
+        将正则表达式转为语法树
      */
     bool OperatorPrecede(char op1, char op2);
     
@@ -141,7 +141,7 @@ public:
     JBinaryTree<Node> * Reg2Syntax(JString& reg, int& i, char endChar);
     
     /*
-        实现将正则表达式转为语法树
+        从语法树计算nullable、firstPos、lastPos
      */
     bool NodeNullable(JBinaryTree<Node> *tree);
     
@@ -152,14 +152,14 @@ public:
     void ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree);
     
     /*
-        实现将正则表达式转为语法树
+        从语法树计算followPos
      */
     void ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos);
     
     void ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver);
     
     /*
-        实现将正则表达式转为NFA，使用二叉树表示
+        从语法树计算nullable、firstPos、lastPos、followPos，生成NFA
      */
     friend class Syntax2NFA;
     class Syntax2NFA : public JBinaryTree<Node>::Interface {

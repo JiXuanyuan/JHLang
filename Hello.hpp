@@ -21,26 +21,20 @@
 #include "JSet.hpp"
 #include "JList.hpp"
 #include "JMap.hpp"
+#include "JNetwork.hpp"
 
 
 class Hello {
 private:
     int i;
 public:
-//    void print();
-//    void set(int i);
+    
     void print() {
         std::cout << "i = " << i << "\n";
     }
     
-    void set(int i) {
-        this->i = i;
-        
-    }
-    
     void test() {
         LOG_INFO("==============Hello world!==============");
-        
         JList<char> lis;
         lis.Add('d');
         lis.Add('d');
@@ -60,6 +54,7 @@ public:
         lis.Echo();
         LOG_INFO(lis);
         
+        LOG_INFO("==============Hello world!==============");
         JSet<char> set;
         set.Add('1');
         set.Add('2');
@@ -81,6 +76,7 @@ public:
         set.Echo();
         LOG_INFO(set);
         
+        LOG_INFO("==============Hello world!==============");
         JSet<char> set2;
         set2.Add(set);
         set2.Echo();
@@ -90,6 +86,7 @@ public:
         set2.Echo();
         LOG_INFO(set2);
         
+        LOG_INFO("==============Hello world!==============");
         JGraph<char> graph;
         graph.AddVerter('a');
         graph.AddVerter('c');
@@ -105,6 +102,7 @@ public:
         graph.AddArc(1, 2);
         graph.Echo();
         
+        LOG_INFO("==============Hello world!==============");
         JMap<int, int> map;
         map.Add(20, 3);
         map.Add(10, 3);
@@ -124,6 +122,28 @@ public:
         LOG_INFO(map.Get(10));
         LOG_INFO(map.Get(1000));
         map.Echo();
+        
+        LOG_INFO("==============Hello world!==============");
+        JNetwork<int, char> net;
+        net.AddVerter(12312);
+        net.AddVerter(232);
+        net.AddVerter(34312);
+        net.AddVerter(12);
+        net.AddVerter(5);
+        net.AddVerter(122);
+        for (int i = 0; i < 50; i++) {
+            net.AddVerter(i);
+        }
+        net.AddArc(1, 2, 'f');
+        net.AddArc(1, 0, 'q');
+        net.AddArc(1, 3, 'c');
+        net.AddArc(3, 0, '2');
+        net.AddArc(1, 2, 'd');
+        for (int i = 0; i < 50; i++) {
+            net.AddArc(4, i, 'A'+ i);
+        }
+        net.Echo();
+        LOG_INFO(net);
         
         
         LOG_INFO("==============Hello world!==============");

@@ -41,22 +41,6 @@ public:
         JList<JGraphVertex<T>>::Get(start).arcs.Add(end);
     }
     
-//    Vertex& Get(int index) {
-//        return vertexs._Get(index);
-//    }
-    
-//    Vertex& Get(int index) {
-//        return vertexs.Get(index);
-//    }
-    
-//    void Echo() {
-//        int l = JList<JGraphVertex<T>>::Length();
-//        for (int i = 0; i < l; i++) {
-//            JGraphVertex<T>& p = JList<JGraphVertex<T>>::Get(i);
-//            LOG_INFO("v", i, ": ", p.t, ", arc: ", p.arcs);
-//        }
-//    }
-    
 };
 
 #endif /* JGraph_hpp */

@@ -239,12 +239,12 @@ public:
 //            os << p->data[t] << ", ";
 //        }
         
-        os << "{ ";
+        os << "[ ";
         int l = jl.Length();
         for (int i = 0; i < l; i++) {
             os << jl._Get(i) << ", ";
         }
-        os << " }";
+        os << " ]";
         
         return os;
     }
