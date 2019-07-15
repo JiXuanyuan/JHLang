@@ -62,10 +62,13 @@ private:
         
         friend std::ostream& operator << (std::ostream& os, const Node& n) {
             if (n.type == 1) {
-                os << "op = " << n.val;
+                os << "{ op = " << n.val;
             } else if (n.type == 2) {
-                os << "ch = " << n.val << ", pos = " << n.regIndex;
+                os << "{ ch = " << n.val << ", pos = " << n.regIndex;
             }
+            os << ", nullable = " << n.nullable;
+            os << ", firstPos = " << n.firstPos;
+            os << ", lastPos = " << n.lastPos << " }";
             return os;
         }
     };
@@ -160,29 +163,21 @@ public:
     
     void ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right) {
         if (left && tree->LeftChild() != NULL) {
-            LOG_DEBUG("from: ", tree->LeftChild()->Node().firstPos, "; to: ", tree->Node().firstPos);
             tree->Node().firstPos.Add(tree->LeftChild()->Node().firstPos);
-            LOG_DEBUG("from: ", tree->LeftChild()->Node().firstPos, "; to: ", tree->Node().firstPos);
         }
         
         if (right && tree->RightChild() != NULL) {
-            LOG_DEBUG("from: ", tree->RightChild()->Node().firstPos, "; to: ", tree->Node().firstPos);
             tree->Node().firstPos.Add(tree->RightChild()->Node().firstPos);
-            LOG_DEBUG("from: ", tree->RightChild()->Node().firstPos, "; to: ", tree->Node().firstPos);
         }
     }
     
     void ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right) {
         if (left && tree->LeftChild() != NULL) {
-            LOG_DEBUG("from: ", tree->LeftChild()->Node().lastPos, "; to: ", tree->Node().lastPos);
             tree->Node().lastPos.Add(tree->LeftChild()->Node().lastPos);
-            LOG_DEBUG("from: ", tree->LeftChild()->Node().lastPos, "; to: ", tree->Node().lastPos);
         }
         
         if (right && tree->RightChild() != NULL) {
-            LOG_DEBUG("from: ", tree->RightChild()->Node().lastPos, "; to: ", tree->Node().lastPos);
             tree->Node().lastPos.Add(tree->RightChild()->Node().lastPos);
-            LOG_DEBUG("from: ", tree->RightChild()->Node().lastPos, "; to: ", tree->Node().lastPos);
         }
     }
     
@@ -191,16 +186,15 @@ public:
         Node& n = tree->Node();
         
         if (n.IsCharacter()) {
-            LOG_DEBUG("ch: ", n.Value());
             n.nullable = false;
             n.firstPos.Add(n.RegIndex());
             n.lastPos.Add(n.RegIndex());
+            LOG_DEBUG("node: ", tree->Node());
             return;
         }
         
         if (n.IsOperator()) {
             char ch = n.Value();
-            LOG_DEBUG("op: ", n.Value());
             if (ch == '*') {
                 n.nullable = true;
                 // *操作，右节点为NULL，同(true, true)
@@ -215,10 +209,11 @@ public:
                 ObtainNodeFirstPosition(tree, true, NodeNullable(tree->LeftChild()));
                 ObtainNodeLastPosition(tree, NodeNullable(tree->RightChild()), true);
             }
+            LOG_DEBUG("node: ", tree->Node());
             return;
         }
         
-        LOG_WARN("Node, type = 0");
+        LOG_WARN("node, type = 0");
     }
     
     void ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
@@ -228,34 +223,37 @@ public:
             int k = n.RegIndex();
             int v = followPos.AddVerter(k);
             pos2ver.Add(k, v);
-            LOG_INFO(pos2ver);
-            LOG_INFO(followPos);
+            LOG_INFO("node: ", tree->Node());
+            LOG_INFO("pos2ver: ", pos2ver);
+            LOG_INFO("followPos: ", followPos);
             return;
         }
         
         if (n.IsOperator() && n.Value() == '*') {
-//            int lp = n.lastPos.Length();
-//            int lf = n.firstPos.Length();
-//            int s = 0;
-//            int e = 0;
-//            for (int i = 0; i < lp; i++) {
-//                s = pos2ver.Get(n.lastPos.Get(i));
-//                for (int j = 0; j < lf; j++) {
-//                    e = pos2ver.Get(n.lastPos.Get(j));
-//                    followPos.AddArc(s, e);
-//                }
-//            }
-//            LOG_INFO("======== arc: ", s, ", ", e);
-//            LOG_INFO(pos2ver);
-            LOG_INFO("======== *");
             
-            LOG_INFO(pos2ver);
-            LOG_INFO(followPos);
+            JSet<int>& startPos = tree->Node().lastPos;
+            JSet<int>& endPos = tree->Node().firstPos;
+            int ls = startPos.Length();
+            int le = endPos.Length();
+            int s = 0;
+            int e = 0;
+            
+            for (int i = 0; i < ls; i++) {
+                s = pos2ver.Get(startPos.Get(i));
+                for (int j = 0; j < le; j++) {
+                    e = pos2ver.Get(endPos.Get(j));
+                    followPos.AddArc(s, e);
+                    LOG_INFO("add arc: ", s, ", ", e);
+                }
+            }
+            
+            LOG_INFO("node: ", tree->Node());
+            LOG_INFO("pos2ver: ", pos2ver);
+            LOG_INFO("followPos: ", followPos);
             return;
         }
         
         if (n.IsOperator() && n.Value() == '&') {
-            LOG_INFO("======== &");
             if (tree->LeftChild() == NULL || tree->RightChild() == NULL) {
                 return;
             }
@@ -267,27 +265,22 @@ public:
             int s = 0;
             int e = 0;
             
-            LOG_INFO("======== &  start ", startPos);
-            LOG_INFO("======== &  end ", endPos);
-            
             for (int i = 0; i < ls; i++) {
-                
                 s = pos2ver.Get(startPos.Get(i));
                 for (int j = 0; j < le; j++) {
-                    
                     e = pos2ver.Get(endPos.Get(j));
                     followPos.AddArc(s, e);
-                    
-                    LOG_INFO("======== arc: ", s, ", ", e);
+                    LOG_INFO("add arc: ", s, ", ", e);
                 }
             }
             
-            LOG_INFO(pos2ver);
-            LOG_INFO(followPos);
+            LOG_INFO("node: ", tree->Node());
+            LOG_INFO("pos2ver: ", pos2ver);
+            LOG_INFO("followPos: ", followPos);
             return;
         }
         
-        LOG_WARN("Node, type = 0");
+        LOG_WARN("node, type = 0");
     }
     /*
         实现将正则表达式转为NFA，使用二叉树表示
@@ -302,11 +295,10 @@ public:
         Syntax2NFA(DFA *self, JGraph<char> *nfa) : self(self), nfa(nfa) {}
         virtual void Visit(JBinaryTree<Node> *tree) {
             self->ObtainNodeNullableAndFirstLastPosition(tree);
-//            self->ObtainNodeFollowPosition(tree, followPos, pos2ver);
+            self->ObtainNodeFollowPosition(tree, followPos, pos2ver);
             
-            LOG_INFO(tree->Node(), ", Nullable: ", tree->Node().nullable);
-            LOG_INFO("FirstPosition: ", tree->Node().firstPos);
-            LOG_INFO("LastPosition: ", tree->Node().lastPos);
+            //            LOG_INFO(tree->Node());
+//            LOG_INFO("node: ", tree->Node());
         }
     };
     
