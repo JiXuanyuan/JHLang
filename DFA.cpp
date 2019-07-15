@@ -11,6 +11,9 @@
 #include "JString.hpp"
 #include "JBinaryTree.hpp"
 #include "JStack.hpp"
+#include "JSet.hpp"
+#include "JGraph.hpp"
+#include "JMap.hpp"
 
 /*
     实现将正则表达式转为语法树，旧函数
@@ -86,8 +89,12 @@ JBinaryTree<char> * DFA::Reg2Syntax_old(JString& reg, int offset, int* end) {
     return opn;
 }
 */
- 
-bool DFA::OperatorPrecede(char op1, char op2) {
+
+
+/*
+    实现将正则表达式转为语法树，旧函数
+ */
+inline bool DFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
     int pr1 = 0;
     int pr2 = 0;
@@ -110,13 +117,13 @@ bool DFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-JBinaryTree<DFA::Node> * DFA::CreateNodeCharacter(JString& reg, int index) {
+inline JBinaryTree<DFA::Node> * DFA::CreateNodeCharacter(JString& reg, int index) {
     JBinaryTree<Node> * n = new JBinaryTree<Node>;
     n->Node().Assign(reg.Get(index), index);
     return n;
 }
 
-JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *> & nodes) {
+inline JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *> & nodes) {
     // 顶点、左节点、右节点
     JBinaryTree<Node> *fn = NULL;
     JBinaryTree<Node> *ln = NULL;
@@ -190,4 +197,124 @@ JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     LOG_INFO("end, i = ", i);
     opn = nodes.Pop();
     return opn;
+}
+
+/*
+    实现将正则表达式转为语法树，旧函数
+ */
+inline bool DFA::NodeNullable(JBinaryTree<Node> *tree) {
+    if (tree == NULL) {
+        return true;
+    }
+    return tree->Node().nullable;
+}
+
+inline void DFA::ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+    if (left && tree->LeftChild() != NULL) {
+        tree->Node().firstPos.Add(tree->LeftChild()->Node().firstPos);
+    }
+    
+    if (right && tree->RightChild() != NULL) {
+        tree->Node().firstPos.Add(tree->RightChild()->Node().firstPos);
+    }
+}
+
+inline void DFA::ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+    if (left && tree->LeftChild() != NULL) {
+        tree->Node().lastPos.Add(tree->LeftChild()->Node().lastPos);
+    }
+    
+    if (right && tree->RightChild() != NULL) {
+        tree->Node().lastPos.Add(tree->RightChild()->Node().lastPos);
+    }
+}
+
+/*
+ 实现将正则表达式转为语法树，旧函数
+ */
+void DFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree) {
+    // 后序遍历处理，遍历过程tree不为NULL
+    Node& n = tree->Node();
+    
+    if (n.IsCharacter()) {
+        n.nullable = false;
+        n.firstPos.Add(n.RegIndex());
+        n.lastPos.Add(n.RegIndex());
+        LOG_INFO("node: ", tree->Node());
+        return;
+    }
+    
+    if (n.IsOperator()) {
+        char ch = n.Value();
+        if (ch == '*') {
+            n.nullable = true;
+            // *操作，右节点为NULL，同(true, true)
+            ObtainNodeFirstPosition(tree, true, false);
+            ObtainNodeLastPosition(tree, true, false);
+        } else if (ch == '|') {
+            n.nullable = NodeNullable(tree->LeftChild()) || NodeNullable(tree->RightChild());
+            ObtainNodeFirstPosition(tree, true, true);
+            ObtainNodeLastPosition(tree, true, true);
+        } else if (ch == '&') {
+            n.nullable = NodeNullable(tree->LeftChild()) && NodeNullable(tree->RightChild());
+            ObtainNodeFirstPosition(tree, true, NodeNullable(tree->LeftChild()));
+            ObtainNodeLastPosition(tree, NodeNullable(tree->RightChild()), true);
+        }
+        LOG_INFO("node: ", tree->Node());
+        return;
+    }
+    
+    LOG_WARN("node, type = 0");
+}
+
+/*
+ 实现将正则表达式转为语法树，旧函数
+ */
+inline void DFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos) {
+    int ls = startPos.Length();
+    int le = endPos.Length();
+    int s = 0;
+    int e = 0;
+    
+    for (int i = 0; i < ls; i++) {
+        s = pos2ver.Get(startPos.Get(i));
+        for (int j = 0; j < le; j++) {
+            e = pos2ver.Get(endPos.Get(j));
+            followPos.AddArc(s, e);
+            LOG_INFO("add arc: ", s, ", ", e);
+        }
+    }
+}
+
+/*
+ 实现将正则表达式转为语法树，旧函数
+ */
+void DFA::ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
+    Node& n = tree->Node();
+    
+    if (n.IsCharacter()) {
+        int k = n.RegIndex();
+        int v = followPos.AddVerter(k);
+        pos2ver.Add(k, v);
+        return;
+    }
+    
+    if (n.IsOperator() && n.Value() == '*') {
+        ObtainNodeFollowGraphArc(followPos, pos2ver,
+                                 tree->Node().lastPos,
+                                 tree->Node().firstPos);
+        return;
+    }
+    
+    if (n.IsOperator() && n.Value() == '&') {
+        if (tree->LeftChild() == NULL || tree->RightChild() == NULL) {
+            return;
+        }
+        ObtainNodeFollowGraphArc(followPos, pos2ver,
+                                 tree->LeftChild()->Node().lastPos,
+                                 tree->RightChild()->Node().firstPos);
+        return;
+    }
+    
+    LOG_WARN("node, type = 0");
 }
