@@ -18,6 +18,7 @@ private:
     JBinaryTree<T> *lchild = NULL;
     JBinaryTree<T> *rchild = NULL;
 public:
+    
     class Interface {
     public:
         virtual void Visit(JBinaryTree<T> *tree) = 0;
@@ -32,6 +33,10 @@ public:
         ~Root() {
             LOG_FUNCTION_ENTRY;
             JBinaryTree<T>::Destory(tree);
+        }
+        
+        JBinaryTree<T> *Tree() const {
+            return tree;
         }
         
         void TraversePreorder(Interface *impl) {

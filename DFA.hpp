@@ -16,6 +16,7 @@
 #include "JSet.hpp"
 #include "JGraph.hpp"
 #include "JMap.hpp"
+#include "JNetwork.hpp"
 
 class DFA {
 private:
@@ -74,7 +75,7 @@ private:
     };
     
     JString reg;
-    JGraph<char> dfa;
+//    JGraph<char> dfa;
     
 public:
     
@@ -116,12 +117,14 @@ public:
         JBinaryTree<Node>::Root root;
         root = Reg2Syntax(reg);
         
-        PNode pn;
-        root.TraversePostorder(&pn);
+//        PNode pn;
+//        root.TraversePostorder(&pn);
         
-        JGraph<char> nfa;
-        Syntax2NFA syn2nfa(this, &nfa);
+        Syntax2NFA syn2nfa(this);
         root.TraversePostorder(&syn2nfa);
+        
+        NFA2DFA(root.Tree(), &syn2nfa);
+        
         
         return true;
     }
@@ -165,11 +168,10 @@ public:
     class Syntax2NFA : public JBinaryTree<Node>::Interface {
     public:
         DFA *self;
-        JGraph<char> *nfa;
         JGraph<int> followPos;
         JMap<int, int> pos2ver;
         
-        Syntax2NFA(DFA *self, JGraph<char> *nfa) : self(self), nfa(nfa) {}
+        Syntax2NFA(DFA *self) : self(self) {}
         
         virtual void Visit(JBinaryTree<Node> *tree) {
             self->ObtainNodeNullableAndFirstLastPosition(tree);
@@ -179,6 +181,50 @@ public:
         }
     };
     
+    void NFA2DFA(JBinaryTree<Node> *tree, Syntax2NFA *nfa) {
+        JNetwork<int, char> dfa;
+        JSet<JSet<int>> ver2stat;
+        
+        JStack<int> dstat(-1);
+        JMap<char, JSet<int>> classify;
+        
+        
+        int ext = ver2stat.Add(tree->Node().firstPos);
+        if (ext != JSet<int>::FALG_EXIST) {
+            dstat.Push(ext);
+            dfa.AddVerter(ext);
+        }
+        
+        
+//        while (dstat.GetTop() != -1) {
+            int i = dstat.Pop();
+            JSet<int>& stat = ver2stat.Get(i);
+        
+            
+            
+//        }
+        
+        
+        
+        LOG_INFO("srart:", ver2stat);
+        LOG_INFO("end:", tree->Node().lastPos);
+        JSet<int> set;
+        set.Add(tree->Node().firstPos);
+        
+        ver2stat.Add(set);
+        LOG_INFO("srart:", ver2stat);
+        set.Add(432);
+        ver2stat.Add(set);
+        LOG_INFO("srart:", ver2stat);
+//        JSet<int> stat
+        
+//        nfa->pos2ver
+        
+        
+        
+        
+        
+    }
     
 };
 

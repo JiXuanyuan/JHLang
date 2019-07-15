@@ -15,6 +15,10 @@
 template<class T>
 class JStack : protected JList<T>  {
 public:
+//    JStack() : JList<T>()  {
+//        LOG_FUNCTION_ENTRY;
+//    }
+    
     JStack(const T& t) : JList<T>()  {
         LOG_FUNCTION_ENTRY;
         Push(t);

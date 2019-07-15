@@ -145,6 +145,50 @@ public:
         net.Echo();
         LOG_INFO(net);
         
+        LOG_INFO("==============Hello world!==============");
+        JSet<JSet<int>> ver1;
+        JSet<int> ver2;
+        ver2.Add(12);
+        ver2.Add(112);
+        ver2.Add(2);
+        ver2.Add(312);
+        ver2.Add(12);
+        ver2.Add(52);
+        ver2.Add(12);
+        
+        ver1.Add(ver2);
+        LOG_INFO(ver1);
+        
+        ver1.Add(ver2);
+        LOG_INFO(ver1);
+        
+        ver2.Add(52);
+        ver2.Add(1243);
+        ver1.Add(ver2);
+        LOG_INFO(ver1);
+        
+        ver1.Add(ver2);
+        LOG_INFO(ver1);
+        
+        ver2.Add(1213);
+        ver1.Add(ver2);
+        LOG_INFO(ver1);
+        
+        
+        LOG_INFO("==============Hello world!==============");
+        JMap<char, JSet<int>> classify;
+        
+        classify.Pray('f').Add(1);
+        classify.Pray('f').Add(2);
+        classify.Pray('f').Add(3);
+        classify.Pray('f').Add(1);
+        classify.Pray('d').Add(13);
+        classify.Pray('d').Add(100);
+        classify.Pray('d').Add(12);
+        classify.Pray('q').Add(134);
+        classify.Pray('w').Add(1124);
+        classify.Pray('w').Add(1124);
+        LOG_INFO(classify);
         
         LOG_INFO("==============Hello world!==============");
     }

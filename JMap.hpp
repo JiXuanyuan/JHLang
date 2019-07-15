@@ -27,19 +27,44 @@ public:
 template<class K, class V>
 class JMap : public JList<JMapPair<K, V>> {
 public:
-    int Add(K key, V value) {
+    static const int FALG_EXIST = -1;
+    
+    int Add(const K& key, const V& value) {
         LOG_FUNCTION_ENTRY;
-        int l = JList<JMapPair<K, V>>::Length();
-        for (int i = 0; i < l; i++) {
-            if(JList<JMapPair<K, V>>::Get(i).key == key) {
-                return i;
-            }
+        if (Exist(key)) {
+            return FALG_EXIST;
         }
+        
         JList<JMapPair<K, V>>::Add();
         JMapPair<K, V> &p = JList<JMapPair<K, V>>::GetTail();
         p.key = key;
         p.value = value;
         return JList<JMapPair<K, V>>::Length();
+    }
+    
+    V& Pray(const K& key) {
+        LOG_FUNCTION_ENTRY;
+        int l = JList<JMapPair<K, V>>::Length();
+        for (int i = 0; i < l; i++) {
+            if(JList<JMapPair<K, V>>::Get(i).key == key) {
+                return JList<JMapPair<K, V>>::Get(i).value;
+            }
+        }
+        
+        JList<JMapPair<K, V>>::Add();
+        JMapPair<K, V> &p = JList<JMapPair<K, V>>::GetTail();
+        p.key = key;
+        return p.value;
+    }
+    
+    bool Exist(const K& key) const {
+        int l = JList<JMapPair<K, V>>::Length();
+        for (int i = 0; i < l; i++) {
+            if(JList<JMapPair<K, V>>::Get(i).key == key) {
+                return true;
+            }
+        }
+        return false;
     }
     
     V& Get(K key) {

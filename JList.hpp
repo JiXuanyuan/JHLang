@@ -165,7 +165,7 @@ public:
         return _Get(index);
     }
     
-    T& GetTail() {
+    T& GetTail() const {
         LOG_FUNCTION_ENTRY;
         if (length <= 0) {
             LOG_WARN("length = ", length);
@@ -218,13 +218,19 @@ public:
         return _Set(index, t);
     }
     
-    void Echo() {
+    void Echo() const {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("length = ", length, ", blockTotal = ", blockTotal);
         for (int i = 0; i < length; i++) {
             LOG_INFO("i", i, ": ", _Get(i));
         }
     }
+    
+//    friend bool operator == (const JList& l1, const JList& l2) {
+//        //        os << "{ vertex: "<< v.t << "; arcs: " << v.arcs << " }";
+//        // 排序、比较
+//        return false;
+//    }
     
     friend std::ostream& operator << (std::ostream& os, const JList& jl) {
 //        int j = jl.length / BLOCK_SIZE_INITIAL;
@@ -244,7 +250,7 @@ public:
         for (int i = 0; i < l; i++) {
             os << jl._Get(i) << ", ";
         }
-        os << " ]";
+        os << "]";
         
         return os;
     }
