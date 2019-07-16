@@ -74,8 +74,9 @@ private:
         }
     };
     
+//    static const char CHAR_REG_SPLIT = '\0';
     JString reg;
-//    JGraph<char> dfa;
+    JGraph<char> dfa;
     
 public:
     
@@ -192,7 +193,7 @@ public:
         }
         
         // 在NFA尾部节点加入一个空节点和指向空节点的弧
-        int v = syn2nfa->NFA.AddVerter('#');
+        int v = syn2nfa->NFA.AddVerter('\0');
         syn2nfa->NFA.Get(v - 1).arcs.Add(v);
         
         LOG_INFO("NFA: ", syn2nfa->NFA);
@@ -200,11 +201,13 @@ public:
     
     
     void NFA2DFA(JBinaryTree<Node> *tree, Syntax2NFA* syn2nfa) {
+        static const int FLAG_STACK_EMPTY = -1;
+        
         JNetwork<int, char> DFA;
         JSet<JSet<int>> Dstatus;
         JMap<int, int> stat2ver;
         
-        JStack<int> Ustat(-1);
+        JStack<int> Ustat(FLAG_STACK_EMPTY);
         JMap<char, JSet<int>> classify;
         
         
@@ -225,30 +228,50 @@ public:
         
         
         // 处理未标记的状态
-        while (Ustat.GetTop() != -1) {
+        while (Ustat.GetTop() != FLAG_STACK_EMPTY) {
             int statPos = Ustat.Pop();
             
+            // 对未标记状态，以字符进行归类
             JSet<int>& s = Dstatus.Get(statPos);
-            LOG_INFO("transform status:", s);
+            LOG_INFO("transform: ", s);
             for (JSet<int>::Iterator it1 = s.ObtainIterator(); it1.HasNext();) {
                 int i = it1.Next();
                 JGraphVertex<char> ver = syn2nfa->NFA.Get(i);
-                char key = ver.val;
-                LOG_INFO("i: ", i , ", ver: ", ver, ", key:", key);
+                LOG_INFO("i: ", i , ", ver: ", ver);
+                
+                // 先取出关键字，避免NFA无边的节点未加入分类器
+                JSet<int>& cf = classify.Pray(ver.val);
                 for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
-                    classify.Pray(key).Add(it2.Next());
+                    cf.Add(it2.Next());
                 }
             }
             LOG_INFO("classify: ", classify);
             
             // 检测状态是否标记
             for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
-                JMapPair<char, JSet<int>>& m = it.Next();
+                JMapPair<char, JSet<int>>& mp = it.Next();
+                LOG_INFO("mp: ", mp);
+
+                if (mp.value.Empty()) {
+
+                    int e = DFA.AddVerter(-1);
+//                    stat2ver.Add(k, v);
+                    
+                    
+                    int s = stat2ver.Get(statPos);
+//                    int e = stat2ver.Get(v);
+                    LOG_INFO("arc: ", s, ", ", e, ", ", '\0');
+                    DFA.AddArc(s, e, '\0');
+                    
+                    mp.value.Clean();
+                    continue;
+                }
                 
-                int k = Dstatus.Exist(m.value);
+                
+                int k = Dstatus.Exist(mp.value);
                 LOG_INFO("k: ", k);
                 if (k == JSet<int>::FALG_NOT_EXIST) {
-                    k = Dstatus.Add(m.value);
+                    k = Dstatus.Add(mp.value);
                     int v = DFA.AddVerter(k);
                     stat2ver.Add(k, v);
                     Ustat.Push(k);
@@ -256,12 +279,11 @@ public:
                 
                 int s = stat2ver.Get(statPos);
                 int e = stat2ver.Get(k);
-                DFA.AddArc(s, e, m.key);
+                LOG_INFO("arc: ", s, ", ", e, ", ", mp.key);
+                DFA.AddArc(s, e, mp.key);
                 
-//                s.Clean();
-//                LOG_INFO("classify: ", classify);
-//                LOG_INFO("Dstatus: ", Dstatus);
-//                LOG_INFO("Ustat: ", Ustat);
+                
+//                mp.value.Clean();
             }
             classify.Clean();
             LOG_INFO("classify: ", classify);

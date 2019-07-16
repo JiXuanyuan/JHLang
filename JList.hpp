@@ -187,6 +187,10 @@ public:
         return length;
     }
     
+    bool Empty() const {
+        return length == 0;
+    }
+    
     T& Get(int index) const {
         LOG_FUNCTION_ENTRY;
         if (index < 0 || index >= length) {

@@ -31,7 +31,7 @@ int main(int argc, const char * argv[]) {
 //    h.test();
     
     DFA dfa;
-//    dfa.Reg("(qa|b)*a\\*bb");
+//    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
     dfa.Reg("(a|b)*abb");
     dfa.Reg2NFA();
     

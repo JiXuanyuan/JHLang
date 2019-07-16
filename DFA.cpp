@@ -253,7 +253,7 @@ void DFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree) {
         char ch = n.Value();
         if (ch == '*') {
             n.nullable = true;
-            // *操作，右节点为NULL，同(true, true)
+            // *操作，右节点为NULL，(true, false)同(true, true)
             ObtainNodeFirstPosition(tree, true, false);
             ObtainNodeLastPosition(tree, true, false);
         } else if (ch == '|') {
