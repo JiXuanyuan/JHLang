@@ -58,31 +58,6 @@ public:
         return dfa;
     }
     
-//    bool Reg2NFA() {
-//        LOG_FUNCTION_ENTRY;
-//        LOG_INFO("reg = ", reg);
-//
-////        JBinaryTree<JRegNode>::Root synt;
-////        synt = Reg2Syntax(reg);
-////
-////        Translator tran(this);
-////        synt.TraversePostorder(&tran);
-////
-////        JGraph<char>& nfa = tran.ObtainNFA();
-////        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
-////
-////        NFA2DFA(dfa, synt.Tree(), &tran);
-//
-//
-//        ObtainDFA();
-//
-//        return true;
-//    }
-//
-//    void Syntax2NFA(JBinaryTree<Node> *tree, ) {
-//
-//    }
-    
     
     /*
         将正则表达式转为语法树
@@ -130,6 +105,7 @@ public:
         JSet<int> firstStat;
         
     public:
+        
         Translator(JDFA *self) : self(self) {}
         
         virtual void Visit(JBinaryTree<JRegNode> *tree) {
@@ -169,12 +145,26 @@ public:
                 firstStat.Add(pos2ver.Get(it.Next()));
             }
             
-            LOG_INFO("firstStatus:", firstStat);
+            LOG_INFO("firstStat:", firstStat);
             return firstStat;
         }
     };
     
-    void DFATransformStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
+    int CreateDFAVerter(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
+        int k = Dstatus.Add(status);
+        int v = DFA.AddVerter(k);
+        stat2ver.Add(k, v);
+        return k;
+    }
+    
+    void CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch) {
+        int s = stat2ver.Get(start);
+        int e = stat2ver.Get(end);
+        LOG_INFO("arc: ", s, ", ", e, ", ", ch);
+        DFA.AddArc(s, e, ch);
+    }
+    
+    void TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
         LOG_INFO("transform: ", status);
         classify.Clean();
         
@@ -195,86 +185,41 @@ public:
     void NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA) {
         JSet<JSet<int>> Dstatus;
         JMap<int, int> stat2ver;
-        
         JStack<int> Ustat(-1);
-        JMap<char, JSet<int>> classify;
         
         // 加入初始状态
-        int k = Dstatus.Add(firstStatus);
-        int v = DFA.AddVerter(k);
-        stat2ver.Add(k, v);
+        int k = CreateDFAVerter(DFA, Dstatus, stat2ver, firstStatus);
         Ustat.Push(k);
         
-        
         // 处理未标记的状态
+        JMap<char, JSet<int>> classify;
         while (Ustat.GetTop() != -1) {
             int statPos = Ustat.Pop();
             
             // 对未标记状态，以字符进行归类
-            JSet<int>& s = Dstatus.Get(statPos);
-            
-            DFATransformStatus(NFA, s, classify);
-            
-//            LOG_INFO("transform: ", s);
-//            for (JSet<int>::Iterator it1 = s.ObtainIterator(); it1.HasNext();) {
-//                int i = it1.Next();
-//
-//
-//
-//
-//                JGraphVertex<char> ver = NFA.Get(i);
-//                LOG_INFO("i: ", i , ", ver: ", ver);
-//
-//                // 先取出关键字，避免NFA无边的节点未加入分类器
-//                JSet<int>& cf = classify.Pray(ver.val);
-//                for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
-//                    cf.Add(it2.Next());
-//                }
-//            }
-//            LOG_INFO("classify: ", classify);
+            TransformDFAStatus(NFA, Dstatus.Get(statPos), classify);
             
             // 检测状态是否标记
             for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
                 JMapPair<char, JSet<int>>& mp = it.Next();
                 LOG_INFO("mp: ", mp);
-
+                
+                // 无转化量时，为终止状态
                 if (mp.value.Empty()) {
-
-                    int e = DFA.AddVerter(-1);
-//                    stat2ver.Add(k, v);
-                    
-                    
-                    int s = stat2ver.Get(statPos);
-//                    int e = stat2ver.Get(v);
-                    LOG_INFO("arc: ", s, ", ", e, ", ", '\0');
-                    DFA.AddArc(s, e, '\0');
-                    
-                    mp.value.Clean();
+                    int k = DFA.AddVerter(-1);
+                    CreateDFAFollow(DFA, stat2ver, statPos, k, '\0');
                     continue;
                 }
-                
-                
+
+                // 一般情况，为基础状态，先判断状态是否已存在
                 int k = Dstatus.Exist(mp.value);
                 LOG_INFO("k: ", k);
                 if (k == JSet<int>::FALG_NOT_EXIST) {
-                    k = Dstatus.Add(mp.value);
-                    int v = DFA.AddVerter(k);
-                    stat2ver.Add(k, v);
+                    k = CreateDFAVerter(DFA, Dstatus, stat2ver, mp.value);
                     Ustat.Push(k);
                 }
-                
-                int s = stat2ver.Get(statPos);
-                int e = stat2ver.Get(k);
-                LOG_INFO("arc: ", s, ", ", e, ", ", mp.key);
-                DFA.AddArc(s, e, mp.key);
-                
-                
-//                mp.value.Clean();
+                CreateDFAFollow(DFA, stat2ver, statPos, k, mp.key);
             }
-//            classify.Clean();
-            LOG_INFO("classify: ", classify);
-            LOG_INFO("Dstatus: ", Dstatus);
-            LOG_INFO("Ustat: ", Ustat);
         }
         
         LOG_INFO("DFA: ", DFA);
