@@ -22,7 +22,6 @@ public:
         if (Exist(t)) {
             return FALG_EXIST;
         }
-        
         return JList<T>::Add(t);
     }
     
@@ -32,7 +31,6 @@ public:
         for (int i = 0; i < l; i++) {
             Add(t.JList<T>::Get(i));
         }
-        
         return JList<T>::Length();
     }
     

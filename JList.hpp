@@ -103,14 +103,14 @@ private:
         _Get(length++) = t;
         
         _TryExpand();
-        LOG_DEBUG("length = ", length, ", data = ", t);
+        LOG_DEBUG("addr: ", this, "; add, ", t);
         return i;
     }
     
     bool _Delete(int index) {
         LOG_FUNCTION_ENTRY;
         if (index < 0 || index >= length) {
-            LOG_WARN("length = ", length, ", index = ", index);
+            LOG_WARN("addr: ", this, "; overstep, ", index);
             return false;
         }
         
@@ -122,19 +122,19 @@ private:
         
         length--;
         _TryReduce();
-        LOG_DEBUG("length = ", length, ", index = ", index);
+        LOG_DEBUG("addr: ", this, "; delete, ", index);
         return true;
     }
     
     bool _Set(int index, const T& t) {
         LOG_FUNCTION_ENTRY;
         if (index < 0 || index >= length) {
-            LOG_WARN("length = ", length, ", index = ", index);
+            LOG_WARN("addr: ", this, "; overstep, ", index);
             return false;
         }
         
         _Get(index) = t;
-        LOG_DEBUG("length = ", length, ", index = ", index, ", data = ", t);
+        LOG_DEBUG("addr: ", this, "; set, ", index, ", ", t);
         return true;
     }
     
@@ -165,6 +165,24 @@ public:
         }
     }
     
+    JList<T>&  operator = (const JList<T>& jl) {
+        if (this != &jl) {
+            _Initialize();
+            int j = jl.length / BLOCK_SIZE_INITIAL;
+            int i = jl.length % BLOCK_SIZE_INITIAL;
+            Block *p = jl.head;
+            for (int t1 = 0; t1 < j; t1++, p = p->next) {
+                for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
+                    this->_Add(p->data[t2]);
+                }
+            }
+            for (int t = 0; t < i; t++) {
+                this->_Add(p->data[t]);
+            }
+        }
+        return *this;
+    }
+    
     int Length() const {
         return length;
     }
@@ -172,7 +190,7 @@ public:
     T& Get(int index) const {
         LOG_FUNCTION_ENTRY;
         if (index < 0 || index >= length) {
-            LOG_WARN("length = ", length, ", index = ", index);
+            LOG_WARN("addr: ", this, "; overstep, ", index);
             return _Get(length);
         }
         return _Get(index);
@@ -181,7 +199,7 @@ public:
     T& GetTail() const {
         LOG_FUNCTION_ENTRY;
         if (length <= 0) {
-            LOG_WARN("length = ", length);
+            LOG_WARN("addr: ", this, "; overstep, -1");
             return _Get(length);
         }
         return _Get(length - 1);
@@ -194,7 +212,7 @@ public:
         length++;
         
         _TryExpand();
-        LOG_DEBUG("length = ", length);
+        LOG_DEBUG("addr: ", this, "; add");
         return i;
     }
     
@@ -210,7 +228,6 @@ public:
     
     bool DeleteTail() {
         LOG_FUNCTION_ENTRY;
-        LOG_DEBUG("length = ", length);
         if (length < 0) {
            return false;
         }

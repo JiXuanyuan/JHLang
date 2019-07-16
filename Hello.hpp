@@ -29,18 +29,22 @@ private:
     int i;
 public:
     
-    void print() {
-        std::cout << "i = " << i << "\n";
+    template<class T>
+    void print(T t) {
+        std::cout << "==============Hello world!==============\n";
+        std::cout << t << "\n";
     }
     
     void test() {
         LOG_INFO("==============Hello world!==============");
-        JList<char> lis;
+        /*JList<char> lis;
         lis.Add('d');
         lis.Add('d');
         lis.Add('e');
         lis.Add('d');
         lis.Add('e');
+        JLog::Rope("sad", 124, "dqwd", true, "89", false, lis, 45, 'q', 34, "csdwq");
+        
         for (int i = 0; i < 40; i++) {
             lis.Add('A' + i);
         }
@@ -221,6 +225,59 @@ public:
             LOG_INFO(it2.Next());
         }
         
+        */
+        LOG_INFO("==============Hello world!==============");
+       
+        JSet<char> set;
+        set.Add('1');
+        set.Add('2');
+        set.Add('3');
+        set.Add('4');
+        set.Add('5');
+        set.Add('4');
+        set.Add('5');
+        set.Echo();
+        for (int i = 0; i < 60; i++) {
+            set.Add('q');
+        }
+        for (int i = 0; i < 10; i++) {
+            set.Add('0' + i);
+        }
+        for (int i = 0; i < 60; i++) {
+            set.Add('A' + i);
+        }
+        set.Echo();
+        LOG_INFO(set);
+        
+        JSet<char> set2;
+        set2.Add(set);
+        set2.Echo();
+        LOG_INFO(set2);
+        
+        set.Clean();
+        set.Echo();
+        LOG_INFO(set);
+        set2.Echo();
+        LOG_INFO(set2);
+        
+        LOG_INFO("==============Hello world!==============");
+        JSet<JSet<int>> Dstatus;
+        JMap<char, JSet<int>> classify;
+        
+        classify.Pray('c').Add(12);
+        classify.Pray('c').Add(112);
+        classify.Pray('c').Add(123);
+        classify.Pray('c').Add(124);
+        classify.Pray('c').Add(12);
+        Dstatus.Add(classify.Get('c'));
+        
+        LOG_INFO("classify: ", classify);
+        LOG_INFO("Dstatus: ", Dstatus);
+        
+        classify.Pray('c').Clean();
+        
+        LOG_INFO("classify: ", classify);
+        LOG_INFO("Dstatus: ", Dstatus);
         
         LOG_INFO("==============Hello world!==============");
     }

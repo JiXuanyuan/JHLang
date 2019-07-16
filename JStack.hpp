@@ -41,6 +41,17 @@ public:
         return t;
     }
     
+    friend std::ostream& operator << (std::ostream& os, const JStack& js) {
+        os << "[ ";
+        int l = js.Length();
+        for (int i = 0; i < l; i++) {
+            os << js.Get(i) << ", ";
+        }
+        os << "]";
+        
+        return os;
+    }
+    
 };
 
 #endif /* JStack_hpp */
