@@ -42,6 +42,9 @@ int main(int argc, const char * argv[]) {
     dfa.Reg("(a|b)*abb");
     dfa.Reg2NFA();
     
+    JNetwork<int, char>& ddd = dfa.DeterministicFiniteAutomata();
+    
+    LOG_INFO(ddd);
     
     LOG_INFO(dfa.DeterministicFiniteAutomata());
     

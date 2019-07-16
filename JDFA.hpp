@@ -20,7 +20,10 @@
 
 class JDFA {
 private:
-    class Node {
+    JString reg;
+    JNetwork<int, char> dfa;
+    
+    class JRegNode {
     private:
         static const int TYPE_OPER = 1;
         static const int TYPE_CHER = 2;
@@ -45,15 +48,15 @@ private:
             regIndex = pos;
         }
         
-        bool IsOperator() { return type == TYPE_OPER; }
+        bool IsOperator() const { return type == TYPE_OPER; }
         
-        bool IsCharacter() { return type == TYPE_CHER; }
+        bool IsCharacter() const { return type == TYPE_CHER; }
         
-        char Value() { return val; }
+        char Value() const { return val; }
         
-        int RegIndex() { return regIndex; }
+        int RegIndex() const { return regIndex; }
         
-        friend std::ostream& operator << (std::ostream& os, const Node& n) {
+        friend std::ostream& operator << (std::ostream& os, const JRegNode& n) {
             if (n.type == 1) {
                 os << "{ op = " << n.val;
             } else if (n.type == 2) {
@@ -66,43 +69,55 @@ private:
         }
     };
     
-    JString reg;
-    JNetwork<int, char> dfa;
+
     
 public:
     
-    JNetwork<int, char>& DeterministicFiniteAutomata() {
+    typedef JBinaryTree<JRegNode> *         JDefSyntax;
+    typedef JGraph<char>                JDefNFA;
+    typedef JNetwork<int, char>         JDefDFA;
+    
+    
+    
+    
+    JDefDFA& DeterministicFiniteAutomata() {
         return dfa;
     }
     
-    bool Reg(const char *reg) {
+    JDFA& Reg(const char *reg) {
         LOG_FUNCTION_ENTRY;
         if (!this->reg.Assign(reg)) {
             LOG_WARN("not Assign");
-            return false;
         }
         
-        LOG_INFO("reg = ", this->reg);
-        return true;
+        return *this;
     }
+    
+    
+    
     
     bool Reg2NFA() {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("reg = ", reg);
         
-        JBinaryTree<Node>::Root root;
-        root = Reg2Syntax(reg);
+        JBinaryTree<JRegNode>::Root synt;
+        synt = Reg2Syntax(reg);
         
-        Syntax2NFA syn2nfa(this);
-        root.TraversePostorder(&syn2nfa);
-        ObtainNFA(&syn2nfa);
+        Translator tran(this);
+        synt.TraversePostorder(&tran);
+        ObtainNFA(&tran);
         
         
-        NFA2DFA(dfa, root.Tree(), &syn2nfa);
+        NFA2DFA(dfa, synt.Tree(), &tran);
+        
         
         
         return true;
     }
+//
+//    void Syntax2NFA(JBinaryTree<Node> *tree, ) {
+//
+//    }
     
     
     /*
@@ -110,49 +125,48 @@ public:
      */
     bool OperatorPrecede(char op1, char op2);
     
-    JBinaryTree<Node> * CreateNodeCharacter(JString& reg, int index);
+    JBinaryTree<JRegNode> * CreateNodeCharacter(JString& reg, int index);
     
-    JBinaryTree<Node> * CreateNodeOperator(char op, JStack<JBinaryTree<Node> *> & nodes);
+    JBinaryTree<JRegNode> * CreateNodeOperator(char op, JStack<JBinaryTree<JRegNode> *> & nodes);
     
-    JBinaryTree<Node> * Reg2Syntax(JString& reg);
+    JBinaryTree<JRegNode> * Reg2Syntax(JString& reg);
     
-    JBinaryTree<Node> * Reg2Syntax(JString& reg, int& i, char endChar);
+    JBinaryTree<JRegNode> * Reg2Syntax(JString& reg, int& i, char endChar);
     
     /*
         从语法树计算nullable、firstPos、lastPos
      */
-    bool NodeNullable(JBinaryTree<Node> *tree);
+    bool NodeNullable(JBinaryTree<JRegNode> *tree);
     
-    void ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right);
+    void ObtainNodeFirstPosition(JBinaryTree<JRegNode> *tree, bool left, bool right);
     
-    void ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right);
+    void ObtainNodeLastPosition(JBinaryTree<JRegNode> *tree, bool left, bool right);
     
-    void ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree);
+    void ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JRegNode> *tree);
     
     /*
         从语法树计算followPos
      */
     void ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos);
     
-    void ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver);
+    void ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver);
     
     /*
         从语法树计算nullable、firstPos、lastPos、followPos，生成NFA
      */
-    friend class Syntax2NFA;
-    class Syntax2NFA : public JBinaryTree<Node>::Interface {
+    friend class Translator;
+    class Translator : public JBinaryTree<JRegNode>::Interface {
     public:
         JDFA *self;
         // 1.followPos顶点中存放着reg字符位置，可映射到reg字符
         // 2.pos2ver由reg字符位置映射到followPos顶点
         JGraph<int> followPos;
         JMap<int, int> pos2ver;
-        
         JGraph<char> NFA;
         
-        Syntax2NFA(JDFA *self) : self(self) {}
+        Translator(JDFA *self) : self(self) {}
         
-        virtual void Visit(JBinaryTree<Node> *tree) {
+        virtual void Visit(JBinaryTree<JRegNode> *tree) {
             self->ObtainNodeNullableAndFirstLastPosition(tree);
             self->ObtainNodeFollowPosition(tree, followPos, pos2ver);
             LOG_INFO("pos2ver: ", pos2ver);
@@ -160,7 +174,7 @@ public:
         }
     };
     
-    void ObtainNFA(Syntax2NFA* syn2nfa) {
+    void ObtainNFA(Translator* syn2nfa) {
         for (JGraph<int>::Iterator it = syn2nfa->followPos.ObtainIterator(); it.HasNext();) {
             JGraphVertex<int>& ver = it.Next();
             syn2nfa->NFA.AddVerter(reg.Get(ver.val));
@@ -175,7 +189,11 @@ public:
     }
     
     
-    void NFA2DFA(JNetwork<int, char>& DFA, JBinaryTree<Node> *tree, Syntax2NFA* syn2nfa) {
+    
+    
+    
+    
+    void NFA2DFA(JNetwork<int, char>& DFA, JBinaryTree<JRegNode> *tree, Translator* syn2nfa) {
         static const int FLAG_STACK_EMPTY = -1;
         
         JSet<JSet<int>> Dstatus;

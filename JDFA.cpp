@@ -20,79 +20,6 @@
     实现将正则表达式转为语法树，旧函数
  */
 /*
-JBinaryTree<char> * DFA::Reg2Syntax_old(JString& reg, int offset, int* end) {
-    LOG_FUNCTION_ENTRY;
-    LOG_INFO("reg = ", reg, ", offset = ", offset);
-    JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
-    JStack<JBinaryTree<char> *> nodes(NULL);
-    char op;
-    char ch;
-    // 操作符节点、符号节点
-    JBinaryTree<char> *opn = NULL;
-    JBinaryTree<char> *chn = NULL;
-    // 顶点、左节点、右节点
-    JBinaryTree<char> *fn = NULL;
-    JBinaryTree<char> *ln = NULL;
-    JBinaryTree<char> *rn = NULL;
-    //
-    int l = reg.Length();
-    int i = offset;
-    for (; i < l; i++) {
-        ch = reg.Get(i);
-        if (ch == '\\') {   // 转义符
-            op = '&';
-            chn = new JBinaryTree<char>(reg.Get(++i));
-        } else if (ch == '(') {
-            op = '&';
-            chn = Reg2Syntax_old(reg, ++i, &i);
-        } else if (ch == ')') {
-            LOG_INFO("ch = ", ch, ", break");
-            break;
-        } else if (ch == '*') {
-            op = '*';
-            chn = NULL;
-        } else if (ch == '|') {
-            op = '|';
-            chn = new JBinaryTree<char>(reg.Get(++i));
-        } else {
-            op = '&';
-            chn = new JBinaryTree<char>(ch);
-        }
-        LOG_INFO("ch = ", ch, ", op = ", op);
-        
-        while (OperatorPrecede(ops.GetTop(), op)) {
-            fn = new JBinaryTree<char>(ops.Pop());
-            rn = nodes.Pop();
-            ln = nodes.Pop();
-            fn = fn->Merge(ln, rn);
-            nodes.Push(fn);
-        }
-        
-        ops.Push(op);
-        nodes.Push(chn);
-    }
-    
-    do {
-        op = ops.Pop();
-        fn = new JBinaryTree<char>(op);
-        rn = nodes.Pop();
-        ln = nodes.Pop();
-        fn = fn->Merge(ln, rn);
-        nodes.Push(fn);
-    } while (ops.GetTop() != '\0');
-    
-    // 返回值
-    opn = nodes.Pop();
-    if (end != NULL) {
-        *end = i;
-        LOG_INFO("end = ", *end);
-    }
-    return opn;
-}
-*/
-
-
-/*
     实现将正则表达式转为语法树，旧函数
  */
 inline bool JDFA::OperatorPrecede(char op1, char op2) {
@@ -118,19 +45,19 @@ inline bool JDFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-inline JBinaryTree<JDFA::Node> * JDFA::CreateNodeCharacter(JString& reg, int index) {
-    JBinaryTree<Node> * n = new JBinaryTree<Node>;
+inline JBinaryTree<JDFA::JRegNode> * JDFA::CreateNodeCharacter(JString& reg, int index) {
+    JBinaryTree<JRegNode> * n = new JBinaryTree<JRegNode>;
     n->Node().Assign(reg.Get(index), index);
     return n;
 }
 
-inline JBinaryTree<JDFA::Node> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *>& nodes) {
+inline JBinaryTree<JDFA::JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<JRegNode> *>& nodes) {
     // 顶点、左节点、右节点
-    JBinaryTree<Node> *fn = NULL;
-    JBinaryTree<Node> *ln = NULL;
-    JBinaryTree<Node> *rn = NULL;
+    JBinaryTree<JRegNode> *fn = NULL;
+    JBinaryTree<JRegNode> *ln = NULL;
+    JBinaryTree<JRegNode> *rn = NULL;
     
-    fn = new JBinaryTree<Node>;
+    fn = new JBinaryTree<JRegNode>;
     fn->Node().Assign(op);
     
     rn = nodes.Pop();
@@ -142,23 +69,23 @@ inline JBinaryTree<JDFA::Node> * JDFA::CreateNodeOperator(char op, JStack<JBinar
 /*
     实现将正则表达式转为语法树
  */
-JBinaryTree<JDFA::Node> * JDFA::Reg2Syntax(JString& reg) {
+JBinaryTree<JDFA::JRegNode> * JDFA::Reg2Syntax(JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
 
-JBinaryTree<JDFA::Node> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
+JBinaryTree<JDFA::JRegNode> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
-    JStack<JBinaryTree<Node> *> nodes(NULL);
+    JStack<JBinaryTree<JRegNode> *> nodes(NULL);
     char op;
     char ch;
     // 操作符节点、符号节点
-    JBinaryTree<Node> *opn = NULL;
-    JBinaryTree<Node> *chn = NULL;
+    JBinaryTree<JRegNode> *opn = NULL;
+    JBinaryTree<JRegNode> *chn = NULL;
     // 顶点
-    JBinaryTree<Node> *fn = NULL;
+    JBinaryTree<JRegNode> *fn = NULL;
     
     int l = reg.Length();
     for (; i < l; i++) {
@@ -208,14 +135,14 @@ JBinaryTree<JDFA::Node> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
 /*
     实现将正则表达式转为语法树，旧函数
  */
-inline bool JDFA::NodeNullable(JBinaryTree<Node> *tree) {
+inline bool JDFA::NodeNullable(JBinaryTree<JRegNode> *tree) {
     if (tree == NULL) {
         return true;
     }
     return tree->Node().nullable;
 }
 
-inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<JRegNode> *tree, bool left, bool right) {
     if (left && tree->LeftChild() != NULL) {
         tree->Node().firstPos.Add(tree->LeftChild()->Node().firstPos);
     }
@@ -225,7 +152,7 @@ inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bo
     }
 }
 
-inline void JDFA::ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JRegNode> *tree, bool left, bool right) {
     if (left && tree->LeftChild() != NULL) {
         tree->Node().lastPos.Add(tree->LeftChild()->Node().lastPos);
     }
@@ -238,9 +165,9 @@ inline void JDFA::ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, boo
 /*
  实现将正则表达式转为语法树，旧函数
  */
-void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree) {
+void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JRegNode> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
-    Node& n = tree->Node();
+    JRegNode& n = tree->Node();
     
     if (n.IsCharacter()) {
         n.nullable = false;
@@ -295,8 +222,8 @@ inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int
 /*
  实现将正则表达式转为语法树，旧函数
  */
-void JDFA::ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
-    Node& n = tree->Node();
+void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
+    JRegNode& n = tree->Node();
     
     if (n.IsCharacter()) {
         int k = n.RegIndex();
