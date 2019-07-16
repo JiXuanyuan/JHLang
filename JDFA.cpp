@@ -342,6 +342,13 @@ inline void JDFA::CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat
     DFA.AddArc(s, e, ch);
 }
 
+inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start) {
+    int s = stat2ver.Get(start);
+    int e = DFA.AddVertex(-1);
+    LOG_INFO("arc: ", s, ", ", e);
+    DFA.AddArc(s, e, '\0');
+}
+
 inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
     LOG_INFO("transform: ", status);
     classify.Clean();
@@ -384,8 +391,7 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
             
             // 无转化量时，为终止状态
             if (mp.value.Empty()) {
-                int k = DFA.AddVertex(-1);
-                CreateDFAFollow(DFA, stat2ver, statPos, k, '\0');
+                CreateDFAFollowAccept(DFA, stat2ver, statPos);
                 continue;
             }
             
