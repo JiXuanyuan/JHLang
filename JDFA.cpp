@@ -15,6 +15,7 @@
 #include "JGraph.hpp"
 #include "JMap.hpp"
 #include "JNetwork.hpp"
+#include "JRegNode.hpp"
 
 /*
     实现将正则表达式转为语法树，旧函数
@@ -251,3 +252,123 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& fo
     
     LOG_WARN("node, type = 0");
 }
+
+
+/*
+ 
+ */
+
+JGraph<char>& JDFA::Translator::ObtainNFA() {
+    if (!nfa.Empty()) {
+        return nfa;
+    }
+    
+    LOG_INFO("followPos: ", followPos);
+    for (JGraph<int>::Iterator it = followPos.ObtainIterator(); it.HasNext();) {
+        JGraphVertex<int>& ver = it.Next();
+        nfa.AddVerter(self->reg.Get(ver.val));
+        nfa.GetTail().arcs.Add(ver.arcs);
+    }
+    
+    // 在NFA尾部节点加入一个空节点和指向空节点的弧
+    int v = nfa.AddVerter('\0');
+    nfa.Get(v - 1).arcs.Add(v);
+    
+    LOG_INFO("NFA: ", nfa);
+    return nfa;
+}
+
+/*
+ 
+ */
+JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JRegNode> *tree) {
+    if (!firstStat.Empty() || tree == NULL) {
+        return firstStat;
+    }
+    
+    LOG_INFO("firstPos:", tree->Node().firstPos);
+    for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
+        firstStat.Add(pos2ver.Get(it.Next()));
+    }
+    
+    LOG_INFO("firstStat:", firstStat);
+    return firstStat;
+}
+
+inline int JDFA::CreateDFAVerter(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
+    int k = Dstatus.Add(status);
+    int v = DFA.AddVerter(k);
+    stat2ver.Add(k, v);
+    return k;
+}
+
+inline void JDFA::CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch) {
+    int s = stat2ver.Get(start);
+    int e = stat2ver.Get(end);
+    LOG_INFO("arc: ", s, ", ", e, ", ", ch);
+    DFA.AddArc(s, e, ch);
+}
+
+inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
+    LOG_INFO("transform: ", status);
+    classify.Clean();
+    
+    for (JSet<int>::Iterator it1 = status.ObtainIterator(); it1.HasNext();) {
+        int i = it1.Next();
+        JGraphVertex<char> ver = NFA.Get(i);
+        LOG_INFO("i: ", i , ", ver: ", ver);
+        
+        // 先取出关键字，避免NFA无边的节点未加入分类器
+        JSet<int>& cf = classify.Pray(ver.val);
+        for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
+            cf.Add(it2.Next());
+        }
+    }
+    LOG_INFO("classify: ", classify);
+}
+
+void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA) {
+    JSet<JSet<int>> Dstatus;
+    JMap<int, int> stat2ver;
+    JStack<int> Ustat(-1);
+    
+    // 加入初始状态
+    int k = CreateDFAVerter(DFA, Dstatus, stat2ver, firstStatus);
+    Ustat.Push(k);
+    
+    // 处理未标记的状态
+    JMap<char, JSet<int>> classify;
+    while (Ustat.GetTop() != -1) {
+        int statPos = Ustat.Pop();
+        
+        // 对未标记状态，以字符进行归类
+        TransformDFAStatus(NFA, Dstatus.Get(statPos), classify);
+        
+        // 检测状态是否标记
+        for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
+            JMapPair<char, JSet<int>>& mp = it.Next();
+            LOG_INFO("mp: ", mp);
+            
+            // 无转化量时，为终止状态
+            if (mp.value.Empty()) {
+                int k = DFA.AddVerter(-1);
+                CreateDFAFollow(DFA, stat2ver, statPos, k, '\0');
+                continue;
+            }
+            
+            // 一般情况，为基础状态，先判断状态是否已存在
+            int k = Dstatus.Exist(mp.value);
+            LOG_INFO("k: ", k);
+            if (k == JSet<int>::FALG_NOT_EXIST) {
+                k = CreateDFAVerter(DFA, Dstatus, stat2ver, mp.value);
+                Ustat.Push(k);
+            }
+            CreateDFAFollow(DFA, stat2ver, statPos, k, mp.key);
+        }
+    }
+    
+    LOG_INFO("DFA: ", DFA);
+    LOG_INFO("Dstatus: ", Dstatus);
+}
+
+
