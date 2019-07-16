@@ -24,66 +24,7 @@ private:
     JString reg;
     JNetwork<int, char> dfa;
     
-//    class JRegNode {
-//    private:
-//        static const int TYPE_OPER = 1;
-//        static const int TYPE_CHER = 2;
-//        // type: 1.操作符节点，2.符号位置节点
-//        int type = 0;
-//        char val;
-//        int regIndex;
-//    public:
-//        
-//        bool nullable;
-//        JSet<int> firstPos;
-//        JSet<int> lastPos;
-//        
-//        void Assign(char op) {
-//            type = TYPE_OPER;
-//            val = op;
-//        }
-//        
-//        void Assign(char ch, int pos) {
-//            type = TYPE_CHER;
-//            val = ch;
-//            regIndex = pos;
-//        }
-//        
-//        bool IsOperator() const { return type == TYPE_OPER; }
-//        
-//        bool IsCharacter() const { return type == TYPE_CHER; }
-//        
-//        char Value() const { return val; }
-//        
-//        int RegIndex() const { return regIndex; }
-//        
-//        friend std::ostream& operator << (std::ostream& os, const JRegNode& n) {
-//            if (n.type == 1) {
-//                os << "{ op = " << n.val;
-//            } else if (n.type == 2) {
-//                os << "{ ch = " << n.val << ", pos = " << n.regIndex;
-//            }
-//            os << ", nullable = " << n.nullable;
-//            os << ", firstPos = " << n.firstPos;
-//            os << ", lastPos = " << n.lastPos << " }";
-//            return os;
-//        }
-//    };
-    
-
-    
 public:
-    
-    typedef JBinaryTree<JRegNode> *         JDefSyntax;
-    typedef JGraph<char>                JDefNFA;
-    typedef JNetwork<int, char>         JDefDFA;
-    
-    
-    
-    
-    JDefDFA& DeterministicFiniteAutomata() {
-        return dfa;
-    }
     
     JDFA& Reg(const char *reg) {
         LOG_FUNCTION_ENTRY;
@@ -94,27 +35,49 @@ public:
         return *this;
     }
     
-    
-    
-    
-    bool Reg2NFA() {
+    JNetwork<int, char>& ObtainDFA() {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("reg = ", reg);
         
-        JBinaryTree<JRegNode>::Root synt;
-        synt = Reg2Syntax(reg);
+        if (!dfa.Empty()) {
+            return dfa;
+        }
         
+        // 获得语法树
+        JBinaryTree<JRegNode>::Root synt = Reg2Syntax(reg);
+        
+        // 由语法树遍历，获得NFA
         Translator tran(this);
         synt.TraversePostorder(&tran);
-        ObtainNFA(&tran);
+        JGraph<char>& nfa = tran.ObtainNFA();
+        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
         
+        // 由NFA转换为DFA
+        NFA2DFA(nfa, first, dfa);
         
-        NFA2DFA(dfa, synt.Tree(), &tran);
-        
-        
-        
-        return true;
+        return dfa;
     }
+    
+//    bool Reg2NFA() {
+//        LOG_FUNCTION_ENTRY;
+//        LOG_INFO("reg = ", reg);
+//
+////        JBinaryTree<JRegNode>::Root synt;
+////        synt = Reg2Syntax(reg);
+////
+////        Translator tran(this);
+////        synt.TraversePostorder(&tran);
+////
+////        JGraph<char>& nfa = tran.ObtainNFA();
+////        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+////
+////        NFA2DFA(dfa, synt.Tree(), &tran);
+//
+//
+//        ObtainDFA();
+//
+//        return true;
+//    }
 //
 //    void Syntax2NFA(JBinaryTree<Node> *tree, ) {
 //
@@ -155,16 +118,18 @@ public:
     /*
         从语法树计算nullable、firstPos、lastPos、followPos，生成NFA
      */
-    friend class Translator;
+//    friend class Translator;
     class Translator : public JBinaryTree<JRegNode>::Interface {
-    public:
+    private:
         JDFA *self;
         // 1.followPos顶点中存放着reg字符位置，可映射到reg字符
         // 2.pos2ver由reg字符位置映射到followPos顶点
         JGraph<int> followPos;
         JMap<int, int> pos2ver;
-        JGraph<char> NFA;
+        JGraph<char> nfa;
+        JSet<int> firstStat;
         
+    public:
         Translator(JDFA *self) : self(self) {}
         
         virtual void Visit(JBinaryTree<JRegNode> *tree) {
@@ -173,45 +138,66 @@ public:
             LOG_INFO("pos2ver: ", pos2ver);
             LOG_INFO("followPos: ", followPos);
         }
-    };
-    
-    void ObtainNFA(Translator* syn2nfa) {
-        for (JGraph<int>::Iterator it = syn2nfa->followPos.ObtainIterator(); it.HasNext();) {
-            JGraphVertex<int>& ver = it.Next();
-            syn2nfa->NFA.AddVerter(reg.Get(ver.val));
-            syn2nfa->NFA.GetTail().arcs.Add(ver.arcs);
+        
+        JGraph<char>& ObtainNFA() {
+            if (!nfa.Empty()) {
+                return nfa;
+            }
+            
+            LOG_INFO("followPos: ", followPos);
+            for (JGraph<int>::Iterator it = followPos.ObtainIterator(); it.HasNext();) {
+                JGraphVertex<int>& ver = it.Next();
+                nfa.AddVerter(self->reg.Get(ver.val));
+                nfa.GetTail().arcs.Add(ver.arcs);
+            }
+            
+            // 在NFA尾部节点加入一个空节点和指向空节点的弧
+            int v = nfa.AddVerter('\0');
+            nfa.Get(v - 1).arcs.Add(v);
+            
+            LOG_INFO("NFA: ", nfa);
+            return nfa;
         }
         
-        // 在NFA尾部节点加入一个空节点和指向空节点的弧
-        int v = syn2nfa->NFA.AddVerter('\0');
-        syn2nfa->NFA.Get(v - 1).arcs.Add(v);
+        JSet<int>& ObtainFirstStatus(JBinaryTree<JRegNode> *tree) {
+            if (!firstStat.Empty() || tree == NULL) {
+                return firstStat;
+            }
+            
+            LOG_INFO("firstPos:", tree->Node().firstPos);
+            for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
+                firstStat.Add(pos2ver.Get(it.Next()));
+            }
+            
+            LOG_INFO("firstStatus:", firstStat);
+            return firstStat;
+        }
+    };
+    
+    void DFATransformStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
+        LOG_INFO("transform: ", status);
+        classify.Clean();
         
-        LOG_INFO("NFA: ", syn2nfa->NFA);
+        for (JSet<int>::Iterator it1 = status.ObtainIterator(); it1.HasNext();) {
+            int i = it1.Next();
+            JGraphVertex<char> ver = NFA.Get(i);
+            LOG_INFO("i: ", i , ", ver: ", ver);
+            
+            // 先取出关键字，避免NFA无边的节点未加入分类器
+            JSet<int>& cf = classify.Pray(ver.val);
+            for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
+                cf.Add(it2.Next());
+            }
+        }
+        LOG_INFO("classify: ", classify);
     }
     
-    
-    
-    
-    
-    
-    void NFA2DFA(JNetwork<int, char>& DFA, JBinaryTree<JRegNode> *tree, Translator* syn2nfa) {
-        static const int FLAG_STACK_EMPTY = -1;
-        
+    void NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA) {
         JSet<JSet<int>> Dstatus;
         JMap<int, int> stat2ver;
         
-        JStack<int> Ustat(FLAG_STACK_EMPTY);
+        JStack<int> Ustat(-1);
         JMap<char, JSet<int>> classify;
-        
-        
-        // 获取初始NFA开始节点
-        JSet<int> firstStatus;
-        LOG_INFO("firstPos:", tree->Node().firstPos);
-        for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
-            firstStatus.Add(syn2nfa->pos2ver.Get(it.Next()));
-        }
-        LOG_INFO("firstStatus:", firstStatus);
-        
         
         // 加入初始状态
         int k = Dstatus.Add(firstStatus);
@@ -221,24 +207,31 @@ public:
         
         
         // 处理未标记的状态
-        while (Ustat.GetTop() != FLAG_STACK_EMPTY) {
+        while (Ustat.GetTop() != -1) {
             int statPos = Ustat.Pop();
             
             // 对未标记状态，以字符进行归类
             JSet<int>& s = Dstatus.Get(statPos);
-            LOG_INFO("transform: ", s);
-            for (JSet<int>::Iterator it1 = s.ObtainIterator(); it1.HasNext();) {
-                int i = it1.Next();
-                JGraphVertex<char> ver = syn2nfa->NFA.Get(i);
-                LOG_INFO("i: ", i , ", ver: ", ver);
-                
-                // 先取出关键字，避免NFA无边的节点未加入分类器
-                JSet<int>& cf = classify.Pray(ver.val);
-                for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
-                    cf.Add(it2.Next());
-                }
-            }
-            LOG_INFO("classify: ", classify);
+            
+            DFATransformStatus(NFA, s, classify);
+            
+//            LOG_INFO("transform: ", s);
+//            for (JSet<int>::Iterator it1 = s.ObtainIterator(); it1.HasNext();) {
+//                int i = it1.Next();
+//
+//
+//
+//
+//                JGraphVertex<char> ver = NFA.Get(i);
+//                LOG_INFO("i: ", i , ", ver: ", ver);
+//
+//                // 先取出关键字，避免NFA无边的节点未加入分类器
+//                JSet<int>& cf = classify.Pray(ver.val);
+//                for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
+//                    cf.Add(it2.Next());
+//                }
+//            }
+//            LOG_INFO("classify: ", classify);
             
             // 检测状态是否标记
             for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
@@ -278,17 +271,14 @@ public:
                 
 //                mp.value.Clean();
             }
-            classify.Clean();
+//            classify.Clean();
             LOG_INFO("classify: ", classify);
             LOG_INFO("Dstatus: ", Dstatus);
             LOG_INFO("Ustat: ", Ustat);
         }
         
         LOG_INFO("DFA: ", DFA);
-        LOG_INFO("Dstatus: ", Dstatus);
-    
-        // 转换
-        
+        LOG_INFO("Dstatus: ", Dstatus);        
     }
     
 };

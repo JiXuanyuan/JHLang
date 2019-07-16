@@ -40,13 +40,18 @@ int main(int argc, const char * argv[]) {
     JDFA dfa;
 //    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
     dfa.Reg("(a|b)*abb");
-    dfa.Reg2NFA();
+//    dfa.Reg2NFA();
     
-    JNetwork<int, char>& ddd = dfa.DeterministicFiniteAutomata();
+    LOG_INFO(dfa.ObtainDFA());
+    LOG_INFO(dfa.ObtainDFA());
+//    LOG_INFO(dfa.ObtainDFA());
     
-    LOG_INFO(ddd);
     
-    LOG_INFO(dfa.DeterministicFiniteAutomata());
+//    JNetwork<int, char>& ddd = dfa.DeterministicFiniteAutomata();
+//    
+//    LOG_INFO(ddd);
+//    
+//    LOG_INFO(dfa.DeterministicFiniteAutomata());
     
     return 0;
 }
