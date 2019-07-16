@@ -74,31 +74,10 @@ private:
         }
     };
     
-//    static const char CHAR_REG_SPLIT = '\0';
     JString reg;
-    JGraph<char> dfa;
+    JNetwork<int, char> dfa;
     
 public:
-    
-    DFA() {
-        LOG_FUNCTION_ENTRY;
-    }
-    
-    ~DFA() {
-        LOG_FUNCTION_ENTRY;
-    }
-    
-    friend class PNode;
-    class PNode : public JBinaryTree<Node>::Interface {
-    public:
-        virtual void Visit(JBinaryTree<Node> *tree) {
-            LOG_INFO(tree->Node());
-        }
-    };
-    
-    
-    
-    
     
     bool Reg(const char *reg) {
         LOG_FUNCTION_ENTRY;
@@ -123,7 +102,7 @@ public:
         ObtainNFA(&syn2nfa);
         
         
-        NFA2DFA(root.Tree(), &syn2nfa);
+        NFA2DFA(dfa, root.Tree(), &syn2nfa);
         
         
         return true;
@@ -200,10 +179,9 @@ public:
     }
     
     
-    void NFA2DFA(JBinaryTree<Node> *tree, Syntax2NFA* syn2nfa) {
+    void NFA2DFA(JNetwork<int, char>& DFA, JBinaryTree<Node> *tree, Syntax2NFA* syn2nfa) {
         static const int FLAG_STACK_EMPTY = -1;
         
-        JNetwork<int, char> DFA;
         JSet<JSet<int>> Dstatus;
         JMap<int, int> stat2ver;
         
