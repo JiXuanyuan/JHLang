@@ -328,9 +328,9 @@ JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JRegNode> *tree) {
     return firstStat;
 }
 
-inline int JDFA::CreateDFAVerter(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
+inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
     int k = Dstatus.Add(status);
-    int v = DFA.AddVerter(k);
+    int v = DFA.AddVertex(k);
     stat2ver.Add(k, v);
     return k;
 }
@@ -366,7 +366,7 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
     JStack<int> Ustat(-1);
     
     // 加入初始状态
-    int k = CreateDFAVerter(DFA, Dstatus, stat2ver, firstStatus);
+    int k = CreateDFAVertex(DFA, Dstatus, stat2ver, firstStatus);
     Ustat.Push(k);
     
     // 处理未标记的状态
@@ -384,7 +384,7 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
             
             // 无转化量时，为终止状态
             if (mp.value.Empty()) {
-                int k = DFA.AddVerter(-1);
+                int k = DFA.AddVertex(-1);
                 CreateDFAFollow(DFA, stat2ver, statPos, k, '\0');
                 continue;
             }
@@ -393,7 +393,7 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
             int k = Dstatus.Exist(mp.value);
             LOG_INFO("k: ", k);
             if (k == JSet<int>::FALG_NOT_EXIST) {
-                k = CreateDFAVerter(DFA, Dstatus, stat2ver, mp.value);
+                k = CreateDFAVertex(DFA, Dstatus, stat2ver, mp.value);
                 Ustat.Push(k);
             }
             CreateDFAFollow(DFA, stat2ver, statPos, k, mp.key);

@@ -106,12 +106,12 @@ public:
         
         LOG_INFO("==============Hello world!==============");
         JGraph<char> graph;
-        graph.AddVerter('a');
-        graph.AddVerter('c');
-        graph.AddVerter('d');
-        graph.AddVerter('a');
+        graph.AddVertex('a');
+        graph.AddVertex('c');
+        graph.AddVertex('d');
+        graph.AddVertex('a');
         for (int i = 0; i < 50; i++) {
-            graph.AddVerter('q');
+            graph.AddVertex('q');
         }
         graph.AddArc(1, 2);
         graph.AddArc(1, 0);
@@ -143,14 +143,14 @@ public:
         
         LOG_INFO("==============Hello world!==============");
         JNetwork<int, char> net;
-        net.AddVerter(12312);
-        net.AddVerter(232);
-        net.AddVerter(34312);
-        net.AddVerter(12);
-        net.AddVerter(5);
-        net.AddVerter(122);
+        net.AddVertex(12312);
+        net.AddVertex(232);
+        net.AddVertex(34312);
+        net.AddVertex(12);
+        net.AddVertex(5);
+        net.AddVertex(122);
         for (int i = 0; i < 50; i++) {
-            net.AddVerter(i);
+            net.AddVertex(i);
         }
         net.AddArc(1, 2, 'f');
         net.AddArc(1, 0, 'q');

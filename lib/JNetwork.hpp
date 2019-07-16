@@ -28,7 +28,7 @@ public:
 template<class Ver, class Arc>
 class JNetwork : public JList<JNetworkVertex<Ver, Arc>> {
 public:
-    int AddVerter(Ver v) {
+    int AddVertex(Ver v) {
         LOG_FUNCTION_ENTRY;
         int i = JList<JNetworkVertex<Ver, Arc>>::Length();
         JList<JNetworkVertex<Ver, Arc>>::Add();
