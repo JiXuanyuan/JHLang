@@ -45,13 +45,13 @@ private:
      */
     bool OperatorPrecede(char op1, char op2);
     
-    JBinaryTree<JRegNode> * CreateNodeCharacter(JString& reg, int index);
+    JBinaryTree<JRegNode> * CreateNodeCharacter(const JString& reg, int index);
     
     JBinaryTree<JRegNode> * CreateNodeOperator(char op, JStack<JBinaryTree<JRegNode> *> & nodes);
     
-    JBinaryTree<JRegNode> * Reg2Syntax(JString& reg);
+    JBinaryTree<JRegNode> * Reg2Syntax(const JString& reg);
     
-    JBinaryTree<JRegNode> * Reg2Syntax(JString& reg, int& i, char endChar);
+    JBinaryTree<JRegNode> * Reg2Syntax(const JString& reg, int& i, char endChar);
     
     /*
         从语法树计算nullable、firstPos、lastPos

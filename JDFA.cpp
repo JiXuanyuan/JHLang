@@ -79,7 +79,7 @@ inline bool JDFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-inline JBinaryTree<JRegNode> * JDFA::CreateNodeCharacter(JString& reg, int index) {
+inline JBinaryTree<JRegNode> * JDFA::CreateNodeCharacter(const JString& reg, int index) {
     JBinaryTree<JRegNode> * n = new JBinaryTree<JRegNode>;
     n->Node().Assign(reg.Get(index), index);
     return n;
@@ -103,12 +103,12 @@ inline JBinaryTree<JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryT
 /*
     实现将正则表达式转为语法树
  */
-JBinaryTree<JRegNode> * JDFA::Reg2Syntax(JString& reg) {
+JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
 
-JBinaryTree<JRegNode> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
+JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
