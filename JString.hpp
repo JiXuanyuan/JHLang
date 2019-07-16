@@ -31,8 +31,8 @@ public:
     
     bool Assign(const char *str);
     bool Merge(const char *str);
-    int Length();
-    char Get(int index);
+    int Length() const;
+    char Get(int index) const;
     void Echo() const;
     
     friend std::ostream& operator << (std::ostream& os, const JString& s) {

@@ -78,11 +78,11 @@ bool JString::Merge(const char *str) {
     return true;
 }
 
-int JString::Length() {
+int JString::Length() const {
     return length;
 }
 
-char JString::Get(int index) {
+char JString::Get(int index) const {
     if (index < 0 || index >= length) {
         LOG_WARN("length = ", length, ", index = ", index);
         return '\0';
