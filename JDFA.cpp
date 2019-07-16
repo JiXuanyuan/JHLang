@@ -45,13 +45,13 @@ inline bool JDFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-inline JBinaryTree<JDFA::JRegNode> * JDFA::CreateNodeCharacter(JString& reg, int index) {
+inline JBinaryTree<JRegNode> * JDFA::CreateNodeCharacter(JString& reg, int index) {
     JBinaryTree<JRegNode> * n = new JBinaryTree<JRegNode>;
     n->Node().Assign(reg.Get(index), index);
     return n;
 }
 
-inline JBinaryTree<JDFA::JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<JRegNode> *>& nodes) {
+inline JBinaryTree<JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<JRegNode> *>& nodes) {
     // 顶点、左节点、右节点
     JBinaryTree<JRegNode> *fn = NULL;
     JBinaryTree<JRegNode> *ln = NULL;
@@ -69,12 +69,12 @@ inline JBinaryTree<JDFA::JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JB
 /*
     实现将正则表达式转为语法树
  */
-JBinaryTree<JDFA::JRegNode> * JDFA::Reg2Syntax(JString& reg) {
+JBinaryTree<JRegNode> * JDFA::Reg2Syntax(JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
 
-JBinaryTree<JDFA::JRegNode> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
+JBinaryTree<JRegNode> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
