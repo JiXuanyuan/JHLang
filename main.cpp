@@ -7,14 +7,10 @@
 //
 
 #include <iostream>
-#include "Hello.hpp"
-#include "JBinaryTree.hpp"
-#include "JDFA.hpp"
 #include "JLog.hpp"
-#include "JString.hpp"
-#include "JGraph.hpp"
-#include "JSet.hpp"
-#include "JList.hpp"
+#include "Hello.hpp"
+#include "JDFA.hpp"
+#include "JLex.hpp"
 
 using namespace std;
 
@@ -37,21 +33,15 @@ int main(int argc, const char * argv[]) {
 //    Hello h;
 //    h.test();
     
-    JDFA dfa("(a|b)*abb");
-//    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
-//    dfa.Reg("(a|b)*abb");
-//    dfa.Reg2NFA();
-    
-    LOG_INFO(dfa.Reg("(a|b)*abb").ObtainDFA());
-    LOG_INFO(dfa.ObtainDFA());
+//    JDFA dfa("(a|b)*abb");
+////    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
+////    dfa.Reg("(a|b)*abb");
+//    LOG_INFO(dfa.Reg("(a|b)*abb").ObtainDFA());
+//    LOG_INFO(dfa.ObtainDFA());
 //    LOG_INFO(dfa.ObtainDFA());
     
-    
-//    JNetwork<int, char>& ddd = dfa.DeterministicFiniteAutomata();
-//    
-//    LOG_INFO(ddd);
-//    
-//    LOG_INFO(dfa.DeterministicFiniteAutomata());
+    JLex lex;
+    lex.Test();
     
     return 0;
 }

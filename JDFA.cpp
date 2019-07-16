@@ -18,9 +18,8 @@
 #include "JRegNode.hpp"
 
 /*
-    实现将正则表达式转为语法树，旧函数
+ 
  */
-
 JDFA& JDFA::Reg(const char *reg) {
     LOG_FUNCTION_ENTRY;
     if (!this->reg.Assign(reg)) {
@@ -54,7 +53,7 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
 }
 
 /*
-    实现将正则表达式转为语法树，旧函数
+ 
  */
 inline bool JDFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
@@ -167,7 +166,7 @@ JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endCha
 }
 
 /*
-    实现将正则表达式转为语法树，旧函数
+ 
  */
 inline bool JDFA::NodeNullable(JBinaryTree<JRegNode> *tree) {
     if (tree == NULL) {
@@ -197,7 +196,7 @@ inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JRegNode> *tree, bool left,
 }
 
 /*
- 实现将正则表达式转为语法树，旧函数
+ 
  */
 void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JRegNode> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
@@ -235,7 +234,7 @@ void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JRegNode> *tree) {
 }
 
 /*
- 实现将正则表达式转为语法树，旧函数
+ 
  */
 inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos) {
     int ls = startPos.Length();
@@ -254,7 +253,7 @@ inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int
 }
 
 /*
- 实现将正则表达式转为语法树，旧函数
+ 
  */
 void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
     JRegNode& n = tree->Node();
@@ -290,7 +289,6 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& fo
 /*
  
  */
-
 JGraph<char>& JDFA::Translator::ObtainNFA() {
     if (!nfa.Empty()) {
         return nfa;
@@ -349,6 +347,9 @@ inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>
     DFA.AddArc(s, e, '\0');
 }
 
+/*
+ 
+ */
 inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
     LOG_INFO("transform: ", status);
     classify.Clean();
@@ -366,6 +367,7 @@ inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status,
     }
     LOG_INFO("classify: ", classify);
 }
+
 
 void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA) {
     JSet<JSet<int>> Dstatus;

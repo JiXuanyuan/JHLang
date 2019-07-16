@@ -103,6 +103,9 @@ private:
         
     };
     
+    /*
+        由NFA，从firstStatus开始，转化成DFA
+     */
     int CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status);
     
     void CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch);
