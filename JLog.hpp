@@ -45,6 +45,11 @@
         Rope(T v, Types... args) ->   Rope(T& v, Types... args)
         修改：第一个参数是其它类型时，使用引用
         解决：class放在第一个参数时，可避免再创建
+    9.2019.07.16:
+        Rope(T v)  ->  Rope(const T& v)
+        Rope(T v, Types... args) ->   Rope(const T& v, const Types&... args)
+        修改：全部参数使用引用
+        解决：可避免再数据再拷贝
  */
 
 class JLog {
@@ -52,20 +57,20 @@ public:
     /*
         匹配单个参数
      */
-    static void Rope(int v) {
+    static void Rope(const int& v) {
         std::cout << v << std::endl;
     }
-    static void Rope(bool v) {
+    static void Rope(const bool& v) {
         std::cout << (v? "true" : "false") << std::endl;
     }
-    static void Rope(char v) {
+    static void Rope(const char& v) {
         std::cout << v << std::endl;
     }
-    static void Rope(char * v) {
+    static void Rope(const char * v) {
         std::cout << v << std::endl;
     }
     template<class T>
-    static void Rope(T v) {
+    static void Rope(const T& v) {
         std::cout << v << std::endl;
     }
     
@@ -73,81 +78,81 @@ public:
         匹配多个参数
      */
     template<class... Types>
-    static void Rope(int v, Types... args) {
+    static void Rope(const int& v, const Types&... args) {
         std::cout << v;
-        _Rope(args...);
+        Rope(args...);
     }
     template<class... Types>
-    static void Rope(bool v, Types... args) {
+    static void Rope(const bool& v, const Types&... args) {
         std::cout << (v? "true" : "false");
-        _Rope(args...);
+        Rope(args...);
     }
     template<class... Types>
-    static void Rope(char v, Types... args) {
+    static void Rope(const char& v, const Types&... args) {
         std::cout << v;
-        _Rope(args...);
+        Rope(args...);
     }
     template<class... Types>
-    static void Rope(char * v, Types... args) {
+    static void Rope(const char * v, const Types&... args) {
         std::cout << v;
-        _Rope(args...);
+        Rope(args...);
     }
     template<class T, class... Types>
-    static void Rope(T v, Types... args) {
+    static void Rope(const T& v, const Types&... args) {
         std::cout << v;
-        _Rope(args...);
+        Rope(args...);
     }
     
-private:
-    /*
-        匹配单个参数
-        内部私有函数，使用引用，避免多次创建参数，特别class
-     */
-    static void _Rope(int& v) {
-        std::cout << v << std::endl;
-    }
-    static void _Rope(bool& v) {
-        std::cout << (v? "true" : "false") << std::endl;
-    }
-    static void _Rope(char& v) {
-        std::cout << v << std::endl;
-    }
-    static void _Rope(char * & v) {
-        std::cout << v << std::endl;
-    }
-    template<class T>
-    static void _Rope(T& v) {
-        std::cout << v << std::endl;
-    }
-    
-    /*
-        匹配多个参数
-     */
-    template<class... Types>
-    static void _Rope(int& v, Types&... args) {
-        std::cout << v;
-        _Rope(args...);
-    }
-    template<class... Types>
-    static void _Rope(bool& v, Types&... args) {
-        std::cout << (v? "true" : "false");
-        _Rope(args...);
-    }
-    template<class... Types>
-    static void _Rope(char& v, Types&... args) {
-        std::cout << v;
-        _Rope(args...);
-    }
-    template<class... Types>
-    static void _Rope(char * & v, Types&... args) {
-        std::cout << v;
-        _Rope(args...);
-    }
-    template<class T, class... Types>
-    static void _Rope(T& v, Types&... args) {
-        std::cout << v;
-        _Rope(args...);
-    }
+//private:
+//    /*
+//        匹配单个参数
+//        内部私有函数，使用引用，避免多次创建参数，特别class
+//     */
+//    static void _Rope(const int& v) {
+//        std::cout << v << std::endl;
+//    }
+//    static void _Rope(const bool& v) {
+//        std::cout << (v? "true" : "false") << std::endl;
+//    }
+//    static void _Rope(const char& v) {
+//        std::cout << v << std::endl;
+//    }
+//    static void _Rope(const char * & v) {
+//        std::cout << v << std::endl;
+//    }
+//    template<class T>
+//    static void _Rope(const T& v) {
+//        std::cout << v << std::endl;
+//    }
+//
+//    /*
+//        匹配多个参数
+//     */
+//    template<class... Types>
+//    static void _Rope(const int& v, const Types&... args) {
+//        std::cout << v;
+//        _Rope(args...);
+//    }
+//    template<class... Types>
+//    static void _Rope(const bool& v, const Types&... args) {
+//        std::cout << (v? "true" : "false");
+//        _Rope(args...);
+//    }
+//    template<class... Types>
+//    static void _Rope(const char& v, const Types&... args) {
+//        std::cout << v;
+//        _Rope(args...);
+//    }
+//    template<class... Types>
+//    static void _Rope(const char * & v, const Types&... args) {
+//        std::cout << v;
+//        _Rope(args...);
+//    }
+//    template<class T, class... Types>
+//    static void _Rope(const T& v, const Types&... args) {
+//        std::cout << v;
+//        _Rope(args...);
+//    }
     
 };
 
