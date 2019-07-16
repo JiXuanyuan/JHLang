@@ -37,12 +37,12 @@ int main(int argc, const char * argv[]) {
 //    Hello h;
 //    h.test();
     
-    JDFA dfa;
+    JDFA dfa("(a|b)*abb");
 //    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
-    dfa.Reg("(a|b)*abb");
+//    dfa.Reg("(a|b)*abb");
 //    dfa.Reg2NFA();
     
-    LOG_INFO(dfa.ObtainDFA());
+    LOG_INFO(dfa.Reg("(a|b)*abb").ObtainDFA());
     LOG_INFO(dfa.ObtainDFA());
 //    LOG_INFO(dfa.ObtainDFA());
     

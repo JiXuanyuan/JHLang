@@ -20,44 +20,25 @@
 #include "JRegNode.hpp"
 
 class JDFA {
-private:
-    JString reg;
-    JNetwork<int, char> dfa;
-    
 public:
     
-    JDFA& Reg(const char *reg) {
+    JDFA() {
         LOG_FUNCTION_ENTRY;
-        if (!this->reg.Assign(reg)) {
-            LOG_WARN("not Assign");
-        }
-        
-        return *this;
     }
     
-    JNetwork<int, char>& ObtainDFA() {
+    JDFA(const char *reg) {
         LOG_FUNCTION_ENTRY;
-        LOG_INFO("reg = ", reg);
-        
-        if (!dfa.Empty()) {
-            return dfa;
-        }
-        
-        // 获得语法树
-        JBinaryTree<JRegNode>::Root synt = Reg2Syntax(reg);
-        
-        // 由语法树遍历，获得NFA
-        Translator tran(this);
-        synt.TraversePostorder(&tran);
-        JGraph<char>& nfa = tran.ObtainNFA();
-        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
-        
-        // 由NFA转换为DFA
-        NFA2DFA(nfa, first, dfa);
-        
-        return dfa;
+        this->reg.Assign(reg);
     }
     
+    JDFA& Reg(const char *reg);
+    
+    JNetwork<int, char>& ObtainDFA();
+    
+private:
+    
+    JString reg;
+    JNetwork<int, char> dfa;
     
     /*
         将正则表达式转为语法树
@@ -96,6 +77,7 @@ public:
 //    friend class Translator;
     class Translator : public JBinaryTree<JRegNode>::Interface {
     private:
+        
         JDFA *self;
         // 1.followPos顶点中存放着reg字符位置，可映射到reg字符
         // 2.pos2ver由reg字符位置映射到followPos顶点

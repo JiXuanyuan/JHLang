@@ -20,6 +20,39 @@
 /*
     实现将正则表达式转为语法树，旧函数
  */
+
+JDFA& JDFA::Reg(const char *reg) {
+    LOG_FUNCTION_ENTRY;
+    if (!this->reg.Assign(reg)) {
+        LOG_WARN("not Assign");
+    }
+    
+    return *this;
+}
+
+JNetwork<int, char>& JDFA::ObtainDFA() {
+    LOG_FUNCTION_ENTRY;
+    LOG_INFO("reg = ", reg);
+    
+    if (!dfa.Empty()) {
+        return dfa;
+    }
+    
+    // 获得语法树
+    JBinaryTree<JRegNode>::Root synt = Reg2Syntax(reg);
+    
+    // 由语法树遍历，获得NFA
+    Translator tran(this);
+    synt.TraversePostorder(&tran);
+    JGraph<char>& nfa = tran.ObtainNFA();
+    JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+    
+    // 由NFA转换为DFA
+    NFA2DFA(nfa, first, dfa);
+    
+    return dfa;
+}
+
 /*
     实现将正则表达式转为语法树，旧函数
  */
