@@ -190,6 +190,11 @@ public:
             syn2nfa->NFA.AddVerter(reg.Get(ver.val));
             syn2nfa->NFA.GetTail().arcs.Add(ver.arcs);
         }
+        
+        // 在NFA尾部节点加入一个空节点和指向空节点的弧
+        int v = syn2nfa->NFA.AddVerter('#');
+        syn2nfa->NFA.Get(v - 1).arcs.Add(v);
+        
         LOG_INFO("NFA: ", syn2nfa->NFA);
     }
     
@@ -212,25 +217,24 @@ public:
         LOG_INFO("firstStatus:", firstStatus);
         
         
-        // 检测状态是否标记
-        int ext = Dstatus.Add(firstStatus);
-        if (ext != JSet<int>::FALG_EXIST) {
-            Ustat.Push(ext);
-            int val = DFA.AddVerter(ext);
-            stat2ver.Add(ext, val);
-        }
+        // 加入初始状态
+        int k = Dstatus.Add(firstStatus);
+        int v = DFA.AddVerter(k);
+        stat2ver.Add(k, v);
+        Ustat.Push(k);
         
         
+        // 处理未标记的状态
         while (Ustat.GetTop() != -1) {
             int statPos = Ustat.Pop();
             
-            JSet<int>& stat = Dstatus.Get(statPos);
-            LOG_INFO("transform status:", stat);
-            for (JSet<int>::Iterator it1 = stat.ObtainIterator(); it1.HasNext();) {
-                int verPos = it1.Next();
-                JGraphVertex<char> ver = syn2nfa->NFA.Get(verPos);
+            JSet<int>& s = Dstatus.Get(statPos);
+            LOG_INFO("transform status:", s);
+            for (JSet<int>::Iterator it1 = s.ObtainIterator(); it1.HasNext();) {
+                int i = it1.Next();
+                JGraphVertex<char> ver = syn2nfa->NFA.Get(i);
                 char key = ver.val;
-                LOG_INFO("ver: ", verPos, ", key:", key);
+                LOG_INFO("i: ", i , ", ver: ", ver, ", key:", key);
                 for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
                     classify.Pray(key).Add(it2.Next());
                 }
@@ -239,18 +243,32 @@ public:
             
             // 检测状态是否标记
             for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
-                int ext = Dstatus.Add(it.Next().value);
-                if (ext != JSet<int>::FALG_EXIST) {
-                    Ustat.Push(ext);
-                    int val = DFA.AddVerter(ext);
-                    stat2ver.Add(ext, val);
+                JMapPair<char, JSet<int>>& m = it.Next();
+                
+                int k = Dstatus.Exist(m.value);
+                LOG_INFO("k: ", k);
+                if (k == JSet<int>::FALG_NOT_EXIST) {
+                    k = Dstatus.Add(m.value);
+                    int v = DFA.AddVerter(k);
+                    stat2ver.Add(k, v);
+                    Ustat.Push(k);
                 }
+                
+                int s = stat2ver.Get(statPos);
+                int e = stat2ver.Get(k);
+                DFA.AddArc(s, e, m.key);
+                
+//                s.Clean();
+//                LOG_INFO("classify: ", classify);
+//                LOG_INFO("Dstatus: ", Dstatus);
+//                LOG_INFO("Ustat: ", Ustat);
             }
-            
             classify.Clean();
             LOG_INFO("classify: ", classify);
-            
+            LOG_INFO("Dstatus: ", Dstatus);
+            LOG_INFO("Ustat: ", Ustat);
         }
+        
         LOG_INFO("DFA: ", DFA);
         LOG_INFO("Dstatus: ", Dstatus);
     

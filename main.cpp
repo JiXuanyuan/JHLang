@@ -27,13 +27,13 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
  
-    Hello h;
-    h.test();
+//    Hello h;
+//    h.test();
     
-//    DFA dfa;
-////    dfa.Reg("(qa|b)*a\\*bb");
-//    dfa.Reg("(a|b)*abb");
-//    dfa.Reg2NFA();
+    DFA dfa;
+//    dfa.Reg("(qa|b)*a\\*bb");
+    dfa.Reg("(a|b)*abb");
+    dfa.Reg2NFA();
     
     return 0;
 }

@@ -15,12 +15,13 @@
 template<class T>
 class JSet : public JList<T> {
 public:
-    static const int FALG_EXIST = -1;
+    static const int FALG_NOT_EXIST = -1;
     
     int Add(const T& t) {
         LOG_FUNCTION_ENTRY;
-        if (Exist(t)) {
-            return FALG_EXIST;
+        int i = Exist(t);
+        if (i >= 0) {
+            return i;
         }
         return JList<T>::Add(t);
     }
@@ -34,14 +35,14 @@ public:
         return JList<T>::Length();
     }
     
-    bool Exist(const T& t) const {
+    int Exist(const T& t) const {
         int l = JList<T>::Length();
         for (int i = 0; i < l; i++) {
             if(JList<T>::Get(i) == t) {
-                return true;
+                return i;
             }
         }
-        return false;
+        return FALG_NOT_EXIST;
     }
     
     bool Equal(const JSet<T>& s) const {
@@ -56,7 +57,7 @@ public:
             2019/07/15(待优化) 内部数据采用有序存储，可优化复杂度
          */
         for (int i = 0; i < ls; i++) {
-            if (!Exist(s.Get(i))) {
+            if (Exist(s.Get(i)) == FALG_NOT_EXIST) {
                 return false;
             }
         }

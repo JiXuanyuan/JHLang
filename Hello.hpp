@@ -270,6 +270,8 @@ public:
         classify.Pray('c').Add(124);
         classify.Pray('c').Add(12);
         Dstatus.Add(classify.Get('c'));
+        Dstatus.Add(classify.Get('c'));
+        Dstatus.Add(classify.Get('c'));
         
         LOG_INFO("classify: ", classify);
         LOG_INFO("Dstatus: ", Dstatus);
