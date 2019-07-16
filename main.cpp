@@ -9,7 +9,7 @@
 #include <iostream>
 #include "Hello.hpp"
 #include "JBinaryTree.hpp"
-#include "DFA.hpp"
+#include "JDFA.hpp"
 #include "JLog.hpp"
 #include "JString.hpp"
 #include "JGraph.hpp"
@@ -23,6 +23,13 @@ using namespace std;
 //    #define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
 //#endif
 
+
+
+
+
+
+
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
@@ -30,10 +37,13 @@ int main(int argc, const char * argv[]) {
 //    Hello h;
 //    h.test();
     
-    DFA dfa;
+    JDFA dfa;
 //    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
     dfa.Reg("(a|b)*abb");
     dfa.Reg2NFA();
+    
+    
+    LOG_INFO(dfa.DeterministicFiniteAutomata());
     
     return 0;
 }

@@ -18,7 +18,7 @@
 #include "JMap.hpp"
 #include "JNetwork.hpp"
 
-class DFA {
+class JDFA {
 private:
     class Node {
     private:
@@ -45,21 +45,13 @@ private:
             regIndex = pos;
         }
         
-        bool IsOperator() {
-            return type == TYPE_OPER;
-        }
+        bool IsOperator() { return type == TYPE_OPER; }
         
-        bool IsCharacter() {
-            return type == TYPE_CHER;
-        }
+        bool IsCharacter() { return type == TYPE_CHER; }
         
-        char Value() {
-            return val;
-        }
+        char Value() { return val; }
         
-        int RegIndex() {
-            return regIndex;
-        }
+        int RegIndex() { return regIndex; }
         
         friend std::ostream& operator << (std::ostream& os, const Node& n) {
             if (n.type == 1) {
@@ -78,6 +70,10 @@ private:
     JNetwork<int, char> dfa;
     
 public:
+    
+    JNetwork<int, char>& DeterministicFiniteAutomata() {
+        return dfa;
+    }
     
     bool Reg(const char *reg) {
         LOG_FUNCTION_ENTRY;
@@ -146,7 +142,7 @@ public:
     friend class Syntax2NFA;
     class Syntax2NFA : public JBinaryTree<Node>::Interface {
     public:
-        DFA *self;
+        JDFA *self;
         // 1.followPos顶点中存放着reg字符位置，可映射到reg字符
         // 2.pos2ver由reg字符位置映射到followPos顶点
         JGraph<int> followPos;
@@ -154,7 +150,7 @@ public:
         
         JGraph<char> NFA;
         
-        Syntax2NFA(DFA *self) : self(self) {}
+        Syntax2NFA(JDFA *self) : self(self) {}
         
         virtual void Visit(JBinaryTree<Node> *tree) {
             self->ObtainNodeNullableAndFirstLastPosition(tree);

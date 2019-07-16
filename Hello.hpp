@@ -14,7 +14,7 @@
 
 #include "JLog.hpp"
 #include "JBinaryTree.hpp"
-#include "DFA.hpp"
+#include "JDFA.hpp"
 #include "JLog.hpp"
 #include "JString.hpp"
 #include "JGraph.hpp"

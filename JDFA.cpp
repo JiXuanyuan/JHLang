@@ -6,7 +6,7 @@
 //  Copyright © 2019 陈佳辉. All rights reserved.
 //
 
-#include "DFA.hpp"
+#include "JDFA.hpp"
 #include "JLog.hpp"
 #include "JString.hpp"
 #include "JBinaryTree.hpp"
@@ -14,6 +14,7 @@
 #include "JSet.hpp"
 #include "JGraph.hpp"
 #include "JMap.hpp"
+#include "JNetwork.hpp"
 
 /*
     实现将正则表达式转为语法树，旧函数
@@ -94,7 +95,7 @@ JBinaryTree<char> * DFA::Reg2Syntax_old(JString& reg, int offset, int* end) {
 /*
     实现将正则表达式转为语法树，旧函数
  */
-inline bool DFA::OperatorPrecede(char op1, char op2) {
+inline bool JDFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
     int pr1 = 0;
     int pr2 = 0;
@@ -117,13 +118,13 @@ inline bool DFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-inline JBinaryTree<DFA::Node> * DFA::CreateNodeCharacter(JString& reg, int index) {
+inline JBinaryTree<JDFA::Node> * JDFA::CreateNodeCharacter(JString& reg, int index) {
     JBinaryTree<Node> * n = new JBinaryTree<Node>;
     n->Node().Assign(reg.Get(index), index);
     return n;
 }
 
-inline JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *>& nodes) {
+inline JBinaryTree<JDFA::Node> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<Node> *>& nodes) {
     // 顶点、左节点、右节点
     JBinaryTree<Node> *fn = NULL;
     JBinaryTree<Node> *ln = NULL;
@@ -141,12 +142,12 @@ inline JBinaryTree<DFA::Node> * DFA::CreateNodeOperator(char op, JStack<JBinaryT
 /*
     实现将正则表达式转为语法树
  */
-JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg) {
+JBinaryTree<JDFA::Node> * JDFA::Reg2Syntax(JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
 
-JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
+JBinaryTree<JDFA::Node> * JDFA::Reg2Syntax(JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
@@ -207,14 +208,14 @@ JBinaryTree<DFA::Node> * DFA::Reg2Syntax(JString& reg, int& i, char endChar) {
 /*
     实现将正则表达式转为语法树，旧函数
  */
-inline bool DFA::NodeNullable(JBinaryTree<Node> *tree) {
+inline bool JDFA::NodeNullable(JBinaryTree<Node> *tree) {
     if (tree == NULL) {
         return true;
     }
     return tree->Node().nullable;
 }
 
-inline void DFA::ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, bool right) {
     if (left && tree->LeftChild() != NULL) {
         tree->Node().firstPos.Add(tree->LeftChild()->Node().firstPos);
     }
@@ -224,7 +225,7 @@ inline void DFA::ObtainNodeFirstPosition(JBinaryTree<Node> *tree, bool left, boo
     }
 }
 
-inline void DFA::ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right) {
+inline void JDFA::ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool right) {
     if (left && tree->LeftChild() != NULL) {
         tree->Node().lastPos.Add(tree->LeftChild()->Node().lastPos);
     }
@@ -237,7 +238,7 @@ inline void DFA::ObtainNodeLastPosition(JBinaryTree<Node> *tree, bool left, bool
 /*
  实现将正则表达式转为语法树，旧函数
  */
-void DFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree) {
+void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
     Node& n = tree->Node();
     
@@ -275,7 +276,7 @@ void DFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<Node> *tree) {
 /*
  实现将正则表达式转为语法树，旧函数
  */
-inline void DFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos) {
+inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos) {
     int ls = startPos.Length();
     int le = endPos.Length();
     int s = 0;
@@ -294,7 +295,7 @@ inline void DFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>
 /*
  实现将正则表达式转为语法树，旧函数
  */
-void DFA::ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
+void JDFA::ObtainNodeFollowPosition(JBinaryTree<Node> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
     Node& n = tree->Node();
     
     if (n.IsCharacter()) {
