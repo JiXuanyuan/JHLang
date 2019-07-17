@@ -13,6 +13,19 @@
 #include "JList.hpp"
 #include "JMap.hpp"
 
+template<class Arc>
+class JNetworkArcs {
+public:
+    Arc arcs;
+    int outDegree;
+//    int inDegree;
+    
+    friend std::ostream& operator << (std::ostream& os, const JNetworkArcs& a) {
+        os << "{ arcs: "<< a.arcs << "; outDegree: " << a.outDegree << " }";
+        return os;
+    }
+};
+
 template<class Ver, class Arc>
 class JNetworkVertex {
 public:

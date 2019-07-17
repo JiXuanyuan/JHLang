@@ -30,7 +30,7 @@ public:
         
         LOG_INFO("==============Hello world!==============");
 //        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
-        JDFA dfa2("(0|1)*");
+        JDFA dfa2("(q|w)*");
         JNetwork<int, char>& net2 = dfa2.ObtainDFA();
         LOG_INFO(net2);
         

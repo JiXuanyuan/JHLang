@@ -43,7 +43,7 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
     // 由语法树遍历，获得NFA
     Translator tran(this);
     synt.TraversePostorder(&tran);
-    JGraph<char>& nfa = tran.ObtainNFA();
+    JGraph<char>& nfa = tran.ObtainNFA(synt.Tree());
     JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
     
     // 由NFA转换为DFA
@@ -289,8 +289,8 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& fo
 /*
  
  */
-JGraph<char>& JDFA::Translator::ObtainNFA() {
-    if (!nfa.Empty()) {
+JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JRegNode> *tree) {
+    if (!nfa.Empty() || tree == NULL) {
         return nfa;
     }
     
@@ -303,7 +303,12 @@ JGraph<char>& JDFA::Translator::ObtainNFA() {
     
     // 在NFA尾部节点加入一个空节点和指向空节点的弧
     int v = nfa.AddVerter('\0');
-    nfa.Get(v - 1).arcs.Add(v);
+    LOG_INFO("lastPos:", tree->Node().lastPos);
+    for (JSet<int>::Iterator it = tree->Node().lastPos.ObtainIterator(); it.HasNext();) {
+        int l = pos2ver.Get(it.Next());
+        LOG_INFO("arc: ", l, ", ", v);
+        nfa.Get(l).arcs.Add(v);
+    }
     
     LOG_INFO("NFA: ", nfa);
     return nfa;
@@ -388,23 +393,25 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
         
         // 检测状态是否标记
         for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
-            JMapPair<char, JSet<int>>& mp = it.Next();
-            LOG_INFO("mp: ", mp);
+            JMapPair<char, JSet<int>>& map = it.Next();
+            LOG_INFO("map: ", map);
             
             // 无转化量时，为终止状态
-            if (mp.value.Empty()) {
+            if (map.value.Empty()) {
                 CreateDFAFollowAccept(DFA, stat2ver, statPos);
                 continue;
             }
             
             // 一般情况，为基础状态，先判断状态是否已存在
-            int k = Dstatus.Exist(mp.value);
+            int k = Dstatus.Exist(map.value);
             LOG_INFO("k: ", k);
             if (k == JSet<int>::FALG_NOT_EXIST) {
-                k = CreateDFAVertex(DFA, Dstatus, stat2ver, mp.value);
+                k = CreateDFAVertex(DFA, Dstatus, stat2ver, map.value);
                 Ustat.Push(k);
             }
-            CreateDFAFollow(DFA, stat2ver, statPos, k, mp.key);
+            CreateDFAFollow(DFA, stat2ver, statPos, k, map.key);
+            LOG_INFO("DFA: ", DFA);
+            LOG_INFO("Dstatus: ", Dstatus);
         }
     }
     

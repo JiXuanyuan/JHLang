@@ -97,7 +97,7 @@ private:
             LOG_INFO("followPos: ", followPos);
         }
         
-        JGraph<char>& ObtainNFA();
+        JGraph<char>& ObtainNFA(JBinaryTree<JRegNode> *tree);
         
         JSet<int>& ObtainFirstStatus(JBinaryTree<JRegNode> *tree);
         
