@@ -79,7 +79,7 @@ public:
                 return arcs.Get(i).outDegree;
             }
         }
-        return JList<JNetworkVertex<Ver, Arc>>::FALG_NOT_EXIST;
+        return JLIST_FALG_NOT_EXIST;
     }
     
 };

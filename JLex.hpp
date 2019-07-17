@@ -48,7 +48,7 @@ public:
             
             int outDegree = net.NextVertex(status, ch);
             LOG_INFO("outDegree: ", outDegree);
-            if (outDegree == JNetwork<int, char>::FALG_NOT_EXIST) {
+            if (outDegree == JLIST_FALG_NOT_EXIST) {
                 LOG_INFO("err, status: ", status, ", ch: ", ch);
                 return;
             }
@@ -61,7 +61,7 @@ public:
         
         int outDegree = net.NextVertex(status, ch);
         LOG_INFO("outDegree: ", outDegree);
-        if (outDegree == JNetwork<int, char>::FALG_NOT_EXIST) {
+        if (outDegree == JLIST_FALG_NOT_EXIST) {
             LOG_INFO("err, status: ", status, ", ch: ", ch);
             return;
         }

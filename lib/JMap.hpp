@@ -32,7 +32,7 @@ public:
         LOG_FUNCTION_ENTRY;
         
         int i = Exist(key);
-        if (i == JList<JMapPair<K, V>>::FALG_NOT_EXIST) {
+        if (i == JLIST_FALG_NOT_EXIST) {
             
             int i = JList<JMapPair<K, V>>::Create();
             JMapPair<K, V> &p = JList<JMapPair<K, V>>::Get(i);
@@ -65,7 +65,7 @@ public:
                 return i;
             }
         }
-        return JList<JMapPair<K, V>>::FALG_NOT_EXIST;
+        return JLIST_FALG_NOT_EXIST;
     }
     
     V& Get(const K& key) {

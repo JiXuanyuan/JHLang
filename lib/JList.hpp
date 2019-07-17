@@ -11,6 +11,8 @@
 
 #include "JLog.hpp"
 
+static const int JLIST_FALG_NOT_EXIST = -1;
+
 template<class T>
 class JList {
 private:
@@ -140,8 +142,6 @@ private:
     
 public:
     
-    static const int FALG_NOT_EXIST = -1;
-    
     JList() {
         LOG_FUNCTION_ENTRY;
         _Initialize();
@@ -195,7 +195,7 @@ public:
     }
     
     bool Exist(const T& t) const {
-        return ExistPosition(t) != FALG_NOT_EXIST;
+        return ExistPosition(t) != JLIST_FALG_NOT_EXIST;
     }
     
     int ExistPosition(const T& t) const {
@@ -205,7 +205,7 @@ public:
                 return i;
             }
         }
-        return FALG_NOT_EXIST;
+        return JLIST_FALG_NOT_EXIST;
     }
     
     T& Get(int index) const {

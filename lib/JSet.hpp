@@ -19,7 +19,7 @@ public:
     int Add(const T& t) {
         LOG_FUNCTION_ENTRY;
         int i = JList<T>::ExistPosition(t);
-        if (i == JList<T>::FALG_NOT_EXIST) {
+        if (i == JLIST_FALG_NOT_EXIST) {
             return JList<T>::Add(t);
         }
         return i;

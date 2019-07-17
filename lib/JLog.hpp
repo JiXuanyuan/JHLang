@@ -49,7 +49,7 @@
         Rope(T v)  ->  Rope(const T& v)
         Rope(T v, Types... args) ->   Rope(const T& v, const Types&... args)
         修改：全部参数使用引用
-        解决：可避免再数据再拷贝
+        解决：可避免数据再拷贝
  */
 
 class JLog {

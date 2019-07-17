@@ -334,7 +334,7 @@ JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JRegNode> *tree) {
 
 inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
     int k = Dstatus.Add(status);
-    int v = DFA.AddVertex(k);
+    int v = DFA.AddVertex(0);
     stat2ver.Add(k, v);
     return k;
 }
@@ -407,7 +407,7 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
             // 一般情况，为基础状态，先判断状态是否已存在
             int k = Dstatus.ExistPosition(map.value);
             LOG_INFO("k: ", k);
-            if (k == JSet<JSet<int>>::FALG_NOT_EXIST) {
+            if (k == JLIST_FALG_NOT_EXIST) {
                 k = CreateDFAVertex(DFA, Dstatus, stat2ver, map.value);
                 Ustat.Push(k);
             }
