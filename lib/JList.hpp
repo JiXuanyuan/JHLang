@@ -191,7 +191,7 @@ public:
     }
     
     bool Empty() const {
-        return length == 0;
+        return length <= 0;
     }
     
     int Exist(const T& t) const {

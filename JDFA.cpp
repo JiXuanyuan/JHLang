@@ -157,7 +157,8 @@ JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endCha
     do {
         fn = CreateNodeOperator(ops.Pop(), nodes);
         nodes.Push(fn);
-    } while (ops.GetTop() != '\0');
+//    } while (ops.GetTop() != '\0');
+    } while (ops.Empty());
     
     // 返回值
     LOG_INFO("end, i = ", i);
@@ -385,7 +386,8 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
     
     // 处理未标记的状态
     JMap<char, JSet<int>> classify;
-    while (Ustat.GetTop() != -1) {
+    while (!Ustat.Empty()) {
+//    while (Ustat.GetTop() != -1) {
         int statPos = Ustat.Pop();
         
         // 对未标记状态，以字符进行归类
