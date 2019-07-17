@@ -9,6 +9,7 @@
 #include "JString.hpp"
 #include "JLog.hpp"
 
+/*
 bool JString::Initialize() {
     LOG_FUNCTION_ENTRY;
     str = new char[SIZE_INITIAL];
@@ -94,3 +95,4 @@ void JString::Echo() const {
     LOG_INFO("length = ", length, ", size = ", size);
     LOG_INFO("str = ", str);
 }
+*/

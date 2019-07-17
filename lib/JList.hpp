@@ -16,6 +16,7 @@ static const int JLIST_FALG_NOT_EXIST = -1;
 template<class T>
 class JList {
 private:
+    
     static const int BLOCK_SIZE_INITIAL = 10;
     static const int BLOCK_TOTAL_MARGIN = 2;
     
@@ -34,7 +35,6 @@ private:
     int blockTotal = 0;
     int length = 0;
     
-//protected:
     bool _Initialize() {
         LOG_FUNCTION_ENTRY;
         head = new Block;
@@ -86,6 +86,62 @@ private:
         }
         return false;
     }
+    
+protected:
+    
+    JList<T>& _Cover(const JList<T>& jl) {
+        LOG_FUNCTION_ENTRY;
+        if (this == &jl) {
+            LOG_DEBUG("addr: ", this, "; same");
+            return *this;
+        }
+//        // 先free再new，不建议用这个方式清空
+        _Closure();
+        _Initialize();
+        // 使用空数据覆盖
+//        _Clean();
+        
+        _CopyTail(jl);
+        return *this;
+    }
+    
+    JList<T>& _CopyTail(const JList<T>& jl) {
+        LOG_FUNCTION_ENTRY;
+        int j = jl.length / BLOCK_SIZE_INITIAL;
+        int i = jl.length % BLOCK_SIZE_INITIAL;
+        Block *p = jl.head;
+        for (int t1 = 0; t1 < j; t1++, p = p->next) {
+            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
+                _Add(p->data[t2]);
+            }
+        }
+        for (int t = 0; t < i; t++) {
+            _Add(p->data[t]);
+        }
+        return *this;
+    }
+    
+//    void _Clean() {
+//        LOG_FUNCTION_ENTRY;
+//        // 空数据
+//        T& em = _Get(length);
+//        
+//        int j = length / BLOCK_SIZE_INITIAL;
+//        int i = length % BLOCK_SIZE_INITIAL;
+//        Block *p = head;
+//        for (int t1 = 0; t1 < j; t1++, p = p->next) {
+//            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
+//                p->data[t2] = em;
+//            }
+//        }
+//        for (int t = 0; t < i; t++) {
+//            p->data[t] = em;
+//        }
+//        
+//        length = 0;
+//        _TryReduce();
+//        LOG_DEBUG("addr: ", this, "; clean");
+//    }
     
     T& _Get(int index) const {
         LOG_FUNCTION_ENTRY;
@@ -154,36 +210,12 @@ public:
     
     JList(const JList& jl) {
         LOG_FUNCTION_ENTRY;
-        _Initialize();
-        int j = jl.length / BLOCK_SIZE_INITIAL;
-        int i = jl.length % BLOCK_SIZE_INITIAL;
-        Block *p = jl.head;
-        for (int t1 = 0; t1 < j; t1++, p = p->next) {
-            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
-                this->_Add(p->data[t2]);
-            }
-        }
-        for (int t = 0; t < i; t++) {
-            this->_Add(p->data[t]);
-        }
+        _Cover(jl);
     }
     
     JList<T>&  operator = (const JList<T>& jl) {
-        if (this != &jl) {
-            _Initialize();
-            int j = jl.length / BLOCK_SIZE_INITIAL;
-            int i = jl.length % BLOCK_SIZE_INITIAL;
-            Block *p = jl.head;
-            for (int t1 = 0; t1 < j; t1++, p = p->next) {
-                for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
-                    this->_Add(p->data[t2]);
-                }
-            }
-            for (int t = 0; t < i; t++) {
-                this->_Add(p->data[t]);
-            }
-        }
-        return *this;
+        LOG_FUNCTION_ENTRY;
+        return _Cover(jl);
     }
     
     int Length() const {

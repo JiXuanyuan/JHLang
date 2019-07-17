@@ -1,5 +1,5 @@
 //
-//  JRegNode.hpp
+//  JDFARegNode.hpp
 //  JHLang
 //
 //  Created by 陈佳辉 on 2019/7/16.
@@ -11,7 +11,7 @@
 
 #include "JLog.hpp"
 
-class JRegNode {
+class JDFARegNode {
 private:
     static const int TYPE_OPER = 1;
     static const int TYPE_CHER = 2;
@@ -44,7 +44,7 @@ public:
     
     int RegIndex() const { return regIndex; }
     
-    friend std::ostream& operator << (std::ostream& os, const JRegNode& n) {
+    friend std::ostream& operator << (std::ostream& os, const JDFARegNode& n) {
         if (n.type == 1) {
             os << "{ op = " << n.val;
         } else if (n.type == 2) {

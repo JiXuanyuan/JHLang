@@ -226,7 +226,7 @@ public:
         }
         
         */
-        LOG_INFO("==============Hello world!==============");
+        /*LOG_INFO("==============Hello world!==============");
        
         JSet<char> set;
         set.Add('1');
@@ -280,6 +280,25 @@ public:
         
         LOG_INFO("classify: ", classify);
         LOG_INFO("Dstatus: ", Dstatus);
+        */
+        LOG_INFO("==============Hello world!==============");
+        JString str("121312");
+        LOG_INFO("str: ", str);
+        JString str2(str);
+        LOG_INFO("str: ", str);
+        LOG_INFO("str2: ", str2);
+        
+        str.Merge("q3432qc3324wecew");
+        LOG_INFO("str: ", str);
+        LOG_INFO("str2: ", str2);
+        
+        str2.Merge("1+++++111cwecew");
+        LOG_INFO("str: ", str);
+        LOG_INFO("str2: ", str2);
+        
+        str.Clean();
+        LOG_INFO("str: ", str);
+        LOG_INFO("str2: ", str2);
         
         LOG_INFO("==============Hello world!==============");
     }

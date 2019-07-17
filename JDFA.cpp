@@ -15,30 +15,31 @@
 #include "JGraph.hpp"
 #include "JMap.hpp"
 #include "JNetwork.hpp"
-#include "JRegNode.hpp"
+#include "JDFARegNode.hpp"
 
 /*
  
  */
-JDFA& JDFA::Reg(const char *reg) {
+JDFA& JDFA::Regulation(const char *reg) {
     LOG_FUNCTION_ENTRY;
-    if (!this->reg.Assign(reg)) {
-        LOG_WARN("not Assign");
-    }
+    this->regulation.Assign(reg);
+//    if (!this->regulation.Assign(reg)) {
+//        LOG_WARN("not Assign");
+//    }
     
     return *this;
 }
 
 JNetwork<int, char>& JDFA::ObtainDFA() {
     LOG_FUNCTION_ENTRY;
-    LOG_INFO("reg = ", reg);
+    LOG_INFO("reg = ", regulation);
     
     if (!dfa.Empty()) {
         return dfa;
     }
     
     // 获得语法树
-    JBinaryTree<JRegNode>::Root synt = Reg2Syntax(reg);
+    JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
     
     // 由语法树遍历，获得NFA
     Translator tran(this);
@@ -78,19 +79,19 @@ inline bool JDFA::OperatorPrecede(char op1, char op2) {
     return pr1 >= pr2;
 }
 
-inline JBinaryTree<JRegNode> * JDFA::CreateNodeCharacter(const JString& reg, int index) {
-    JBinaryTree<JRegNode> * n = new JBinaryTree<JRegNode>;
+inline JBinaryTree<JDFARegNode> * JDFA::CreateNodeCharacter(const JString& reg, int index) {
+    JBinaryTree<JDFARegNode> * n = new JBinaryTree<JDFARegNode>;
     n->Node().Assign(reg.Get(index), index);
     return n;
 }
 
-inline JBinaryTree<JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<JRegNode> *>& nodes) {
+inline JBinaryTree<JDFARegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryTree<JDFARegNode> *>& nodes) {
     // 顶点、左节点、右节点
-    JBinaryTree<JRegNode> *fn = NULL;
-    JBinaryTree<JRegNode> *ln = NULL;
-    JBinaryTree<JRegNode> *rn = NULL;
+    JBinaryTree<JDFARegNode> *fn = NULL;
+    JBinaryTree<JDFARegNode> *ln = NULL;
+    JBinaryTree<JDFARegNode> *rn = NULL;
     
-    fn = new JBinaryTree<JRegNode>;
+    fn = new JBinaryTree<JDFARegNode>;
     fn->Node().Assign(op);
     
     rn = nodes.Pop();
@@ -102,23 +103,23 @@ inline JBinaryTree<JRegNode> * JDFA::CreateNodeOperator(char op, JStack<JBinaryT
 /*
     实现将正则表达式转为语法树
  */
-JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg) {
+JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
 
-JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endChar) {
+JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
-    JStack<JBinaryTree<JRegNode> *> nodes(NULL);
+    JStack<JBinaryTree<JDFARegNode> *> nodes(NULL);
     char op;
     char ch;
     // 操作符节点、符号节点
-    JBinaryTree<JRegNode> *opn = NULL;
-    JBinaryTree<JRegNode> *chn = NULL;
+    JBinaryTree<JDFARegNode> *opn = NULL;
+    JBinaryTree<JDFARegNode> *chn = NULL;
     // 顶点
-    JBinaryTree<JRegNode> *fn = NULL;
+    JBinaryTree<JDFARegNode> *fn = NULL;
     
     int l = reg.Length();
     for (; i < l; i++) {
@@ -169,14 +170,14 @@ JBinaryTree<JRegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endCha
 /*
  
  */
-inline bool JDFA::NodeNullable(JBinaryTree<JRegNode> *tree) {
+inline bool JDFA::NodeNullable(JBinaryTree<JDFARegNode> *tree) {
     if (tree == NULL) {
         return true;
     }
     return tree->Node().nullable;
 }
 
-inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<JRegNode> *tree, bool left, bool right) {
+inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<JDFARegNode> *tree, bool left, bool right) {
     if (left && tree->LeftChild() != NULL) {
         tree->Node().firstPos.Add(tree->LeftChild()->Node().firstPos);
     }
@@ -186,7 +187,7 @@ inline void JDFA::ObtainNodeFirstPosition(JBinaryTree<JRegNode> *tree, bool left
     }
 }
 
-inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JRegNode> *tree, bool left, bool right) {
+inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JDFARegNode> *tree, bool left, bool right) {
     if (left && tree->LeftChild() != NULL) {
         tree->Node().lastPos.Add(tree->LeftChild()->Node().lastPos);
     }
@@ -199,9 +200,9 @@ inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JRegNode> *tree, bool left,
 /*
  
  */
-void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JRegNode> *tree) {
+void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JDFARegNode> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
-    JRegNode& n = tree->Node();
+    JDFARegNode& n = tree->Node();
     
     if (n.IsCharacter()) {
         n.nullable = false;
@@ -256,8 +257,8 @@ inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int
 /*
  
  */
-void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
-    JRegNode& n = tree->Node();
+void JDFA::ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
+    JDFARegNode& n = tree->Node();
     
     if (n.IsCharacter()) {
         int k = n.RegIndex();
@@ -290,7 +291,7 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JRegNode> *tree, JGraph<int>& fo
 /*
  
  */
-JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JRegNode> *tree) {
+JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree) {
     if (!nfa.Empty() || tree == NULL) {
         return nfa;
     }
@@ -298,7 +299,7 @@ JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JRegNode> *tree) {
     LOG_INFO("followPos: ", followPos);
     for (JGraph<int>::Iterator it = followPos.ObtainIterator(); it.HasNext();) {
         JGraphVertex<int>& ver = it.Next();
-        nfa.AddVerter(self->reg.Get(ver.value));
+        nfa.AddVerter(self->regulation.Get(ver.value));
         nfa.GetTail().arcs.Add(ver.arcs);
     }
     
@@ -318,7 +319,7 @@ JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JRegNode> *tree) {
 /*
  
  */
-JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JRegNode> *tree) {
+JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JDFARegNode> *tree) {
     if (!firstStat.Empty() || tree == NULL) {
         return firstStat;
     }
@@ -332,6 +333,9 @@ JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JRegNode> *tree) {
     return firstStat;
 }
 
+/*
+ 
+ */
 inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
     int k = Dstatus.Add(status);
     int v = DFA.AddVertex(0);

@@ -30,13 +30,13 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
  
-//    Hello h;
-//    h.test();
+    Hello h;
+    h.test();
     
 //    JDFA dfa("(a|b)*abb");
-////    dfa.Reg("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
-////    dfa.Reg("(a|b)*abb");
-//    LOG_INFO(dfa.Reg("(a|b)*abb").ObtainDFA());
+////    dfa.Regulation("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
+////    dfa.Regulation("(a|b)*abb");
+//    LOG_INFO(dfa.Regulation("(a|b)*abb").ObtainDFA());
 //    LOG_INFO(dfa.ObtainDFA());
 //    LOG_INFO(dfa.ObtainDFA());
     

@@ -11,6 +11,7 @@
 
 #include "JLog.hpp"
 #include "JDFA.hpp"
+#include "JDFAMerger.hpp"
 
 class JLex {
 public:
@@ -20,7 +21,7 @@ public:
         JDFA dfa("(a|b)*abb");
         JNetwork<int, char>& net = dfa.ObtainDFA();
         LOG_INFO(net);
-        
+//
         JString str("abababaabb");
         follow(str, net);
         
@@ -35,6 +36,12 @@ public:
 //        follow(str2, net2);
         
         LOG_INFO("==============Hello world!==============");
+        
+        JDFAMerger merger;
+//        char *ss1 = "qwwewq";
+//        char *ss2 = "dqw";
+//        merger.Prepare(ss1, ss2);
+        
     }
     
     void follow(const JString& str, const JNetwork<int, char>& net) {
