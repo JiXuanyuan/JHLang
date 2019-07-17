@@ -59,14 +59,13 @@ public:
     JString& Assign(const JString& jstr) {
         LOG_FUNCTION_ENTRY;
         JList<char>::Clean();
-        JList<char>::_CopyTail(jstr);
-//        JList<char>::_Cover(jstr);
+        JList<char>::AddList(jstr);
         return *this;
     }
     
     JString& Merge(const JString& jstr) {
         LOG_FUNCTION_ENTRY;
-        JList<char>::_CopyTail(jstr);
+        JList<char>::AddList(jstr);
         return *this;
     }
     
@@ -74,29 +73,33 @@ public:
         JList<char>::Clean();
     }
     
-//    bool Equal(const JString& jstr) const {
-//        LOG_FUNCTION_ENTRY;
-//        int ls = jstr.Length();
-//        int lt = JList<char>::Length();
-//        if (ls != lt) {
-//            return false;
-//        }
-//
-//        for (int i = 0; i < ls; i++) {
-//            if (jstr.Get(i) != Get(i)) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    JString&  operator = (const JString& jstr) {
-//        return Assign(jstr);
-//    }
-//    
-//    JString&  operator = (const char *str) {
-//        return Assign(str);
-//    }
+    bool Equal(const JString& jstr) const {
+        LOG_FUNCTION_ENTRY;
+        int ls = jstr.Length();
+        int lt = JList<char>::Length();
+        if (ls != lt) {
+            return false;
+        }
+
+        for (int i = 0; i < ls; i++) {
+            if (jstr.Get(i) != Get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    JString& operator = (const JString& jstr) {
+        return Assign(jstr);
+    }
+    
+    JString& operator = (const char *str) {
+        return Assign(str);
+    }
+    
+    bool operator == (const JString& jstr) {
+        return Equal(jstr);
+    }
     
     friend std::ostream& operator << (std::ostream& os, const JString& jstr) {
         int l = jstr.Length();

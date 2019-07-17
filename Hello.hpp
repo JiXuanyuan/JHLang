@@ -300,6 +300,33 @@ public:
         LOG_INFO("str: ", str);
         LOG_INFO("str2: ", str2);
         
+        str.Assign(str2);
+        LOG_INFO("str: ", str);
+        LOG_INFO("str2: ", str2);
+        LOG_INFO("str == str2: ", str.Equal(str2));
+        
+        str2.Clean();
+        LOG_INFO("str: ", str);
+        LOG_INFO("str2: ", str2);
+        LOG_INFO("str == str2: ", str.Equal(str2));
+        LOG_INFO("==============Hello world!==============");
+        JString str1;
+        str1.Clean();
+        str2.Clean();
+        
+        str1 = "3d2r23rcsafr";
+        str2 = "d32r131v32";
+        LOG_INFO("str1: ", str1);
+        LOG_INFO("str2: ", str2);
+        LOG_INFO("str1 == str2: ", str1 == str2);
+        
+        str1 = "qqqq";
+        str2 = "qqqq";
+        LOG_INFO("str1: ", str1);
+        LOG_INFO("str2: ", str2);
+        LOG_INFO("str1 == str2: ", str1 == str2);
+        
+        
         LOG_INFO("==============Hello world!==============");
     }
 };

@@ -87,23 +87,23 @@ private:
         return false;
     }
     
-protected:
+//protected:
     
-    JList<T>& _Cover(const JList<T>& jl) {
-        LOG_FUNCTION_ENTRY;
-        if (this == &jl) {
-            LOG_DEBUG("addr: ", this, "; same");
-            return *this;
-        }
+//    JList<T>& _Cover(const JList<T>& jl) {
+//        LOG_FUNCTION_ENTRY;
+//        if (this == &jl) {
+//            LOG_DEBUG("addr: ", this, "; same");
+//            return *this;
+//        }
 //        // 先free再new，不建议用这个方式清空
-        _Closure();
-        _Initialize();
-        // 使用空数据覆盖
+////        _Closure();
+////        _Initialize();
+//        // 使用空数据覆盖
 //        _Clean();
-        
-        _CopyTail(jl);
-        return *this;
-    }
+//        
+//        _CopyTail(jl);
+//        return *this;
+//    }
     
     JList<T>& _CopyTail(const JList<T>& jl) {
         LOG_FUNCTION_ENTRY;
@@ -121,27 +121,27 @@ protected:
         return *this;
     }
     
-//    void _Clean() {
-//        LOG_FUNCTION_ENTRY;
-//        // 空数据
-//        T& em = _Get(length);
-//        
-//        int j = length / BLOCK_SIZE_INITIAL;
-//        int i = length % BLOCK_SIZE_INITIAL;
-//        Block *p = head;
-//        for (int t1 = 0; t1 < j; t1++, p = p->next) {
-//            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
-//                p->data[t2] = em;
-//            }
-//        }
-//        for (int t = 0; t < i; t++) {
-//            p->data[t] = em;
-//        }
-//        
-//        length = 0;
-//        _TryReduce();
-//        LOG_DEBUG("addr: ", this, "; clean");
-//    }
+    void _Clean() {
+        LOG_FUNCTION_ENTRY;
+        // 空数据
+        T& em = _Get(length);
+        
+        int j = length / BLOCK_SIZE_INITIAL;
+        int i = length % BLOCK_SIZE_INITIAL;
+        Block *p = head;
+        for (int t1 = 0; t1 < j; t1++, p = p->next) {
+            for (int t2 = 0; t2 < BLOCK_SIZE_INITIAL; t2++) {
+                p->data[t2] = em;
+            }
+        }
+        for (int t = 0; t < i; t++) {
+            p->data[t] = em;
+        }
+        
+        length = 0;
+        _TryReduce();
+        LOG_DEBUG("addr: ", this, "; clean");
+    }
     
     T& _Get(int index) const {
         LOG_FUNCTION_ENTRY;
@@ -203,19 +203,26 @@ public:
         _Initialize();
     }
     
+    JList(const JList& jl) {
+        LOG_FUNCTION_ENTRY;
+        _Initialize();
+        _CopyTail(jl);
+    }
+    
     ~JList() {
         LOG_FUNCTION_ENTRY;
         _Closure();
     }
     
-    JList(const JList& jl) {
-        LOG_FUNCTION_ENTRY;
-        _Cover(jl);
-    }
-    
     JList<T>&  operator = (const JList<T>& jl) {
         LOG_FUNCTION_ENTRY;
-        return _Cover(jl);
+        if (this == &jl) {
+            LOG_DEBUG("addr: ", this, "; same");
+            return *this;
+        }
+        _Clean();
+        _CopyTail(jl);
+        return *this;
     }
     
     int Length() const {
@@ -274,6 +281,13 @@ public:
         return _Add(t);
     }
     
+    int AddList(const JList<T>& jl) {
+        LOG_FUNCTION_ENTRY;
+        int i = length;
+        _CopyTail(jl);
+        return i;
+    }
+    
     bool Delete(int index) {
         LOG_FUNCTION_ENTRY;
         return _Delete(index);
@@ -290,9 +304,10 @@ public:
     
     void Clean() {
         LOG_FUNCTION_ENTRY;
-        while (length > 0) {
-            _Delete(length - 1);
-        }
+//        while (length > 0) {
+//            _Delete(length - 1);
+//        }
+        _Clean();
     }
     
     bool Set(int index, const T& t) {
