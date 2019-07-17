@@ -297,7 +297,7 @@ JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JRegNode> *tree) {
     LOG_INFO("followPos: ", followPos);
     for (JGraph<int>::Iterator it = followPos.ObtainIterator(); it.HasNext();) {
         JGraphVertex<int>& ver = it.Next();
-        nfa.AddVerter(self->reg.Get(ver.val));
+        nfa.AddVerter(self->reg.Get(ver.value));
         nfa.GetTail().arcs.Add(ver.arcs);
     }
     
@@ -365,7 +365,7 @@ inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status,
         LOG_INFO("i: ", i , ", ver: ", ver);
         
         // 先取出关键字，避免NFA无边的节点未加入分类器
-        JSet<int>& cf = classify.Pray(ver.val);
+        JSet<int>& cf = classify.Pray(ver.value);
         for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();){
             cf.Add(it2.Next());
         }

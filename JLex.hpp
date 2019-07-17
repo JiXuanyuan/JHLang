@@ -78,10 +78,10 @@ public:
         
         LOG_INFO("======= stat: ", stat);
         
-        LOG_INFO("ver: ", net.Get(stat).value);
-        if (net.Get(stat).value == -1) {
-            LOG_INFO("!!!!!!!!!ok: ", stat);
-        }
+//        LOG_INFO("ver: ", net.Get(stat).value);
+//        if (net.Get(stat).value == -1) {
+//            LOG_INFO("!!!!!!!!!ok: ", stat);
+//        }
         
         LOG_INFO("======= stat: ", stat);
         

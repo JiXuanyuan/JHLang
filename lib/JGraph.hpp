@@ -16,11 +16,11 @@
 template<class T>
 class JGraphVertex {
 public:
-    T val;
+    T value;
     JSet<int> arcs;
     
     friend std::ostream& operator << (std::ostream& os, const JGraphVertex& v) {
-        os << "{ vertex: "<< v.val << "; arcs: " << v.arcs << " }";
+        os << "{ vertex: "<< v.value << "; arcs: " << v.arcs << " }";
         return os;
     }
 };
@@ -28,11 +28,11 @@ public:
 template<class T>
 class JGraph : public JList<JGraphVertex<T>> {
 public:
-    int AddVerter(T t) {
+    int AddVerter(const T& value) {
         LOG_FUNCTION_ENTRY;
         int i = JList<JGraphVertex<T>>::Length();
         JList<JGraphVertex<T>>::Add();
-        JList<JGraphVertex<T>>::GetTail().val = t;
+        JList<JGraphVertex<T>>::GetTail().value = value;
         return i;
     }
     

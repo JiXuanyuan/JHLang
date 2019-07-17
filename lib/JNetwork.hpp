@@ -41,7 +41,7 @@ public:
 template<class Ver, class Arc>
 class JNetwork : public JList<JNetworkVertex<Ver, Arc>> {
 public:
-    int AddVertex(Ver value) {
+    int AddVertex(const Ver& value) {
         LOG_FUNCTION_ENTRY;
         int i = JList<JNetworkVertex<Ver, Arc>>::Add();
         JNetworkVertex<Ver, Arc>& ver = JList<JNetworkVertex<Ver, Arc>>::Get(i);
@@ -49,7 +49,7 @@ public:
         return i;
     }
     
-    void AddArc(int start, int end, Arc value) {
+    void AddArc(int start, int end, const Arc& value) {
         LOG_FUNCTION_ENTRY;
         JList<JNetworkArcs<Arc>>& arcs = JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs;
         int i = arcs.Add();
@@ -57,6 +57,15 @@ public:
         arc.outDegree = end;
         arc.value = value;
     }
+    
+    bool HasNextVertex(int start, const Arc& value) {
+        return true;
+    }
+    
+    bool NextVertex(int start, const Arc& value) {
+        return true;
+    }
+    
 };
 
 #endif /* JNetwork_hpp */
