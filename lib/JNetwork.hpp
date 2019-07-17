@@ -59,10 +59,21 @@ public:
     }
     
     bool HasNextVertex(int start, const Arc& value) {
+        LOG_FUNCTION_ENTRY;
+        JList<JNetworkArcs<Arc>>& arcs = JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs;
+//        for () {
+//            
+//        }
+        
+        
+//        int i = arcs.Add();
+//        JNetworkArcs<Arc>& arc = arcs.Get(i);
+//        arc.outDegree = end;
+//        arc.value = value;
         return true;
     }
     
-    bool NextVertex(int start, const Arc& value) {
+    int NextVertex(int start, const Arc& value) {
         return true;
     }
     

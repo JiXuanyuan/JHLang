@@ -139,6 +139,9 @@ private:
     }
     
 public:
+    
+    static const int FALG_NOT_EXIST = -1;
+    
     JList() {
         LOG_FUNCTION_ENTRY;
         _Initialize();
@@ -189,6 +192,16 @@ public:
     
     bool Empty() const {
         return length == 0;
+    }
+    
+    int Exist(const T& t) const {
+        int l = JList<T>::Length();
+        for (int i = 0; i < l; i++) {
+            if(JList<T>::Get(i) == t) {
+                return i;
+            }
+        }
+        return FALG_NOT_EXIST;
     }
     
     T& Get(int index) const {

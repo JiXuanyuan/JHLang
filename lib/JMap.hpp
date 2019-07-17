@@ -27,19 +27,21 @@ public:
 template<class K, class V>
 class JMap : public JList<JMapPair<K, V>> {
 public:
-    static const int FALG_EXIST = -1;
+//    static const int FALG_EXIST = -1;
     
     int Add(const K& key, const V& value) {
         LOG_FUNCTION_ENTRY;
-        if (Exist(key)) {
-            return FALG_EXIST;
-        }
         
-        JList<JMapPair<K, V>>::Add();
-        JMapPair<K, V> &p = JList<JMapPair<K, V>>::GetTail();
-        p.key = key;
-        p.value = value;
-        return JList<JMapPair<K, V>>::Length();
+        int i = Exist(key);
+        if (i == JList<JMapPair<K, V>>::FALG_NOT_EXIST) {
+            
+            JList<JMapPair<K, V>>::Add();
+            JMapPair<K, V> &p = JList<JMapPair<K, V>>::GetTail();
+            p.key = key;
+            p.value = value;
+            return JList<JMapPair<K, V>>::Length();
+        }
+        return i;
     }
     
     V& Pray(const K& key) {
@@ -57,14 +59,14 @@ public:
         return p.value;
     }
     
-    bool Exist(const K& key) const {
+    int Exist(const K& key) const {
         int l = JList<JMapPair<K, V>>::Length();
         for (int i = 0; i < l; i++) {
             if(JList<JMapPair<K, V>>::Get(i).key == key) {
-                return true;
+                return i;
             }
         }
-        return false;
+        return JList<JMapPair<K, V>>::FALG_NOT_EXIST;
     }
     
     V& Get(const K& key) {
