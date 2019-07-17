@@ -30,9 +30,9 @@ class JGraph : public JList<JGraphVertex<T>> {
 public:
     int AddVerter(const T& value) {
         LOG_FUNCTION_ENTRY;
-        int i = JList<JGraphVertex<T>>::Length();
-        JList<JGraphVertex<T>>::Add();
-        JList<JGraphVertex<T>>::GetTail().value = value;
+        int i = JList<JGraphVertex<T>>::Create();
+        JGraphVertex<T>& ver = JList<JGraphVertex<T>>::Get(i);
+        ver.value = value;
         return i;
     }
     

@@ -34,16 +34,6 @@ public:
         return JList<T>::Length();
     }
     
-//    int Exist(const T& t) const {
-//        int l = JList<T>::Length();
-//        for (int i = 0; i < l; i++) {
-//            if(JList<T>::Get(i) == t) {
-//                return i;
-//            }
-//        }
-//        return FALG_NOT_EXIST;
-//    }
-    
     bool Equal(const JSet<T>& s) const {
         int ls = s.Length();
         int lt = JList<T>::Length();

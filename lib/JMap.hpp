@@ -27,7 +27,6 @@ public:
 template<class K, class V>
 class JMap : public JList<JMapPair<K, V>> {
 public:
-//    static const int FALG_EXIST = -1;
     
     int Add(const K& key, const V& value) {
         LOG_FUNCTION_ENTRY;
@@ -35,8 +34,8 @@ public:
         int i = Exist(key);
         if (i == JList<JMapPair<K, V>>::FALG_NOT_EXIST) {
             
-            JList<JMapPair<K, V>>::Add();
-            JMapPair<K, V> &p = JList<JMapPair<K, V>>::GetTail();
+            int i = JList<JMapPair<K, V>>::Create();
+            JMapPair<K, V> &p = JList<JMapPair<K, V>>::Get(i);
             p.key = key;
             p.value = value;
             return JList<JMapPair<K, V>>::Length();
@@ -53,8 +52,8 @@ public:
             }
         }
         
-        JList<JMapPair<K, V>>::Add();
-        JMapPair<K, V> &p = JList<JMapPair<K, V>>::GetTail();
+        int i = JList<JMapPair<K, V>>::Create();
+        JMapPair<K, V> &p = JList<JMapPair<K, V>>::Get(i);
         p.key = key;
         return p.value;
     }

@@ -222,12 +222,12 @@ public:
         return _Get(length - 1);
     }
     
-    int Add() {
+    int Create() {
         LOG_FUNCTION_ENTRY;
         int i = length;
-        
+
         length++;
-        
+
         _TryExpand();
         LOG_DEBUG("addr: ", this, "; add");
         return i;

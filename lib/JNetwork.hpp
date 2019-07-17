@@ -43,7 +43,7 @@ class JNetwork : public JList<JNetworkVertex<Ver, Arc>> {
 public:
     int AddVertex(const Ver& value) {
         LOG_FUNCTION_ENTRY;
-        int i = JList<JNetworkVertex<Ver, Arc>>::Add();
+        int i = JList<JNetworkVertex<Ver, Arc>>::Create();
         JNetworkVertex<Ver, Arc>& ver = JList<JNetworkVertex<Ver, Arc>>::Get(i);
         ver.value = value;
         return i;
@@ -52,7 +52,7 @@ public:
     void AddArc(int start, int end, const Arc& value) {
         LOG_FUNCTION_ENTRY;
         JList<JNetworkArcs<Arc>>& arcs = JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs;
-        int i = arcs.Add();
+        int i = arcs.Create();
         JNetworkArcs<Arc>& arc = arcs.Get(i);
         arc.outDegree = end;
         arc.value = value;
