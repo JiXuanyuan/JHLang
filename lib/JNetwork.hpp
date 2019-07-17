@@ -16,12 +16,12 @@
 template<class Arc>
 class JNetworkArcs {
 public:
-    Arc arcs;
+    Arc value;
     int outDegree;
 //    int inDegree;
     
     friend std::ostream& operator << (std::ostream& os, const JNetworkArcs& a) {
-        os << "{ arcs: "<< a.arcs << "; outDegree: " << a.outDegree << " }";
+        os << "{ value: "<< a.value << "; outDegree: " << a.outDegree << " }";
         return os;
     }
 };
@@ -29,11 +29,11 @@ public:
 template<class Ver, class Arc>
 class JNetworkVertex {
 public:
-    Ver ver;
-    JMap<int, Arc> arcs;
+    Ver value;
+    JList<JNetworkArcs<Arc>> arcs;
 
     friend std::ostream& operator << (std::ostream& os, const JNetworkVertex& v) {
-        os << "{ vertex: "<< v.ver << "; arcs: " << v.arcs << " }";
+        os << "{ vertex: "<< v.value << "; arcs: " << v.arcs << " }";
         return os;
     }
 };
@@ -41,17 +41,21 @@ public:
 template<class Ver, class Arc>
 class JNetwork : public JList<JNetworkVertex<Ver, Arc>> {
 public:
-    int AddVertex(Ver v) {
+    int AddVertex(Ver value) {
         LOG_FUNCTION_ENTRY;
-        int i = JList<JNetworkVertex<Ver, Arc>>::Length();
-        JList<JNetworkVertex<Ver, Arc>>::Add();
-        JList<JNetworkVertex<Ver, Arc>>::GetTail().ver = v;
+        int i = JList<JNetworkVertex<Ver, Arc>>::Add();
+        JNetworkVertex<Ver, Arc>& ver = JList<JNetworkVertex<Ver, Arc>>::Get(i);
+        ver.value = value;
         return i;
     }
     
-    void AddArc(int start, int end, Arc a) {
+    void AddArc(int start, int end, Arc value) {
         LOG_FUNCTION_ENTRY;
-        JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs.Add(end, a);
+        JList<JNetworkArcs<Arc>>& arcs = JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs;
+        int i = arcs.Add();
+        JNetworkArcs<Arc>& arc = arcs.Get(i);
+        arc.outDegree = end;
+        arc.value = value;
     }
 };
 

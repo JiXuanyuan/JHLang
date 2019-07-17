@@ -44,42 +44,42 @@ public:
     void follow(const JString& str, const JNetwork<int, char>& net) {
         
         int stat = 0;
-        for (int i = 0; i < str.Length(); i++) {
-            LOG_INFO("ch: ", str.Get(i));
-            
-            JNetworkVertex<int, char>& V = net.Get(stat);
-            LOG_INFO("V: ", V);
-            for (JMap<int, char>::Iterator it = V.arcs.ObtainIterator(); it.HasNext();) {
-                JMapPair<int, char>& arc = it.Next();
-                
-                
-                if (arc.value == str.Get(i)) {
-                    stat = arc.key;
-                    LOG_INFO("tran stat: ", stat);
-                    break;
-                }
-                
-            }
-            
-        }
+//        for (int i = 0; i < str.Length(); i++) {
+//            LOG_INFO("ch: ", str.Get(i));
+//            
+//            JNetworkVertex<int, char>& V = net.Get(stat);
+//            LOG_INFO("V: ", V);
+//            for (JMap<int, char>::Iterator it = V.arcs.ObtainIterator(); it.HasNext();) {
+//                JMapPair<int, char>& arc = it.Next();
+//                
+//                
+//                if (arc.value == str.Get(i)) {
+//                    stat = arc.key;
+//                    LOG_INFO("tran stat: ", stat);
+//                    break;
+//                }
+//                
+//            }
+//            
+//        }
         
         LOG_INFO("======= stat: ", stat);
         
-        JNetworkVertex<int, char>& V = net.Get(stat);
-        LOG_INFO("V: ", V);
-        for (JMap<int, char>::Iterator it = V.arcs.ObtainIterator(); it.HasNext();) {
-            JMapPair<int, char>& arc = it.Next();
-            
-            if (arc.value == '\0') {
-                stat = arc.key;
-                break;
-            }
-        }
+//        JNetworkVertex<int, char>& V = net.Get(stat);
+//        LOG_INFO("V: ", V);
+//        for (JMap<int, char>::Iterator it = V.arcs.ObtainIterator(); it.HasNext();) {
+//            JMapPair<int, char>& arc = it.Next();
+//
+//            if (arc.value == '\0') {
+//                stat = arc.key;
+//                break;
+//            }
+//        }
         
         LOG_INFO("======= stat: ", stat);
         
-        LOG_INFO("ver: ", net.Get(stat).ver);
-        if (net.Get(stat).ver == -1) {
+        LOG_INFO("ver: ", net.Get(stat).value);
+        if (net.Get(stat).value == -1) {
             LOG_INFO("!!!!!!!!!ok: ", stat);
         }
         
