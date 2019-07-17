@@ -405,9 +405,9 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
             }
             
             // 一般情况，为基础状态，先判断状态是否已存在
-            int k = Dstatus.Exist(map.value);
+            int k = Dstatus.ExistPosition(map.value);
             LOG_INFO("k: ", k);
-            if (k == JList<int>::FALG_NOT_EXIST) {
+            if (k == JSet<JSet<int>>::FALG_NOT_EXIST) {
                 k = CreateDFAVertex(DFA, Dstatus, stat2ver, map.value);
                 Ustat.Push(k);
             }

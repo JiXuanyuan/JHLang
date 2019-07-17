@@ -194,7 +194,11 @@ public:
         return length <= 0;
     }
     
-    int Exist(const T& t) const {
+    bool Exist(const T& t) const {
+        return ExistPosition(t) != FALG_NOT_EXIST;
+    }
+    
+    int ExistPosition(const T& t) const {
         int l = JList<T>::Length();
         for (int i = 0; i < l; i++) {
             if(JList<T>::Get(i) == t) {

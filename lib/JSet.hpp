@@ -18,7 +18,7 @@ public:
     
     int Add(const T& t) {
         LOG_FUNCTION_ENTRY;
-        int i = JList<T>::Exist(t);
+        int i = JList<T>::ExistPosition(t);
         if (i == JList<T>::FALG_NOT_EXIST) {
             return JList<T>::Add(t);
         }
@@ -46,7 +46,7 @@ public:
             2019/07/15(待优化) 内部数据采用有序存储，可优化复杂度
          */
         for (int i = 0; i < ls; i++) {
-            if (JList<T>::Exist(s.Get(i)) == JList<T>::FALG_NOT_EXIST) {
+            if (!JList<T>::Exist(s.Get(i))) {
                 return false;
             }
         }

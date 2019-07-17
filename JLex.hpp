@@ -15,9 +15,6 @@
 class JLex {
 public:
     
-
-    
-    
     void Test() {
         LOG_INFO("==============Hello world!==============");
         JDFA dfa("(a|b)*abb");
@@ -25,14 +22,13 @@ public:
         LOG_INFO(net);
         
         JString str("abababaabb");
-        
         follow(str, net);
         
         LOG_INFO("==============Hello world!==============");
 //        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
-        JDFA dfa2("(q|w)*");
-        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
-        LOG_INFO(net2);
+//        JDFA dfa2("(q|w)*");
+//        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
+//        LOG_INFO(net2);
         
 //        JString str2("12343215344325215");
 //        
@@ -43,47 +39,39 @@ public:
     
     void follow(const JString& str, const JNetwork<int, char>& net) {
         
-        int stat = 0;
-//        for (int i = 0; i < str.Length(); i++) {
-//            LOG_INFO("ch: ", str.Get(i));
-//            
-//            JNetworkVertex<int, char>& V = net.Get(stat);
-//            LOG_INFO("V: ", V);
-//            for (JMap<int, char>::Iterator it = V.arcs.ObtainIterator(); it.HasNext();) {
-//                JMapPair<int, char>& arc = it.Next();
-//                
-//                
-//                if (arc.value == str.Get(i)) {
-//                    stat = arc.key;
-//                    LOG_INFO("tran stat: ", stat);
-//                    break;
-//                }
-//                
-//            }
-//            
-//        }
+        int status = 0;
         
-        LOG_INFO("======= stat: ", stat);
+        // 检测字符
+        for (int i = 0; i < str.Length(); i++) {
+            char ch = str.Get(i);
+            LOG_INFO("ch: ", ch);
+            
+            int outDegree = net.NextVertex(status, ch);
+            LOG_INFO("outDegree: ", outDegree);
+            if (outDegree == JNetwork<int, char>::FALG_NOT_EXIST) {
+                LOG_INFO("err, status: ", status, ", ch: ", ch);
+                return;
+            }
+            status = outDegree;
+        }
         
-//        JNetworkVertex<int, char>& V = net.Get(stat);
-//        LOG_INFO("V: ", V);
-//        for (JMap<int, char>::Iterator it = V.arcs.ObtainIterator(); it.HasNext();) {
-//            JMapPair<int, char>& arc = it.Next();
-//
-//            if (arc.value == '\0') {
-//                stat = arc.key;
-//                break;
-//            }
-//        }
+        // 检测空标志
+        char ch = '\0';
+        LOG_INFO("ch: ", ch);
         
-        LOG_INFO("======= stat: ", stat);
+        int outDegree = net.NextVertex(status, ch);
+        LOG_INFO("outDegree: ", outDegree);
+        if (outDegree == JNetwork<int, char>::FALG_NOT_EXIST) {
+            LOG_INFO("err, status: ", status, ", ch: ", ch);
+            return;
+        }
+        status = outDegree;
         
-//        LOG_INFO("ver: ", net.Get(stat).value);
-//        if (net.Get(stat).value == -1) {
-//            LOG_INFO("!!!!!!!!!ok: ", stat);
-//        }
-        
-        LOG_INFO("======= stat: ", stat);
+        // 判断是否为终止状态
+        LOG_INFO("ver: ", net.Get(status).value);
+        if (net.Get(status).value == -1) {
+            LOG_INFO("!!!!!!!!!ok, status: ", status, ", str: ", str);
+        }
         
     }
     

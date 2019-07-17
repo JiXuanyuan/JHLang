@@ -58,23 +58,28 @@ public:
         arc.value = value;
     }
     
-    bool HasNextVertex(int start, const Arc& value) {
+    bool HasNextVertex(int start, const Arc& value) const {
         LOG_FUNCTION_ENTRY;
         JList<JNetworkArcs<Arc>>& arcs = JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs;
-//        for () {
-//            
-//        }
-        
-        
-//        int i = arcs.Add();
-//        JNetworkArcs<Arc>& arc = arcs.Get(i);
-//        arc.outDegree = end;
-//        arc.value = value;
-        return true;
+        int l = arcs.Length();
+        for (int i = 0; i < l; i++) {
+            if (arcs.Get(i).value == value) {
+                return true;
+            }
+        }
+        return false;
     }
     
-    int NextVertex(int start, const Arc& value) {
-        return true;
+    int NextVertex(int start, const Arc& value) const {
+        LOG_FUNCTION_ENTRY;
+        JList<JNetworkArcs<Arc>>& arcs = JList<JNetworkVertex<Ver, Arc>>::Get(start).arcs;
+        int l = arcs.Length();
+        for (int i = 0; i < l; i++) {
+            if (arcs.Get(i).value == value) {
+                return arcs.Get(i).outDegree;
+            }
+        }
+        return JList<JNetworkVertex<Ver, Arc>>::FALG_NOT_EXIST;
     }
     
 };
