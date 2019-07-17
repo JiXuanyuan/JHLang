@@ -15,12 +15,11 @@
 class JString : protected JList<char> {
 protected:
     
-    inline JString& _CopyTail(const char *str) {
+    inline void _CopyTail(const char *str) {
         LOG_FUNCTION_ENTRY;
         for (int i = 0; str[i] != '\0'; i++) {
             JList<char>::Add(str[i]);
         }
-        return *this;
     }
     
 public:
@@ -48,12 +47,14 @@ public:
     JString& Assign(const char *str) {
         LOG_FUNCTION_ENTRY;
         JList<char>::Clean();
-        return _CopyTail(str);
+        _CopyTail(str);
+        return *this;
     }
     
     JString& Merge(const char *str) {
         LOG_FUNCTION_ENTRY;
-        return _CopyTail(str);
+        _CopyTail(str);
+        return *this;
     }
     
     JString& Assign(const JString& jstr) {

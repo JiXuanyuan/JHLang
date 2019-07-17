@@ -100,12 +100,12 @@ private:
 ////        _Initialize();
 //        // 使用空数据覆盖
 //        _Clean();
-//        
+//
 //        _CopyTail(jl);
 //        return *this;
 //    }
     
-    JList<T>& _CopyTail(const JList<T>& jl) {
+    void _CopyTail(const JList<T>& jl) {
         LOG_FUNCTION_ENTRY;
         int j = jl.length / BLOCK_SIZE_INITIAL;
         int i = jl.length % BLOCK_SIZE_INITIAL;
@@ -118,7 +118,6 @@ private:
         for (int t = 0; t < i; t++) {
             _Add(p->data[t]);
         }
-        return *this;
     }
     
     void _Clean() {
