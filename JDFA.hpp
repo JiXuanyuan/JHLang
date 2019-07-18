@@ -52,7 +52,7 @@ private:
     /*
         将正则表达式转为语法树
      */
-    bool OperatorPrecede(char op1, char op2);
+    bool OperatorPrecede(char op1, char op2) const;
     
     JBinaryTree<JDFARegNode> * CreateNodeCharacter(const JString& reg, int index);
     

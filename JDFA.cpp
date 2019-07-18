@@ -56,7 +56,7 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
 /*
  
  */
-inline bool JDFA::OperatorPrecede(char op1, char op2) {
+inline bool JDFA::OperatorPrecede(char op1, char op2) const {
     // 比较 '&', '|', '*' 运算的优先级
     int pr1 = 0;
     int pr2 = 0;
@@ -305,12 +305,26 @@ JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree) {
     
     // 在NFA尾部节点加入一个空节点和指向空节点的弧
     int v = nfa.AddVerter('\0');
+    //
     LOG_INFO("lastPos:", tree->Node().lastPos);
     for (JSet<int>::Iterator it = tree->Node().lastPos.ObtainIterator(); it.HasNext();) {
         int l = pos2ver.Get(it.Next());
         LOG_INFO("arc: ", l, ", ", v);
         nfa.Get(l).arcs.Add(v);
     }
+    // 更新起始节点
+    LOG_INFO("firstPos:", tree->Node().firstPos);
+    for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
+        firstStat.Add(pos2ver.Get(it.Next()));
+    }
+    
+    // 如果为nullable
+    LOG_INFO("nullable:", tree->Node().nullable);
+    if (tree->Node().nullable) {
+        firstStat.Add(v);
+    }
+    
+    LOG_INFO("firstStat:", firstStat);
     
     LOG_INFO("NFA: ", nfa);
     return nfa;
