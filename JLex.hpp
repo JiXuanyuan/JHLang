@@ -11,11 +11,10 @@
 
 #include "JLog.hpp"
 #include "JDFA.hpp"
-#include "JDFAMerger.hpp"
+//#include "JDFAMerger.hpp"
 
 class JLex {
 public:
-   
     class JDFAIntend {
     public:
         int priority;
@@ -28,45 +27,7 @@ public:
             return os;
         }
     };
-    
-    JList<JDFAIntend> intends;
-    
-    void Intend(int priority, const char *label, const char *regulation) {
-        int i = intends.Create();
-        JDFAIntend& it = intends.Get(i);
-        it.priority = priority;
-        it.lable = label;
-        it.regulation = regulation;
-    }
-    
-    void Merger(int priority, JNetwork<int, char>& adopter) {
-        JGraph<char> NFA;
-        JSet<int> firstStatus;
-        JMap<int, int> empty2lable;
-        
-        int l = intends.Length();
-        for (int i = 0; i < l; i++) {
-            JDFAIntend& it = intends.Get(i);
-            
-            if (it.priority == priority) {
-                LOG_INFO("intends: ", it);
-                
-                JDFA::ObtainNFA(NFA, firstStatus, it.regulation);
-                // 每次取得新的NFA，末尾节点的标志都为'\0'
-                empty2lable.Add(NFA.Length() - 1, i);
-            }
-        }
-        LOG_INFO("empty2lable: ", empty2lable);
-        
-        // 将以整合的NFA转换为DFA
-        //        adopter.priority = priority;
-        
-        JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, adopter);
-        
-        LOG_INFO("adopter: ", adopter);
-    }
-    
-    
+
     
     void Test() {
         LOG_INFO("==============Hello world!==============");
@@ -99,9 +60,9 @@ public:
         Intend(3, "sub1", "=");
         
         
-        Merger(1, networks[0]);
-        Merger(2, networks[1]);
-        Merger(3, networks[2]);
+        Merger(1, networks[0], empty2lable[0]);
+        Merger(2, networks[1], empty2lable[1]);
+        Merger(3, networks[2], empty2lable[2]);
         
         ReadSection("zxc=qwe+@asd");
     }
@@ -111,7 +72,9 @@ public:
     
 private:
     
+    JList<JDFAIntend> intends;
     JNetwork<int, char> networks[3];
+    JMap<int, int> empty2lable[3];
     int neti = 0, netj = 0;
     JString section;
     int secs = 0, sece = 0;
@@ -124,6 +87,17 @@ private:
     
     void ReadPeek() {
         int l = section.Length();
+        
+        
+        LOG_INFO("networks[0]: ", networks[0]);
+        LOG_INFO("networks[1]: ", networks[1]);
+        LOG_INFO("networks[2]: ", networks[2]);
+        LOG_INFO("empty2lable[0]: ", empty2lable[0]);
+        LOG_INFO("empty2lable[1]: ", empty2lable[1]);
+        LOG_INFO("empty2lable[2]: ", empty2lable[2]);
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        
+        
         for (int i = 0; i < l; i++) {
             peek = section.Get(i);
             Follow();
@@ -218,7 +192,11 @@ private:
     
     void Export() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        LOG_INFO("OK!!! value: ", networks[neti].Get(netj).value);
+        int v = networks[neti].Get(netj).value;
+        LOG_INFO("OK!!! value: ", v);
+//        int i = empty2lable[neti].GetByKey(v);
+        LOG_INFO("OK!!! intends: ", intends.Get(v));
+        
     }
     
 //
@@ -272,6 +250,45 @@ private:
 //
 //        return true;
 //    }
+    
+    
+
+    
+    
+    
+    void Intend(int priority, const char *label, const char *regulation) {
+        int i = intends.Create();
+        JDFAIntend& it = intends.Get(i);
+        it.priority = priority;
+        it.lable = label;
+        it.regulation = regulation;
+    }
+    
+    void Merger(int priority, JNetwork<int, char>& adopter, JMap<int, int>& empty2lable) {
+        JGraph<char> NFA;
+        JSet<int> firstStatus;
+        
+        int l = intends.Length();
+        for (int i = 0; i < l; i++) {
+            JDFAIntend& it = intends.Get(i);
+            
+            if (it.priority == priority) {
+                LOG_INFO("intends: ", it);
+                
+                JDFA::ObtainNFA(NFA, firstStatus, it.regulation);
+                // 每次取得新的NFA，末尾节点的标志都为'\0'
+                empty2lable.Add(NFA.Length() - 1, i);
+            }
+        }
+        LOG_INFO("empty2lable: ", empty2lable);
+        
+        // 将以整合的NFA转换为DFA
+        //        adopter.priority = priority;
+        
+        JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, adopter);
+        
+        LOG_INFO("adopter: ", adopter);
+    }
     
 };
 
