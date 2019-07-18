@@ -158,8 +158,8 @@ JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char end
     do {
         fn = CreateNodeOperator(ops.Pop(), nodes);
         nodes.Push(fn);
-//    } while (ops.GetTop() != '\0');
-    } while (ops.Empty());
+    } while (ops.GetTop() != '\0');
+//    } while (ops.Empty());
     
     // 返回值
     LOG_INFO("end, i = ", i);
@@ -376,6 +376,11 @@ inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>
  */
 inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
     LOG_INFO("transform: ", status);
+    
+    // 清空分类器
+    for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
+        it.Next().value.Clean();
+    }
     classify.Clean();
     
     for (JSet<int>::Iterator it1 = status.ObtainIterator(); it1.HasNext();) {
@@ -404,8 +409,8 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
     
     // 处理未标记的状态
     JMap<char, JSet<int>> classify;
-    while (!Ustat.Empty()) {
-//    while (Ustat.GetTop() != -1) {
+//    while (!Ustat.Empty()) {
+    while (Ustat.GetTop() != -1) {
         int statPos = Ustat.Pop();
         
         // 对未标记状态，以字符进行归类

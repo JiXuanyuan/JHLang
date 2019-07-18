@@ -57,7 +57,7 @@ public:
         it.regulation = regulation;
     }
     
-    void Merger(int priority, JDFAAccepter& adopter) {
+    void Merger(int priority, JNetwork<int, char>& adopter) {
         JGraph<char> NFA;
         JSet<int> firstStatus;
         JMap<int, int> empty2lable;
@@ -77,9 +77,9 @@ public:
         LOG_INFO("empty2lable: ", empty2lable);
         
         // 将以整合的NFA转换为DFA
-        adopter.priority = priority;
+//        adopter.priority = priority;
         
-        JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, adopter.adopter);
+        JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, adopter);
         
         LOG_INFO("adopter: ", adopter);
     }

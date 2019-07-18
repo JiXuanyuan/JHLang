@@ -16,6 +16,11 @@
 class JLex {
 public:
     
+    
+
+    
+    
+    
     void Test() {
         LOG_INFO("==============Hello world!==============");
         JDFA dfa("(a|b)*abb");
@@ -23,7 +28,7 @@ public:
         LOG_INFO(net);
 //
         JString str("abababaabb");
-        follow(str, net);
+//        follow(str, net);
         
         LOG_INFO("==============Hello world!==============");
 //        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
@@ -39,53 +44,137 @@ public:
         
         
         LOG_INFO("==============Hello world!==============");
-        
+//
+//        JDFAMerger merger;
+//        JDFAAccepter adp1, adp2, adp3, adp4;
         JDFAMerger merger;
-        JDFAAccepter adp1, adp2, adp3, adp4;
-//        merger.Intend(1, "qif1", "iweqf");
-//        merger.Intend(2, "wiwf3", "ireqf");
-//        merger.Intend(3, "eif", "if123");
-//        merger.Intend(1, "rif4r", "2312if");
-//        merger.Intend(1, "tif", "iffew");
-//        merger.Intend(1, "yif", "iffwefq");
-//        merger.Intend(1, "uif", "iweqwf");
-//        merger.Intend(9, "iif", "i123f");
-//        merger.Intend(9, "oif", "i123f");
-//        merger.Intend(1, "pif", "i213f");
-        
         merger.Intend(1, "if1", "qwe");
-        merger.Intend(2, "wiwf3", "ireqf");
-        merger.Intend(3, "eif", "if123");
         merger.Intend(1, "if2", "asd");
         merger.Intend(1, "if3", "zxc");
-
-        merger.Merger(1, adp1);
-//        merger.Merger(2, adp2);
-//        merger.Merger(3, adp3);
-//        merger.Merger(9, adp4);
+        merger.Intend(2, "add1", "+");
+        merger.Intend(3, "sub1", "=");
         
+//        int i = networks.Create();
+//        merger.Merger(1, networks.Get(i));
+//        i = networks.Create();
+//        merger.Merger(2, networks.Get(i));
+//        i = networks.Create();
+//        merger.Merger(3, networks.Get(i));
+        merger.Merger(1, networks[0]);
+        merger.Merger(2, networks[1]);
+        merger.Merger(3, networks[2]);
+        
+        ReadSection("zxc");
     }
     
-    void follow(const JString& str, const JNetwork<int, char>& net) {
-        
-        int status = 0;
-        
-        // 检测字符
-        for (int i = 0; i < str.Length(); i++) {
-            char ch = str.Get(i);
-            LOG_INFO("ch: ", ch);
-            
-            if (!AcceptAndFollow(net, status, ch)) {
-                AcceptAndFollowEmpty(net, status);
-                status = 0;
-//                i--;
-            }
-            
-            LOG_INFO("status: ", status);
+    JNetwork<int, char> networks[3];
+    int neti = 0, netj = 0;
+    JString section;
+    int secs = 0, sece = 0;
+    char peek;
+    
+    void ReadSection(const char *section) {
+        this->section.Assign(section);
+        ReadPeek();
+    }
+    
+    void ReadPeek() {
+        int l = section.Length();
+        for (int i = 0; i < l; i++) {
+            peek = section.Get(i);
+            Follow();
         }
         
-        AcceptAndFollowEmpty(net, status);
+        if (AcceptEmpty()) {
+            FollowEmpty();
+            Export();
+            return;
+        }
+        LOG_WARN("ERR!!!");
     }
+
+    void Follow() {
+        
+//        for (int i = 0; i < neti; i++) {
+//
+//        }
+        
+        
+        if (AcceptPeek()) {
+            FollowPeek();
+            return;
+        }
+        
+        if (AcceptEmpty()) {
+            FollowEmpty();
+            Export();
+            return;
+        }
+        
+        LOG_WARN("ERR!!!");
+    }
+    
+    bool AcceptPeek() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
+    }
+    
+    bool AcceptEmpty() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[neti].NextVertex(netj, '\0') != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowPeek() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        netj = networks[neti].NextVertex(netj, peek);
+    }
+    
+    void FollowEmpty() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        netj = networks[neti].NextVertex(netj, '\0');
+    }
+    
+    void Export() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        LOG_INFO("OK!!! value: ", networks[neti].Get(netj).value);
+        neti = 0;
+        netj = 0;
+    }
+    
+//
+//    bool Accept() {
+//        return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
+//    }
+//
+//    void FollowEmpty() {
+//        int i = networks[neti].NextVertex(netj, '\0');
+//        if(i == JLIST_FALG_NOT_EXIST) {
+//            return;
+//        }
+//        netj = i;
+//    }
+    
+    
+    
+//    bool Accept(int i) {
+//        return networks[i].NextVertex(0, peek) == JLIST_FALG_NOT_EXIST;
+//    }
+//
+//    bool FollowEmpty() {
+//        return true;
+//    }
+//
+//    void Change() {
+//
+//    }
+    
+//    bool AcceptAndFollowEmpty(const JNetwork<int, char>& net, int& status) {
+//        bool ret = AcceptAndFollow(net, status, '\0');
+//        if (ret) {
+//            LOG_INFO("!!!!!accept, status: ", status, "; ver: ", net.Get(status).value);
+//        }
+//        return ret;
+//    }
     
     bool AcceptAndFollow(const JNetwork<int, char>& net, int& status, char ch) {
         
@@ -102,27 +191,6 @@ public:
         LOG_INFO("accept, status: ", status, "; ver: ", net.Get(status).value);
         
         return true;
-    }
-    
-    bool AcceptAndFollowEmpty(const JNetwork<int, char>& net, int& status) {
-//        char ch = '\0';
-//        LOG_INFO("ch: ", ch);
-//
-//        int outDegree = net.NextVertex(status, ch);
-//        LOG_INFO("outDegree: ", outDegree);
-//        if (outDegree == JLIST_FALG_NOT_EXIST) {
-//            LOG_INFO("not accept, status: ", status, ", ch: ", ch);
-//            return false;
-//        }
-//
-//        status = outDegree;
-//        LOG_INFO("!!!!!accept, status: ", status, "; ver: ", net.Get(status).value);
-//
-        bool ret = AcceptAndFollow(net, status, '\0');
-        if (ret) {
-            LOG_INFO("!!!!!accept, status: ", status, "; ver: ", net.Get(status).value);
-        }
-        return ret;
     }
     
 };

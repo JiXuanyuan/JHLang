@@ -28,11 +28,11 @@ public:
         LOG_FUNCTION_ENTRY;
         return JList<T>::GetTail();
     }
-    
-    bool Empty() {
-        // 初始化增加了一个字符
-        return JList<T>::Length() < 1;
-    }
+//
+//    bool Empty() {
+//        // 初始化增加了一个字符
+//        return JList<T>::Length() < 1;
+//    }
     
     int Push(const T& t) {
         LOG_FUNCTION_ENTRY;
