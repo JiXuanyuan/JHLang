@@ -57,10 +57,25 @@ public:
         return *this;
     }
     
+    JString& Merge(char ch) {
+        LOG_FUNCTION_ENTRY;
+        JList<char>::Add(ch);
+        return *this;
+    }
+    
     JString& Assign(const JString& jstr) {
         LOG_FUNCTION_ENTRY;
         JList<char>::Clean();
         JList<char>::AddList(jstr);
+        return *this;
+    }
+    
+    JString& Assign(const JString& jstr, int start, int end) {
+        LOG_FUNCTION_ENTRY;
+        JList<char>::Clean();
+        for (int i = start; i < end; i++) {
+            JList<char>::Add(jstr.Get(i));
+        }
         return *this;
     }
     

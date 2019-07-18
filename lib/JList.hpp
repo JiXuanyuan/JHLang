@@ -122,6 +122,9 @@ private:
     
     void _Clean() {
         LOG_FUNCTION_ENTRY;
+        if (length == 0) {
+            return;
+        }
         // 空数据
         T& em = _Get(length);
         
@@ -229,7 +232,7 @@ public:
     }
     
     bool Empty() const {
-        return length <= 0;
+        return length == 0;
     }
     
     bool Exist(const T& t) const {

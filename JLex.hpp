@@ -15,6 +15,7 @@
 
 class JLex {
 public:
+    
     class JDFAIntend {
     public:
         int priority;
@@ -22,12 +23,22 @@ public:
         JString regulation;
         
         friend std::ostream& operator << (std::ostream& os, const JDFAIntend& it) {
-            os << "{ priority: "<< it.priority << "; lable: "<< it.lable
-            << "; regulation: " << it.regulation << " }";
+            os << "{ priority: " << it.priority << "; lable: " << it.lable
+                << "; regulation: " << it.regulation << " }";
             return os;
         }
     };
-
+    
+    class JToken {
+    public:
+        JString lable;
+        JString value;
+        
+        friend std::ostream& operator << (std::ostream& os, const JToken& tk) {
+            os << "< " << tk.lable << " , " << tk.value << " >";
+            return os;
+        }
+    };
     
     void Test() {
         LOG_INFO("==============Hello world!==============");
@@ -53,11 +64,21 @@ public:
 //        merger.Merger(3, networks[2]);
         
 
-        Intend(1, "if1", "qwe");
-        Intend(1, "if2", "asd");
-        Intend(1, "if3", "zxc");
-        Intend(2, "add1", "+");
-        Intend(3, "sub1", "=");
+        Intend(1, "(", "\\(");
+        Intend(1, ")", "\\)");
+        Intend(1, "+", "+");
+        Intend(1, "-", "-");
+        Intend(1, "*", "\\*");
+        Intend(1, "/", "/");
+        Intend(1, "=", "=");
+        Intend(2, "number", "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
+        Intend(2, "if", "if");
+        Intend(2, "while", "while");
+        Intend(2, "for", "for");
+        Intend(2, "id", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
+        Intend(4, "换行", "\n\n*");
+        Intend(4, "tab", "\t\t*");
+        Intend(3, "空白", "  *");
         
         Merger(1, networks[0]);
         Merger(2, networks[1]);
@@ -67,7 +88,11 @@ public:
 //        Merger(2, networks[1], empty2lable[1]);
 //        Merger(3, networks[2], empty2lable[2]);
         
-        ReadSection("zxc=qwe+@asd");
+        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+        
+        
+        
+        LOG_INFO("tokens: ", tokens);
     }
     
     
@@ -77,11 +102,13 @@ private:
     
     JList<JDFAIntend> intends;
     JNetwork<int, char> networks[3];
-//    JMap<int, int> empty2lable[3];
     int neti = 0, netj = 0;
     JString section;
-    int secs = 0, sece = 0;
+//    int secl = 0, secr = 0;
     char peek;
+    
+    JString value;
+    JList<JToken> tokens;
     
     void ReadSection(const char *section) {
         this->section.Assign(section);
@@ -103,14 +130,20 @@ private:
         
         for (int i = 0; i < l; i++) {
             peek = section.Get(i);
+//            secr = i;
             Follow();
         }
         
+//        secr++;
+        
+//        value.Merge(peek);
         if (AcceptEmpty()) {
             FollowEmpty();
             Export();
+//            value.Clean();
         } else {
            LOG_WARN("ERR!!!");
+//            value.Clean();
         }
     }
     
@@ -122,9 +155,12 @@ private:
                 if (AcceptEmpty()) {
                     FollowEmpty();
                     Export();
+//                    value.Clean();
                 } else {
                     LOG_WARN("ERR!!!");
+//                    value.Clean();
                 }
+                
                 
                 FollowBetter(i);
                 
@@ -153,6 +189,7 @@ private:
             }
         }
         
+        
         if (AcceptEmpty()) {
             FollowEmpty();
             Export();
@@ -169,6 +206,7 @@ private:
     
     void FollowBetter(int i) {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        value.Merge(peek);
         neti = i;
         netj = networks[neti].NextVertex(0, peek);
     }
@@ -180,6 +218,7 @@ private:
     
     void FollowPeek() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        value.Merge(peek);
         netj = networks[neti].NextVertex(netj, peek);
     }
     
@@ -190,6 +229,7 @@ private:
     
     void FollowEmpty() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+//        value.Merge(peek);
         netj = networks[neti].NextVertex(netj, '\0');
     }
     
@@ -197,10 +237,25 @@ private:
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         int v = networks[neti].Get(netj).value;
         LOG_INFO("OK!!! value: ", v);
-//        int i = empty2lable[neti].GetByKey(v);
-        LOG_INFO("OK!!! intends: ", intends.Get(v));
+        
+        JDFAIntend& it = intends.Get(v);
+        LOG_INFO("OK!!! intends: ", it);
+        
+        int i = tokens.Create();
+        JToken& tk = tokens.Get(i);
+        tk.lable.Assign(it.lable);
+        tk.value.Assign(value);
+        value.Clean();
+        LOG_INFO("OK!!! tokens: ", tk);
         
     }
+    
+    void Token(const JDFAIntend& intend, const char *regulation) {
+        
+    }
+    
+    
+    
     
 //
 //    bool Accept() {
@@ -256,7 +311,7 @@ private:
     
     
 
-    
+
     
     
     void Intend(int priority, const char *label, const char *regulation) {
