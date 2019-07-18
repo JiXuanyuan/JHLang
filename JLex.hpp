@@ -71,7 +71,7 @@ public:
         Intend(1, "*", "\\*");
         Intend(1, "/", "/");
         Intend(1, "=", "=");
-        Intend(2, "number", "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
+        Intend(2, "number", "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
         Intend(2, "if", "if");
         Intend(2, "while", "while");
         Intend(2, "for", "for");
