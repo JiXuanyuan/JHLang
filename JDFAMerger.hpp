@@ -17,12 +17,12 @@
 #include "JGraph.hpp"
 #include "JSet.hpp"
 
-class JDFAAdopter {
+class JDFAAccepter {
 public:
     int priority;
     JNetwork<int, char> adopter;
     
-    friend std::ostream& operator << (std::ostream& os, const JDFAAdopter& ad) {
+    friend std::ostream& operator << (std::ostream& os, const JDFAAccepter& ad) {
         os << "{ priority: "<< ad.priority << "; adopter: "<< ad.adopter << " }";
         return os;
     }
@@ -44,7 +44,7 @@ private:
     };
     
     JList<JDFAIntend> intends;
-//    JList<JDFAAdopter> adopters;
+//    JList<JDFAAccepter> adopters;
     
 public:
     
@@ -56,21 +56,39 @@ public:
         it.regulation = regulation;
     }
     
-    void Merger(int priority, JDFAAdopter& adopter) {
+    void Merger(int priority, JDFAAccepter& adopter) {
         
         JGraph<char> NFA;
         JSet<int> firstStatus;
         
-        for (JList<JDFAIntend>::Iterator i = intends.ObtainIterator(); i.HasNext();) {
-            JDFAIntend& it = i.Next();
+        int l = intends.Length();
+        for (int i = 0; i < l; i++) {
+            JDFAIntend& it = intends.Get(i);
+            
             if (it.priority == priority) {
                 LOG_INFO("intends: ", it);
+                MergerObtainNFA(NFA, firstStatus, it.regulation, i);
             }
         }
         
+        // 再整合
         adopter.priority = priority;
+        
+        
+        
+        
+        
         LOG_INFO("adopter: ", adopter);
     }
+    
+    void MergerObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
+        
+        
+        
+        
+        
+    }
+    
 };
 
 

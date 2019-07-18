@@ -33,52 +33,73 @@ public:
     
     JDFA& Regulation(const char *reg);
     
-    JDFA& Separator(const char *sep) {
-        LOG_FUNCTION_ENTRY;
-//        if (!this->separator.Assign(sep)) {
-//            LOG_WARN("not Assign");
-//        }
-        return *this;
-    }
+//    JDFA& Separator(const char *sep) {
+//        LOG_FUNCTION_ENTRY;
+////        if (!this->separator.Assign(sep)) {
+////            LOG_WARN("not Assign");
+////        }
+//        return *this;
+//    }
     
     JNetwork<int, char>& ObtainDFA();
+    
+    static void ObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
+        LOG_FUNCTION_ENTRY;
+        LOG_INFO("regulation = ", regulation);
+        
+        // 获得语法树
+        JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
+        
+        // 由语法树遍历，获得NFA
+//        Translator tran;
+//        synt.TraversePostorder(&tran);
+//        JGraph<char>& nfa = tran.ObtainNFA(synt.Tree());
+//        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+        
+        // 由NFA转换为DFA
+//        NFA2DFA(nfa, first, dfa);
+        
+        
+        
+    }
+    
     
 private:
     
     JString regulation;
-    JString separator;
+//    JString separator;
     JNetwork<int, char> dfa;
     
     /*
         将正则表达式转为语法树
      */
-    bool OperatorPrecede(char op1, char op2) const;
+    static bool OperatorPrecede(char op1, char op2);
     
-    JBinaryTree<JDFARegNode> * CreateNodeCharacter(const JString& reg, int index);
+    static JBinaryTree<JDFARegNode> * CreateNodeCharacter(const JString& reg, int index);
     
-    JBinaryTree<JDFARegNode> * CreateNodeOperator(char op, JStack<JBinaryTree<JDFARegNode> *> & nodes);
+    static JBinaryTree<JDFARegNode> * CreateNodeOperator(char op, JStack<JBinaryTree<JDFARegNode> *> & nodes);
     
-    JBinaryTree<JDFARegNode> * Reg2Syntax(const JString& reg);
+    static JBinaryTree<JDFARegNode> * Reg2Syntax(const JString& reg);
     
-    JBinaryTree<JDFARegNode> * Reg2Syntax(const JString& reg, int& i, char endChar);
+    static JBinaryTree<JDFARegNode> * Reg2Syntax(const JString& reg, int& i, char endChar);
     
     /*
         从语法树计算nullable、firstPos、lastPos
      */
-    bool NodeNullable(JBinaryTree<JDFARegNode> *tree);
+    static bool NodeNullable(JBinaryTree<JDFARegNode> *tree);
     
-    void ObtainNodeFirstPosition(JBinaryTree<JDFARegNode> *tree, bool left, bool right);
+    static void ObtainNodeFirstPosition(JBinaryTree<JDFARegNode> *tree, bool left, bool right);
     
-    void ObtainNodeLastPosition(JBinaryTree<JDFARegNode> *tree, bool left, bool right);
+    static void ObtainNodeLastPosition(JBinaryTree<JDFARegNode> *tree, bool left, bool right);
     
-    void ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JDFARegNode> *tree);
+    static void ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JDFARegNode> *tree);
     
     /*
         从语法树计算followPos
      */
-    void ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos);
+    static void ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos);
     
-    void ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver);
+    static void ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver);
     
     /*
         从语法树计算nullable、firstPos、lastPos、followPos，生成NFA

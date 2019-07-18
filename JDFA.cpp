@@ -56,7 +56,7 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
 /*
  
  */
-inline bool JDFA::OperatorPrecede(char op1, char op2) const {
+inline bool JDFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
     int pr1 = 0;
     int pr2 = 0;
@@ -338,12 +338,12 @@ JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JDFARegNode> *tree) {
         return firstStat;
     }
     
-    LOG_INFO("firstPos:", tree->Node().firstPos);
-    for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
-        firstStat.Add(pos2ver.Get(it.Next()));
-    }
-    
-    LOG_INFO("firstStat:", firstStat);
+//    LOG_INFO("firstPos:", tree->Node().firstPos);
+//    for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
+//        firstStat.Add(pos2ver.Get(it.Next()));
+//    }
+//
+//    LOG_INFO("firstStat:", firstStat);
     return firstStat;
 }
 
@@ -416,8 +416,14 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
             JMapPair<char, JSet<int>>& map = it.Next();
             LOG_INFO("map: ", map);
             
+//            // 无转化量时，为终止状态
+//            if (map.value.Empty()) {
+//                CreateDFAFollowAccept(DFA, stat2ver, statPos);
+//                continue;
+//            }
+            
             // 无转化量时，为终止状态
-            if (map.value.Empty()) {
+            if (map.key == '\0') {
                 CreateDFAFollowAccept(DFA, stat2ver, statPos);
                 continue;
             }

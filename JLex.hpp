@@ -26,13 +26,13 @@ public:
         follow(str, net);
         
         LOG_INFO("==============Hello world!==============");
-        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
-//        JDFA dfa2("(q|w)*");
-        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
-        LOG_INFO(net2);
-
-        JString str2("215eqwq");
-        follow(str2, net2);
+//        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
+////        JDFA dfa2("(q|w)*");
+//        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
+//        LOG_INFO(net2);
+//
+//        JString str2("215eqwq");
+//        follow(str2, net2);
         
 //        JString str2("12343215344325215");
 //        follow(str2, net2);
@@ -41,7 +41,7 @@ public:
         LOG_INFO("==============Hello world!==============");
         
         JDFAMerger merger;
-        JDFAAdopter adp1, adp2, adp3, adp4;
+        JDFAAccepter adp1, adp2, adp3, adp4;
         merger.Intend(1, "qif1", "iweqf");
         merger.Intend(2, "wiwf3", "ireqf");
         merger.Intend(3, "eif", "if123");
