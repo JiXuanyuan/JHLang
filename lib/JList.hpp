@@ -306,6 +306,7 @@ public:
 //        while (length > 0) {
 //            _Delete(length - 1);
 //        }
+//        length = 0;
         _Clean();
     }
     

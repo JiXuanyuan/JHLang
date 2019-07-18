@@ -64,7 +64,7 @@ public:
         merger.Merger(2, networks[1]);
         merger.Merger(3, networks[2]);
         
-        ReadSection("zxc");
+        ReadSection("zxc=qwe+@asd");
     }
     
     JNetwork<int, char> networks[3];
@@ -88,30 +88,68 @@ public:
         if (AcceptEmpty()) {
             FollowEmpty();
             Export();
-            return;
+        } else {
+           LOG_WARN("ERR!!!");
         }
-        LOG_WARN("ERR!!!");
     }
-
+    
+    
     void Follow() {
         
-//        for (int i = 0; i < neti; i++) {
-//
-//        }
-        
+        for (int i = 2; i > neti; i--) {
+            if (AcceptBetter(i)) {
+                if (AcceptEmpty()) {
+                    FollowEmpty();
+                    Export();
+                } else {
+                    LOG_WARN("ERR!!!");
+                }
+                
+                FollowBetter(i);
+                
+                return;
+            }
+        }
         
         if (AcceptPeek()) {
             FollowPeek();
             return;
         }
         
+        for (int i = neti - 1; i >= 0; i--) {
+            
+            if (AcceptBetter(i)) {
+                if (AcceptEmpty()) {
+                    FollowEmpty();
+                    Export();
+                } else {
+                    LOG_WARN("ERR!!!");
+                }
+                
+                FollowBetter(i);
+                
+                return;
+            }
+        }
+        
         if (AcceptEmpty()) {
             FollowEmpty();
             Export();
-            return;
+        } else {
+            LOG_WARN("ERR!!!");
         }
         
-        LOG_WARN("ERR!!!");
+    }
+    
+    bool AcceptBetter(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[i].NextVertex(0, peek) != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowBetter(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        neti = i;
+        netj = networks[neti].NextVertex(0, peek);
     }
     
     bool AcceptPeek() {
@@ -137,8 +175,6 @@ public:
     void Export() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         LOG_INFO("OK!!! value: ", networks[neti].Get(netj).value);
-        neti = 0;
-        netj = 0;
     }
     
 //

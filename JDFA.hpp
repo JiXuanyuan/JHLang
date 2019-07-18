@@ -69,7 +69,7 @@ public:
         JMap<char, JSet<int>> classify;
 //        while (!Ustat.Empty()) {
                 while (Ustat.GetTop() != -1) {
-            LOG_INFO("===###111");
+                    
             int statPos = Ustat.Pop();
             LOG_INFO("statPos: ", statPos);
             // 对未标记状态，以字符进行归类
@@ -91,8 +91,6 @@ public:
                     int fl = empty2lable.GetByKey(map.value.Get(0));
                     LOG_INFO("flag: ", fl);
                     CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
-                    
-                    LOG_INFO("===###");
                     continue;
                 }
                 
@@ -107,8 +105,6 @@ public:
                 LOG_INFO("DFA: ", DFA);
                 LOG_INFO("Dstatus: ", Dstatus);
             }
-            
-            LOG_INFO("===###233");
         }
         
         DFA.Echo();
