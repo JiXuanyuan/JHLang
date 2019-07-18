@@ -15,15 +15,63 @@
 
 class JLex {
 public:
+   
+    class JDFAIntend {
+    public:
+        int priority;
+        JString lable;
+        JString regulation;
+        
+        friend std::ostream& operator << (std::ostream& os, const JDFAIntend& it) {
+            os << "{ priority: "<< it.priority << "; lable: "<< it.lable
+            << "; regulation: " << it.regulation << " }";
+            return os;
+        }
+    };
     
+    JList<JDFAIntend> intends;
     
-
+    void Intend(int priority, const char *label, const char *regulation) {
+        int i = intends.Create();
+        JDFAIntend& it = intends.Get(i);
+        it.priority = priority;
+        it.lable = label;
+        it.regulation = regulation;
+    }
+    
+    void Merger(int priority, JNetwork<int, char>& adopter) {
+        JGraph<char> NFA;
+        JSet<int> firstStatus;
+        JMap<int, int> empty2lable;
+        
+        int l = intends.Length();
+        for (int i = 0; i < l; i++) {
+            JDFAIntend& it = intends.Get(i);
+            
+            if (it.priority == priority) {
+                LOG_INFO("intends: ", it);
+                
+                JDFA::ObtainNFA(NFA, firstStatus, it.regulation);
+                // 每次取得新的NFA，末尾节点的标志都为'\0'
+                empty2lable.Add(NFA.Length() - 1, i);
+            }
+        }
+        LOG_INFO("empty2lable: ", empty2lable);
+        
+        // 将以整合的NFA转换为DFA
+        //        adopter.priority = priority;
+        
+        JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, adopter);
+        
+        LOG_INFO("adopter: ", adopter);
+    }
     
     
     
     void Test() {
         LOG_INFO("==============Hello world!==============");
         JDFA dfa("(a|b)*abb");
+//        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
         JNetwork<int, char>& net = dfa.ObtainDFA();
         LOG_INFO(net);
 //
@@ -31,41 +79,37 @@ public:
 //        follow(str, net);
         
         LOG_INFO("==============Hello world!==============");
-//        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
-////        JDFA dfa2("(q|w)*");
-//        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
-//        LOG_INFO(net2);
-//
-//        JString str2("215eqwq");
-//        follow(str2, net2);
-        
-//        JString str2("12343215344325215");
-//        follow(str2, net2);
-        
-        
-        LOG_INFO("==============Hello world!==============");
-//
 //        JDFAMerger merger;
-//        JDFAAccepter adp1, adp2, adp3, adp4;
-        JDFAMerger merger;
-        merger.Intend(1, "if1", "qwe");
-        merger.Intend(1, "if2", "asd");
-        merger.Intend(1, "if3", "zxc");
-        merger.Intend(2, "add1", "+");
-        merger.Intend(3, "sub1", "=");
+//        merger.Intend(1, "if1", "qwe");
+//        merger.Intend(1, "if2", "asd");
+//        merger.Intend(1, "if3", "zxc");
+//        merger.Intend(2, "add1", "+");
+//        merger.Intend(3, "sub1", "=");
+//
+//
+//        merger.Merger(1, networks[0]);
+//        merger.Merger(2, networks[1]);
+//        merger.Merger(3, networks[2]);
         
-//        int i = networks.Create();
-//        merger.Merger(1, networks.Get(i));
-//        i = networks.Create();
-//        merger.Merger(2, networks.Get(i));
-//        i = networks.Create();
-//        merger.Merger(3, networks.Get(i));
-        merger.Merger(1, networks[0]);
-        merger.Merger(2, networks[1]);
-        merger.Merger(3, networks[2]);
+
+        Intend(1, "if1", "qwe");
+        Intend(1, "if2", "asd");
+        Intend(1, "if3", "zxc");
+        Intend(2, "add1", "+");
+        Intend(3, "sub1", "=");
+        
+        
+        Merger(1, networks[0]);
+        Merger(2, networks[1]);
+        Merger(3, networks[2]);
         
         ReadSection("zxc=qwe+@asd");
     }
+    
+    
+    
+    
+private:
     
     JNetwork<int, char> networks[3];
     int neti = 0, netj = 0;
@@ -157,14 +201,14 @@ public:
         return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
     }
     
-    bool AcceptEmpty() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        return networks[neti].NextVertex(netj, '\0') != JLIST_FALG_NOT_EXIST;
-    }
-    
     void FollowPeek() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         netj = networks[neti].NextVertex(netj, peek);
+    }
+    
+    bool AcceptEmpty() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[neti].NextVertex(netj, '\0') != JLIST_FALG_NOT_EXIST;
     }
     
     void FollowEmpty() {
@@ -211,23 +255,23 @@ public:
 //        }
 //        return ret;
 //    }
-    
-    bool AcceptAndFollow(const JNetwork<int, char>& net, int& status, char ch) {
-        
-        LOG_INFO("ch: ", ch);
-        
-        int outDegree = net.NextVertex(status, ch);
-        LOG_INFO("outDegree: ", outDegree);
-        if (outDegree == JLIST_FALG_NOT_EXIST) {
-            LOG_INFO("not accept, status: ", status, ", ch: ", ch);
-            return false;
-        }
-        
-        status = outDegree;
-        LOG_INFO("accept, status: ", status, "; ver: ", net.Get(status).value);
-        
-        return true;
-    }
+//
+//    bool AcceptAndFollow(const JNetwork<int, char>& net, int& status, char ch) {
+//
+//        LOG_INFO("ch: ", ch);
+//
+//        int outDegree = net.NextVertex(status, ch);
+//        LOG_INFO("outDegree: ", outDegree);
+//        if (outDegree == JLIST_FALG_NOT_EXIST) {
+//            LOG_INFO("not accept, status: ", status, ", ch: ", ch);
+//            return false;
+//        }
+//
+//        status = outDegree;
+//        LOG_INFO("accept, status: ", status, "; ver: ", net.Get(status).value);
+//
+//        return true;
+//    }
     
 };
 
