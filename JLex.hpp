@@ -59,10 +59,13 @@ public:
         Intend(2, "add1", "+");
         Intend(3, "sub1", "=");
         
+        Merger(1, networks[0]);
+        Merger(2, networks[1]);
+        Merger(3, networks[2]);
         
-        Merger(1, networks[0], empty2lable[0]);
-        Merger(2, networks[1], empty2lable[1]);
-        Merger(3, networks[2], empty2lable[2]);
+//        Merger(1, networks[0], empty2lable[0]);
+//        Merger(2, networks[1], empty2lable[1]);
+//        Merger(3, networks[2], empty2lable[2]);
         
         ReadSection("zxc=qwe+@asd");
     }
@@ -74,7 +77,7 @@ private:
     
     JList<JDFAIntend> intends;
     JNetwork<int, char> networks[3];
-    JMap<int, int> empty2lable[3];
+//    JMap<int, int> empty2lable[3];
     int neti = 0, netj = 0;
     JString section;
     int secs = 0, sece = 0;
@@ -92,9 +95,9 @@ private:
         LOG_INFO("networks[0]: ", networks[0]);
         LOG_INFO("networks[1]: ", networks[1]);
         LOG_INFO("networks[2]: ", networks[2]);
-        LOG_INFO("empty2lable[0]: ", empty2lable[0]);
-        LOG_INFO("empty2lable[1]: ", empty2lable[1]);
-        LOG_INFO("empty2lable[2]: ", empty2lable[2]);
+//        LOG_INFO("empty2lable[0]: ", empty2lable[0]);
+//        LOG_INFO("empty2lable[1]: ", empty2lable[1]);
+//        LOG_INFO("empty2lable[2]: ", empty2lable[2]);
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         
         
@@ -264,9 +267,11 @@ private:
         it.regulation = regulation;
     }
     
-    void Merger(int priority, JNetwork<int, char>& adopter, JMap<int, int>& empty2lable) {
+    void Merger(int priority, JNetwork<int, char>& adopter) {
+//    void Merger(int priority, JNetwork<int, char>& adopter) {
         JGraph<char> NFA;
         JSet<int> firstStatus;
+        JMap<int, int> empty2lable;
         
         int l = intends.Length();
         for (int i = 0; i < l; i++) {
