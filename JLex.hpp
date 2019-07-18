@@ -37,6 +37,7 @@ public:
 //        JString str2("12343215344325215");
 //        follow(str2, net2);
         
+        
         LOG_INFO("==============Hello world!==============");
         
         JDFAMerger merger;
