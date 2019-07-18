@@ -58,7 +58,7 @@ public:
         merger.Intend(3, "eif", "if123");
         merger.Intend(1, "if2", "asd");
         merger.Intend(1, "if3", "zxc");
-        
+
         merger.Merger(1, adp1);
 //        merger.Merger(2, adp2);
 //        merger.Merger(3, adp3);

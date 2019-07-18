@@ -68,7 +68,7 @@ public:
         return JLIST_FALG_NOT_EXIST;
     }
     
-    V& Get(const K& key) {
+    V& Get(const K& key) const {
         LOG_FUNCTION_ENTRY;
         int l = JList<JMapPair<K, V>>::Length();
         for (int i = 0; i < l; i++) {

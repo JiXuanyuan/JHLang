@@ -43,7 +43,7 @@ public:
     
     JNetwork<int, char>& ObtainDFA();
     
-    static void ObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
+    static void ObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation) {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("regulation: ", regulation);
         
@@ -54,18 +54,61 @@ public:
         Translator tran;
         synt.TraversePostorder(&tran);
         tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
+    }
+    
+    static void TransformNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
+        JSet<JSet<int>> Dstatus;
+        JMap<int, int> stat2ver;
+        JStack<int> Ustat(-1);
         
-//        JGraph<char>& nfa = tran.ObtainNFA(synt.Tree(), regulation);
-//        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+        // 加入初始状态
+        int k = CreateDFAVertex(DFA, Dstatus, stat2ver, firstStatus);
+        Ustat.Push(k);
         
-        LOG_INFO("NFA: ", NFA);
-        LOG_INFO("firstStatus: ", firstStatus);
+        // 处理未标记的状态
+        JMap<char, JSet<int>> classify;
+        while (!Ustat.Empty()) {
+            //    while (Ustat.GetTop() != -1) {
+            int statPos = Ustat.Pop();
+            
+            // 对未标记状态，以字符进行归类
+            TransformDFAStatus(NFA, Dstatus.Get(statPos), classify);
+            
+            // 检测状态是否标记
+            for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
+                JMapPair<char, JSet<int>>& map = it.Next();
+                LOG_INFO("map: ", map);
+                
+                //            // 无转化量时，为终止状态
+                //            if (map.value.Empty()) {
+                //                CreateDFAFollowAccept(DFA, stat2ver, statPos);
+                //                continue;
+                //            }
+                
+                // 无转化量时，为终止状态
+                if (map.key == '\0') {
+//                    int lb = empty2lable.Get(map.value.Get(0));
+                    CreateDFAFollowAccept(DFA, stat2ver, statPos, -10000);
+                    continue;
+                }
+                
+                // 一般情况，为基础状态，先判断状态是否已存在
+                int k = Dstatus.ExistPosition(map.value);
+                LOG_INFO("k: ", k);
+                if (k == JLIST_FALG_NOT_EXIST) {
+                    k = CreateDFAVertex(DFA, Dstatus, stat2ver, map.value);
+                    Ustat.Push(k);
+                }
+                CreateDFAFollow(DFA, stat2ver, statPos, k, map.key);
+                LOG_INFO("DFA: ", DFA);
+                LOG_INFO("Dstatus: ", Dstatus);
+            }
+        }
         
-        // 由NFA转换为DFA
-//        NFA2DFA(nfa, first, dfa);
+        DFA.Echo();
+        LOG_INFO("DFA: ", DFA);
         
-        
-        
+//        LOG_INFO("Dstatus: ", Dstatus);
     }
     
     
@@ -167,6 +210,8 @@ private:
             
             // 3.在NFA尾部节点加入一个空节点，和指向空节点的弧，
             int v = NFA.AddVerter('\0');
+            // 特殊处理便于获取接受节点的位置，实际中接受节点不指向任何节点（2019/07/18）
+            NFA.Get(v).arcs.Add(v);
             
             // 原followPos树与'\0'为&关系运算，左节点为followPos树、右节点为'\0'
             // 4.&运算，计算新结构的followPos，左节点lastPos中的每个i，都有followPos(i)为右节点firstPos集合
@@ -218,15 +263,21 @@ private:
     /*
         由NFA，从firstStatus开始，转化成DFA
      */
-    int CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status);
+    static int CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status);
     
-    void CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch);
+    static void CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch);
     
-    void CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start);
+    static void CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int flag);
     
-    void TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify);
+    static void TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify);
     
-    void NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA);
+    static void NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA);
+    
+    
+    
+    
+
+    
     
 };
 

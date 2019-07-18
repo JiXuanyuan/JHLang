@@ -16,6 +16,7 @@
 #include "JNetwork.hpp"
 #include "JGraph.hpp"
 #include "JSet.hpp"
+#include "JMap.hpp"
 
 class JDFAAccepter {
 public:
@@ -57,9 +58,9 @@ public:
     }
     
     void Merger(int priority, JDFAAccepter& adopter) {
-        
         JGraph<char> NFA;
         JSet<int> firstStatus;
+        JMap<int, int> empty2lable;
         
         int l = intends.Length();
         for (int i = 0; i < l; i++) {
@@ -67,24 +68,25 @@ public:
             
             if (it.priority == priority) {
                 LOG_INFO("intends: ", it);
-                MergerObtainNFA(NFA, firstStatus, it.regulation, i);
-//                break;
+                
+                JDFA::ObtainNFA(NFA, firstStatus, it.regulation);
+                // 每次取得新的NFA，末尾节点的标志都为'\0'
+                empty2lable.Add(NFA.Length() - 1, i);
             }
         }
+        LOG_INFO("empty2lable: ", empty2lable);
         
-        // 再整合
+        // 将以整合的NFA转换为DFA
         adopter.priority = priority;
         
-        
-        
-        
+        JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, adopter.adopter);
         
         LOG_INFO("adopter: ", adopter);
     }
     
     void MergerObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
         
-        JDFA::ObtainNFA(NFA, firstStatus, regulation, flag);
+//        JDFA::ObtainNFA(NFA, firstStatus, regulation, flag);
         
     }
     
