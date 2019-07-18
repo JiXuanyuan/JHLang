@@ -245,9 +245,9 @@ inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int
     int e = 0;
     
     for (int i = 0; i < ls; i++) {
-        s = pos2ver.Get(startPos.Get(i));
+        s = pos2ver.GetByKey(startPos.Get(i));
         for (int j = 0; j < le; j++) {
-            e = pos2ver.Get(endPos.Get(j));
+            e = pos2ver.GetByKey(endPos.Get(j));
             followPos.AddArc(s, e);
             LOG_INFO("add arc: ", s, ", ", e);
         }
@@ -308,14 +308,14 @@ JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree, const 
     //
     LOG_INFO("lastPos:", tree->Node().lastPos);
     for (JSet<int>::Iterator it = tree->Node().lastPos.ObtainIterator(); it.HasNext();) {
-        int l = pos2ver.Get(it.Next());
+        int l = pos2ver.GetByKey(it.Next());
         LOG_INFO("arc: ", l, ", ", v);
         nfa.Get(l).arcs.Add(v);
     }
     // 更新起始节点
     LOG_INFO("firstPos:", tree->Node().firstPos);
     for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
-        firstStat.Add(pos2ver.Get(it.Next()));
+        firstStat.Add(pos2ver.GetByKey(it.Next()));
     }
     
     // 如果为nullable
@@ -358,14 +358,14 @@ inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dsta
 }
 
 inline void JDFA::CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch) {
-    int s = stat2ver.Get(start);
-    int e = stat2ver.Get(end);
+    int s = stat2ver.GetByKey(start);
+    int e = stat2ver.GetByKey(end);
     LOG_INFO("arc: ", s, ", ", e, ", ", ch);
     DFA.AddArc(s, e, ch);
 }
 
 inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int flag) {
-    int s = stat2ver.Get(start);
+    int s = stat2ver.GetByKey(start);
     int e = DFA.AddVertex(flag);
     LOG_INFO("arc: ", s, ", ", e);
     DFA.AddArc(s, e, '\0');

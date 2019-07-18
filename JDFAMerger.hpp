@@ -84,12 +84,6 @@ public:
         LOG_INFO("adopter: ", adopter);
     }
     
-    void MergerObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
-        
-//        JDFA::ObtainNFA(NFA, firstStatus, regulation, flag);
-        
-    }
-    
 };
 
 

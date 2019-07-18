@@ -87,8 +87,9 @@ public:
                 
                 // 无转化量时，为终止状态
                 if (map.key == '\0') {
-//                    int lb = empty2lable.Get(map.value.Get(0));
-                    CreateDFAFollowAccept(DFA, stat2ver, statPos, -10000);
+                    int fl = empty2lable.GetByKey(map.value.Get(0));
+                    LOG_INFO("flag: ", fl);
+                    CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
                     continue;
                 }
                 
@@ -217,7 +218,7 @@ private:
             // 4.&运算，计算新结构的followPos，左节点lastPos中的每个i，都有followPos(i)为右节点firstPos集合
             LOG_INFO("lastPos:", tree->Node().lastPos);
             for (JSet<int>::Iterator it = tree->Node().lastPos.ObtainIterator(); it.HasNext();) {
-                int l = pos2ver.Get(it.Next()) + offset;
+                int l = pos2ver.GetByKey(it.Next()) + offset;
                 
                 LOG_INFO("end, arc: ", l, ", ", v);
                 NFA.Get(l).arcs.Add(v);
@@ -227,7 +228,7 @@ private:
             // 5.&运算，计算新结构的firstPos，等于左节点firstPos、与右节点nullable时firstPos的并集
             LOG_INFO("firstPos:", tree->Node().firstPos);
             for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
-                int l = pos2ver.Get(it.Next()) + offset;
+                int l = pos2ver.GetByKey(it.Next()) + offset;
                 
                 LOG_INFO("start, i: ", l);
                 firstStatus.Add(l);
