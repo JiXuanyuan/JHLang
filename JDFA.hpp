@@ -45,16 +45,21 @@ public:
     
     static void ObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
         LOG_FUNCTION_ENTRY;
-        LOG_INFO("regulation = ", regulation);
+        LOG_INFO("regulation: ", regulation);
         
         // 获得语法树
         JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
         
         // 由语法树遍历，获得NFA
-//        Translator tran;
-//        synt.TraversePostorder(&tran);
-//        JGraph<char>& nfa = tran.ObtainNFA(synt.Tree());
+        Translator tran;
+        synt.TraversePostorder(&tran);
+        tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
+        
+//        JGraph<char>& nfa = tran.ObtainNFA(synt.Tree(), regulation);
 //        JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+        
+        LOG_INFO("NFA: ", NFA);
+        LOG_INFO("firstStatus: ", firstStatus);
         
         // 由NFA转换为DFA
 //        NFA2DFA(nfa, first, dfa);
@@ -108,7 +113,7 @@ private:
     class Translator : public JBinaryTree<JDFARegNode>::Interface {
     private:
         
-        JDFA *self;
+//        JDFA *self;
         // 1.followPos顶点中存放着reg字符位置，可映射到reg字符
         // 2.pos2ver由reg字符位置映射到followPos顶点
         JGraph<int> followPos;
@@ -118,20 +123,97 @@ private:
         
     public:
         
-        Translator(JDFA *self) : self(self) {}
+//        Translator(JDFA *self) : self(self) {}
         
         virtual void Visit(JBinaryTree<JDFARegNode> *tree) {
-            self->ObtainNodeNullableAndFirstLastPosition(tree);
-            self->ObtainNodeFollowPosition(tree, followPos, pos2ver);
+            JDFA::ObtainNodeNullableAndFirstLastPosition(tree);
+            JDFA::ObtainNodeFollowPosition(tree, followPos, pos2ver);
             LOG_INFO("pos2ver: ", pos2ver);
             LOG_INFO("followPos: ", followPos);
         }
         
-        JGraph<char>& ObtainNFA(JBinaryTree<JDFARegNode> *tree);
+        JGraph<char>& ObtainNFA(JBinaryTree<JDFARegNode> *tree, const JString& regulation);
         
         JSet<int>& ObtainFirstStatus(JBinaryTree<JDFARegNode> *tree);
         
+        
+        
+        
+        /*
+         
+         */
+        void ObtainNFAAndFirstStatus(JBinaryTree<JDFARegNode> *tree, JString& regulation, JGraph<char>& NFA, JSet<int>& firstStatus) {
+            if (tree == NULL) {
+                return;
+            }
+            
+            // 1.输入的NFA可能已包含原NFA结构
+            //  两个NFA图之间为|关系运算，followPos关系保持不变，firstStatus为两者的并集
+            int offset = NFA.Length();
+            LOG_INFO("offset: ", offset);
+            
+            // 2.由followPos构建NFA，并将位置量转换成对应字符
+            LOG_INFO("followPos: ", followPos);
+            for (JGraph<int>::Iterator it1 = followPos.ObtainIterator(); it1.HasNext();) {
+                JGraphVertex<int>& ver = it1.Next();
+                
+                int i = NFA.AddVerter(regulation.Get(ver.value));
+                JSet<int>& arcs = NFA.Get(i).arcs;
+                for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();) {
+                    arcs.Add(it2.Next() + offset);
+                }
+                LOG_INFO("copy, i: ", i, ", arcs: ", arcs);
+            }
+            
+            // 3.在NFA尾部节点加入一个空节点，和指向空节点的弧，
+            int v = NFA.AddVerter('\0');
+            
+            // 原followPos树与'\0'为&关系运算，左节点为followPos树、右节点为'\0'
+            // 4.&运算，计算新结构的followPos，左节点lastPos中的每个i，都有followPos(i)为右节点firstPos集合
+            LOG_INFO("lastPos:", tree->Node().lastPos);
+            for (JSet<int>::Iterator it = tree->Node().lastPos.ObtainIterator(); it.HasNext();) {
+                int l = pos2ver.Get(it.Next()) + offset;
+                
+                LOG_INFO("end, arc: ", l, ", ", v);
+                NFA.Get(l).arcs.Add(v);
+            }
+            
+            // 计算firstStatus，为两个DFA的firstPos并集
+            // 5.&运算，计算新结构的firstPos，等于左节点firstPos、与右节点nullable时firstPos的并集
+            LOG_INFO("firstPos:", tree->Node().firstPos);
+            for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
+                int l = pos2ver.Get(it.Next()) + offset;
+                
+                LOG_INFO("start, i: ", l);
+                firstStatus.Add(l);
+            }
+            LOG_INFO("nullable:", tree->Node().nullable);
+            if (tree->Node().nullable) {
+                firstStatus.Add(v);
+            }
+            
+            LOG_INFO("NFA: ", NFA);
+            LOG_INFO("firstStat:", firstStatus);
+        }
+
+        
+        
+        
     };
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     /*
         由NFA，从firstStatus开始，转化成DFA

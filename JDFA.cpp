@@ -42,9 +42,9 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
     JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
     
     // 由语法树遍历，获得NFA
-    Translator tran(this);
+    Translator tran;
     synt.TraversePostorder(&tran);
-    JGraph<char>& nfa = tran.ObtainNFA(synt.Tree());
+    JGraph<char>& nfa = tran.ObtainNFA(synt.Tree(), regulation);
     JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
     
     // 由NFA转换为DFA
@@ -291,7 +291,7 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>&
 /*
  
  */
-JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree) {
+JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree, const JString& regulation) {
     if (!nfa.Empty() || tree == NULL) {
         return nfa;
     }
@@ -299,7 +299,7 @@ JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree) {
     LOG_INFO("followPos: ", followPos);
     for (JGraph<int>::Iterator it = followPos.ObtainIterator(); it.HasNext();) {
         JGraphVertex<int>& ver = it.Next();
-        nfa.AddVerter(self->regulation.Get(ver.value));
+        nfa.AddVerter(regulation.Get(ver.value));
         nfa.GetTail().arcs.Add(ver.arcs);
     }
     

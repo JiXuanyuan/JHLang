@@ -68,6 +68,7 @@ public:
             if (it.priority == priority) {
                 LOG_INFO("intends: ", it);
                 MergerObtainNFA(NFA, firstStatus, it.regulation, i);
+//                break;
             }
         }
         
@@ -83,9 +84,7 @@ public:
     
     void MergerObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation, int flag) {
         
-        
-        
-        
+        JDFA::ObtainNFA(NFA, firstStatus, regulation, flag);
         
     }
     

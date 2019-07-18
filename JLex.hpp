@@ -42,21 +42,27 @@ public:
         
         JDFAMerger merger;
         JDFAAccepter adp1, adp2, adp3, adp4;
-        merger.Intend(1, "qif1", "iweqf");
+//        merger.Intend(1, "qif1", "iweqf");
+//        merger.Intend(2, "wiwf3", "ireqf");
+//        merger.Intend(3, "eif", "if123");
+//        merger.Intend(1, "rif4r", "2312if");
+//        merger.Intend(1, "tif", "iffew");
+//        merger.Intend(1, "yif", "iffwefq");
+//        merger.Intend(1, "uif", "iweqwf");
+//        merger.Intend(9, "iif", "i123f");
+//        merger.Intend(9, "oif", "i123f");
+//        merger.Intend(1, "pif", "i213f");
+        
+        merger.Intend(1, "if1", "qwe");
         merger.Intend(2, "wiwf3", "ireqf");
         merger.Intend(3, "eif", "if123");
-        merger.Intend(1, "rif4r", "2312if");
-        merger.Intend(1, "tif", "iffew");
-        merger.Intend(1, "yif", "iffwefq");
-        merger.Intend(1, "uif", "iweqwf");
-        merger.Intend(9, "iif", "i123f");
-        merger.Intend(9, "oif", "i123f");
-        merger.Intend(1, "pif", "i213f");
+        merger.Intend(1, "if2", "asd");
+        merger.Intend(1, "if3", "zxc");
         
         merger.Merger(1, adp1);
-        merger.Merger(2, adp2);
-        merger.Merger(3, adp3);
-        merger.Merger(9, adp4);
+//        merger.Merger(2, adp2);
+//        merger.Merger(3, adp3);
+//        merger.Merger(9, adp4);
         
     }
     
