@@ -22,17 +22,15 @@
  */
 JDFA& JDFA::Regulation(const char *reg) {
     LOG_FUNCTION_ENTRY;
+    
     this->regulation.Assign(reg);
-//    if (!this->regulation.Assign(reg)) {
-//        LOG_WARN("not Assign");
-//    }
     
     return *this;
 }
 
 JNetwork<int, char>& JDFA::ObtainDFA() {
     LOG_FUNCTION_ENTRY;
-    LOG_INFO("reg = ", regulation);
+    LOG_INFO("regulation = ", regulation);
     
     if (!dfa.Empty()) {
         return dfa;

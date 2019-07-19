@@ -40,6 +40,7 @@ public:
     }
     
     static void TransformNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
+        LOG_FUNCTION_ENTRY;
         JSet<JSet<int>> Dstatus;
         JMap<int, int> stat2ver;
         JStack<int> Ustat(-1);
@@ -159,9 +160,6 @@ private:
         JGraph<char>& ObtainNFA(JBinaryTree<JDFARegNode> *tree, const JString& regulation);
         
         JSet<int>& ObtainFirstStatus(JBinaryTree<JDFARegNode> *tree);
-        
-        
-        
         
         /*
          
