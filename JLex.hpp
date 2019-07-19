@@ -16,13 +16,13 @@
 class JLex {
 public:
     
-    class JDFAIntend {
+    class JIntend {
     public:
         int priority;
         JString lable;
         JString regulation;
         
-        friend std::ostream& operator << (std::ostream& os, const JDFAIntend& it) {
+        friend std::ostream& operator << (std::ostream& os, const JIntend& it) {
             os << "{ priority: " << it.priority << "; lable: " << it.lable
                 << "; regulation: " << it.regulation << " }";
             return os;
@@ -85,9 +85,6 @@ public:
         Merger(2, networks[1]);
         Merger(3, networks[2]);
         
-//        Merger(1, networks[0], empty2lable[0]);
-//        Merger(2, networks[1], empty2lable[1]);
-//        Merger(3, networks[2], empty2lable[2]);
         
         ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
         
@@ -101,7 +98,7 @@ public:
     
 private:
     
-    JList<JDFAIntend> intends;
+    JList<JIntend> intends;
     JNetwork<int, char> networks[3];
     int neti = 0, netj = 0;
     JString section;
@@ -239,7 +236,7 @@ private:
         int v = networks[neti].Get(netj).value;
         LOG_INFO("OK!!! value: ", v);
         
-        JDFAIntend& it = intends.Get(v);
+        JIntend& it = intends.Get(v);
         LOG_INFO("OK!!! intends: ", it);
         
         int i = tokens.Create();
@@ -251,7 +248,7 @@ private:
         
     }
     
-    void Token(const JDFAIntend& intend, const char *regulation) {
+    void Token(const JIntend& intend, const char *regulation) {
         
     }
     
@@ -317,7 +314,7 @@ private:
     
     void Intend(int priority, const char *label, const char *regulation) {
         int i = intends.Create();
-        JDFAIntend& it = intends.Get(i);
+        JIntend& it = intends.Get(i);
         it.priority = priority;
         it.lable = label;
         it.regulation = regulation;
@@ -331,12 +328,12 @@ private:
         
         int l = intends.Length();
         for (int i = 0; i < l; i++) {
-            JDFAIntend& it = intends.Get(i);
+            JIntend& it = intends.Get(i);
             
             if (it.priority == priority) {
                 LOG_INFO("intends: ", it);
                 
-                JDFA::TransformRegulation2NFA(NFA, firstStatus, it.regulation);
+                JDFA::TransformRegulation2NFA(it.regulation, NFA, firstStatus);
                 // 每次取得新的NFA，末尾节点的标志都为'\0'
                 empty2lable.Add(NFA.Length() - 1, i);
             }
