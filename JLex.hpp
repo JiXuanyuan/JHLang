@@ -54,7 +54,8 @@ public:
 //        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
 //        LOG_INFO(net2);
         LOG_INFO("==============Hello world!==============");
-        
+
+        Intend(0, "空白", "( |\n|\t)( |\n|\t)*");
         Intend(1, "左括号", "\\(");
         Intend(1, "右括号", "\\)");
         Intend(1, "加", "+");
@@ -68,30 +69,37 @@ public:
         Intend(2, "条件循环", "while");
         Intend(2, "循环", "for");
         Intend(2, "关键词", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
-        Intend(3, "空白", "( |\n|\t)( |\n|\t)*");
         
-        Merger(1, networks[2]);
-        Merger(2, networks[1]);
-        Merger(3, networks[0]);
+        int i = intends.Create();
+        JIntend& it = intends.Get(i);
+        it.priority = 3;
+        it.lable = "字符串";
+        it.regulation.Assign("\"(\0*)\"", 6);
+        
+        Merger(0, networks[0]);
+        Merger(1, networks[1]);
+        Merger(2, networks[2]);
+        Merger(3, networks[3]);
+        
+//        Merger(3, networks[0]);
 
+        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432    dqwcqwv = \"2gggggqqq1\"  = dw");
+//
         
-        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432");
-        
-        
+//        ReadSection("zxc\"2gggggqqq1\"ssad");
         
         LOG_PRINT("tokens: ", tokens);
     }
     
     
-    
-    
 private:
     
     JList<JIntend> intends;
-    JNetwork<int, char> networks[3];
+    
+    static const int netlength = 4;
+    JNetwork<int, char> networks[netlength];
     int neti = 0, netj = 0;
     JString section;
-//    int secl = 0, secr = 0;
     char peek;
     
     JString value;
@@ -102,14 +110,13 @@ private:
         ReadPeek();
     }
     
-    
-    
     void ReadPeek() {
         int l = section.Length();
         
         LOG_INFO("networks[0]: ", networks[0]);
         LOG_INFO("networks[1]: ", networks[1]);
         LOG_INFO("networks[2]: ", networks[2]);
+        LOG_INFO("networks[3]: ", networks[3]);
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         
         for (int i = 0; i < l; i++) {
@@ -122,7 +129,7 @@ private:
     
     void Follow() {
         
-        for (int i = 2; i > neti; i--) {
+        for (int i = netlength - 1; i > neti; i--) {
             if (AcceptBetter(i)) {
                 TryExport();
                 FollowBetter(i);
@@ -132,6 +139,10 @@ private:
         
         if (AcceptPeek()) {
             FollowPeek();
+            return;
+        } else if (AcceptEmpty()) {
+            FollowEmpty();
+            // 匹配所有
             return;
         }
         
@@ -145,6 +156,11 @@ private:
         }
         
         TryExport();
+        
+        // 重置
+        neti = 0;
+        netj = 0;
+        
     }
     
     bool AcceptBetter(int i) {
@@ -177,7 +193,7 @@ private:
     
     void FollowEmpty() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        //        value.Merge(peek);
+        value.Merge(peek);
         netj = networks[neti].NextVertex(netj, '\0');
     }
     
@@ -205,6 +221,7 @@ private:
     void TryExport() {
         if (networks[neti].Get(netj).value < 0) {
             LOG_WARN("ERR!!!");
+            
             return;
         }
         
