@@ -103,8 +103,6 @@ private:
     
     static void CreateDFAVertexAccept(JNetwork<int, char>& DFA, int start, int flag);
     
-    //    static void CreateDFAFollowAccept(JNetwork<int, char>& DFA, const JMap<int, int>& stat2ver, int start, int flag);
-    
     static void ClassifyDFAStatus(const JGraph<char>& NFA, const JSet<int>& status, JMap<char, JSet<int>>& classify);
     
     static int SearchDFAFollowEmpty(const JGraph<char>& NFA, const JSet<int>& status);
