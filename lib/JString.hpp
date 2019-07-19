@@ -51,15 +51,12 @@ public:
         return *this;
     }
     
-    JString& Merge(const char *str) {
+    JString& Assign(const char *str, int length) {
         LOG_FUNCTION_ENTRY;
-        _CopyTail(str);
-        return *this;
-    }
-    
-    JString& Merge(char ch) {
-        LOG_FUNCTION_ENTRY;
-        JList<char>::Add(ch);
+        JList<char>::Clean();
+        for (int i = 0; i < length; i++) {
+            JList<char>::Add(str[i]);
+        }
         return *this;
     }
     
@@ -76,6 +73,18 @@ public:
         for (int i = start; i < end; i++) {
             JList<char>::Add(jstr.Get(i));
         }
+        return *this;
+    }
+    
+    JString& Merge(const char *str) {
+        LOG_FUNCTION_ENTRY;
+        _CopyTail(str);
+        return *this;
+    }
+    
+    JString& Merge(char ch) {
+        LOG_FUNCTION_ENTRY;
+        JList<char>::Add(ch);
         return *this;
     }
     

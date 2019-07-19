@@ -52,6 +52,12 @@ public:
 //        follow(str, net);
         
         LOG_INFO("==============Hello world!==============");
+        JDFA dfa2;
+        dfa2.Regulation("q(\0*)w", 6);
+        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
+        LOG_INFO(net2);
+        LOG_INFO("==============Hello world!==============");
+        
 //        JDFAMerger merger;
 //        merger.Intend(1, "if1", "qwe");
 //        merger.Intend(1, "if2", "asd");
@@ -81,16 +87,16 @@ public:
         Intend(4, "tab", "\t\t*");
         Intend(3, "空白", "  *");
         
-        Merger(1, networks[0]);
-        Merger(2, networks[1]);
-        Merger(3, networks[2]);
-        
-        
-        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
-        
-        
-        
-        LOG_INFO("tokens: ", tokens);
+//        Merger(1, networks[0]);
+//        Merger(2, networks[1]);
+//        Merger(3, networks[2]);
+//        
+//        
+//        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+//        
+//        
+//        
+//        LOG_INFO("tokens: ", tokens);
     }
     
     
