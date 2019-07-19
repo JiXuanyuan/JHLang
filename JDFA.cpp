@@ -18,7 +18,7 @@
 #include "JDFARegNode.hpp"
 
 /*
- 
+    public方法
  */
 JDFA& JDFA::Regulation(const char *reg) {
     LOG_FUNCTION_ENTRY;
@@ -37,23 +37,27 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
     
     JGraph<char> NFA;
     JSet<int> firstStatus;
-    // 获得语法树
-    JBinaryTree<JDFARegNode>::Root synt = HandleReg2Syntax(regulation);
-    // 由语法树遍历，获得NFA
-    Translator tran;
-    synt.TraversePostorder(&tran);
-    tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
+    TransformRegulation2NFA(regulation, NFA, firstStatus);
+//    // 获得语法树
+//    JBinaryTree<JDFARegNode>::Root synt = HandleReg2Syntax(regulation);
+//    // 由语法树遍历，获得NFA
+//    Translator tran;
+//    synt.TraversePostorder(&tran);
+//    tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
     
     JMap<int, int> empty2lable;
     empty2lable.Add(NFA.Length() - 1, -1);
     // 由NFA转换为DFA
-    HandleNFA2DFA(NFA, firstStatus, empty2lable, mDFA);
+    TransformNFA2DFA(NFA, firstStatus, empty2lable, mDFA);
     LOG_INFO("DFA: ", mDFA);
     
     return mDFA;
 }
 
 
+/*
+    public方法，提供在外部创建DFA
+ */
 void JDFA::TransformRegulation2NFA(const JString& regulation, JGraph<char>& NFA, JSet<int>& firstStatus) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("regulation: ", regulation);
@@ -183,6 +187,7 @@ JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char end
     opn = nodes.Pop();
     return opn;
 }
+
 
 /*
     2.1 从语法树计算nullable、firstPos、lastPos
@@ -357,6 +362,7 @@ void JDFA::Translator::ObtainNFAAndFirstStatus(JBinaryTree<JDFARegNode> *tree, c
     LOG_INFO("firstStat:", firstStatus);
 }
 
+
 /*
     3 由NFA，从firstStatus开始，转化成DFA
  */
@@ -404,7 +410,7 @@ inline void JDFA::ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, 
     LOG_INFO("classify: ", classify);
 }
 
-void JDFA::HandleNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
+inline void JDFA::HandleNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
     LOG_FUNCTION_ENTRY;
     JSet<JSet<int>> Dstatus;
     JMap<int, int> stat2ver;
