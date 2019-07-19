@@ -22,28 +22,11 @@
 class JDFA {
 public:
     
-    JDFA() {
-        LOG_FUNCTION_ENTRY;
-    }
-    
-    JDFA(const char *reg) {
-        LOG_FUNCTION_ENTRY;
-        this->regulation.Assign(reg);
-    }
-    
     JDFA& Regulation(const char *reg);
-    
-//    JDFA& Separator(const char *sep) {
-//        LOG_FUNCTION_ENTRY;
-////        if (!this->separator.Assign(sep)) {
-////            LOG_WARN("not Assign");
-////        }
-//        return *this;
-//    }
     
     JNetwork<int, char>& ObtainDFA();
     
-    static void ObtainNFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation) {
+    static void TransformRegulation2NFA(JGraph<char>& NFA, JSet<int>& firstStatus, JString& regulation) {
         LOG_FUNCTION_ENTRY;
         LOG_INFO("regulation: ", regulation);
         
@@ -80,11 +63,11 @@ public:
                 JMapPair<char, JSet<int>>& map = it.Next();
                 LOG_INFO("map: ", map);
                 
-                //            // 无转化量时，为终止状态
-                //            if (map.value.Empty()) {
-                //                CreateDFAFollowAccept(DFA, stat2ver, statPos);
-                //                continue;
-                //            }
+//                // 无转化量时，为终止状态
+//                if (map.value.Empty()) {
+//                    CreateDFAFollowAccept(DFA, stat2ver, statPos);
+//                    continue;
+//                }
                 
                 // 无转化量时，为终止状态
                 if (map.key == '\0') {
@@ -109,15 +92,11 @@ public:
         
         DFA.Echo();
         LOG_INFO("DFA: ", DFA);
-        
-//        LOG_INFO("Dstatus: ", Dstatus);
     }
-    
     
 private:
     
     JString regulation;
-//    JString separator;
     JNetwork<int, char> dfa;
     
     /*

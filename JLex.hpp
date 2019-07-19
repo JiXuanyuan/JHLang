@@ -11,7 +11,7 @@
 
 #include "JLog.hpp"
 #include "JDFA.hpp"
-//#include "JDFAMerger.hpp"
+
 
 class JLex {
 public:
@@ -42,7 +42,8 @@ public:
     
     void Test() {
         LOG_INFO("==============Hello world!==============");
-        JDFA dfa("(a|b)*abb");
+        JDFA dfa;
+        dfa.Regulation("(a|b)*abb");
 //        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
         JNetwork<int, char>& net = dfa.ObtainDFA();
         LOG_INFO(net);
@@ -335,7 +336,7 @@ private:
             if (it.priority == priority) {
                 LOG_INFO("intends: ", it);
                 
-                JDFA::ObtainNFA(NFA, firstStatus, it.regulation);
+                JDFA::TransformRegulation2NFA(NFA, firstStatus, it.regulation);
                 // 每次取得新的NFA，末尾节点的标志都为'\0'
                 empty2lable.Add(NFA.Length() - 1, i);
             }
