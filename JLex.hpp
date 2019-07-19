@@ -87,16 +87,16 @@ public:
         Intend(4, "tab", "\t\t*");
         Intend(3, "空白", "  *");
         
-//        Merger(1, networks[0]);
-//        Merger(2, networks[1]);
-//        Merger(3, networks[2]);
-//        
-//        
-//        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
-//        
-//        
-//        
-//        LOG_INFO("tokens: ", tokens);
+        Merger(1, networks[0]);
+        Merger(2, networks[1]);
+        Merger(3, networks[2]);
+
+        
+        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+        
+        
+        
+        LOG_INFO("tokens: ", tokens);
     }
     
     
@@ -119,7 +119,185 @@ private:
         ReadPeek();
     }
     
+    
+    
     void ReadPeek() {
+        int l = section.Length();
+        
+        
+        LOG_INFO("networks[0]: ", networks[0]);
+        LOG_INFO("networks[1]: ", networks[1]);
+        LOG_INFO("networks[2]: ", networks[2]);
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        
+        
+        for (int i = 0; i < l; i++) {
+            peek = section.Get(i);
+            Follow();
+        }
+        
+        TryExport();
+//        if (AcceptEmpty()) {
+//            FollowEmpty();
+//            Export();
+//        } else {
+//            LOG_WARN("ERR!!!");
+//        }
+    }
+    
+    void Follow() {
+        
+        for (int i = 2; i > neti; i--) {
+            if (AcceptBetter(i)) {
+//                if (AcceptEmpty()) {
+////                    FollowEmpty();
+//                    Export();
+//                    //                    value.Clean();
+//                } else {
+//                    LOG_WARN("ERR!!!");
+//                    //                    value.Clean();
+//                }
+                
+                TryExport();
+                
+                
+                
+                FollowBetter(i);
+                
+                return;
+            }
+        }
+        
+        if (AcceptPeek()) {
+            FollowPeek();
+            return;
+        }
+        
+        for (int i = neti - 1; i >= 0; i--) {
+            
+            if (AcceptBetter(i)) {
+//                if (AcceptEmpty()) {
+//                    FollowEmpty();
+//                    Export();
+//                } else {
+//                    LOG_WARN("ERR!!!");
+//                }
+                
+                TryExport();
+                
+                
+                FollowBetter(i);
+                
+                return;
+            }
+        }
+        
+        TryExport();
+        
+//        if (AcceptEmpty()) {
+//            FollowEmpty();
+//            Export();
+//        } else {
+//            LOG_WARN("ERR!!!");
+//        }
+        
+    }
+    
+    bool AcceptBetter(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[i].NextVertex(0, peek) != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowBetter(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        value.Merge(peek);
+        neti = i;
+        netj = networks[neti].NextVertex(0, peek);
+    }
+    
+    bool AcceptPeek() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowPeek() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        value.Merge(peek);
+        netj = networks[neti].NextVertex(netj, peek);
+    }
+    
+    bool AcceptEmpty() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[neti].NextVertex(netj, '\0') != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowEmpty() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        //        value.Merge(peek);
+        netj = networks[neti].NextVertex(netj, '\0');
+    }
+    
+    void Export() {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        int v = networks[neti].Get(netj).value;
+        LOG_INFO("OK!!! value: ", v);
+        
+        JIntend& it = intends.Get(v);
+        LOG_INFO("OK!!! intends: ", it);
+        
+        int i = tokens.Create();
+        JToken& tk = tokens.Get(i);
+        tk.lable.Assign(it.lable);
+        tk.value.Assign(value);
+        value.Clean();
+        LOG_INFO("OK!!! tokens: ", tk);
+        
+    }
+    
+    void Token(const JIntend& intend, const char *regulation) {
+        
+    }
+    
+    void TryExport() {
+        if (networks[neti].Get(netj).value < 0) {
+            LOG_WARN("ERR!!!");
+        }
+        
+        
+        
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        int v = networks[neti].Get(netj).value;
+        LOG_INFO("OK!!! value: ", v);
+        
+        JIntend& it = intends.Get(v);
+        LOG_INFO("OK!!! intends: ", it);
+        
+        int i = tokens.Create();
+        JToken& tk = tokens.Get(i);
+        tk.lable.Assign(it.lable);
+        tk.value.Assign(value);
+        value.Clean();
+        LOG_INFO("OK!!! tokens: ", tk);
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /*void ReadPeek() {
         int l = section.Length();
         
         
@@ -257,7 +435,7 @@ private:
     void Token(const JIntend& intend, const char *regulation) {
         
     }
-    
+    */
     
     
     
