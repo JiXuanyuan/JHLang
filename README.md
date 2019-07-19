@@ -1,1 +1,1 @@
-# jhLang
+# JHLang
