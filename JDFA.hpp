@@ -31,7 +31,7 @@ public:
         LOG_INFO("regulation: ", regulation);
         
         // 获得语法树
-        JBinaryTree<JDFARegNode>::Root synt = TransformReg2Syntax(regulation);
+        JBinaryTree<JDFARegNode>::Root synt = HandleReg2Syntax(regulation);
         
         // 由语法树遍历，获得NFA
         Translator tran;
@@ -41,7 +41,7 @@ public:
     
     static void TransformNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
         LOG_FUNCTION_ENTRY;
-        NFA2DFA(NFA, firstStatus, empty2lable, DFA);
+        HandleNFA2DFA(NFA, firstStatus, empty2lable, DFA);
     }
     
 private:
@@ -58,7 +58,7 @@ private:
     
     static JBinaryTree<JDFARegNode> * CreateNodeOperator(char op, JStack<JBinaryTree<JDFARegNode> *>& nodes);
     
-    static JBinaryTree<JDFARegNode> * TransformReg2Syntax(const JString& reg);
+    static JBinaryTree<JDFARegNode> * HandleReg2Syntax(const JString& reg);
     
     static JBinaryTree<JDFARegNode> * Reg2Syntax(const JString& reg, int& i, char endChar);
     
@@ -83,7 +83,6 @@ private:
     /*
         2.3 后序遍历语法树，计算nullable、firstPos、lastPos、followPos
      */
-//    friend class Translator;
     class Translator : public JBinaryTree<JDFARegNode>::Interface {
     private:
         
@@ -118,7 +117,7 @@ private:
     
     static void ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify);
     
-    static void NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA);
+    static void HandleNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA);
     
 };
 

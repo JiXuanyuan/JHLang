@@ -40,7 +40,6 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
     JSet<int> firstStatus;
     JMap<int, int> empty2lable;
     
-    
     JDFA::TransformRegulation2NFA(regulation, NFA, firstStatus);
     // 每次取得新的NFA，末尾节点的标志都为'\0'
     empty2lable.Add(NFA.Length() - 1, -1);
@@ -118,7 +117,7 @@ inline JBinaryTree<JDFARegNode> * JDFA::CreateNodeOperator(char op, JStack<JBina
     return fn;
 }
 
-JBinaryTree<JDFARegNode> * JDFA::TransformReg2Syntax(const JString& reg) {
+JBinaryTree<JDFARegNode> * JDFA::HandleReg2Syntax(const JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
@@ -402,7 +401,7 @@ inline void JDFA::ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, 
     LOG_INFO("classify: ", classify);
 }
 
-void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
+void JDFA::HandleNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
     LOG_FUNCTION_ENTRY;
     JSet<JSet<int>> Dstatus;
     JMap<int, int> stat2ver;
