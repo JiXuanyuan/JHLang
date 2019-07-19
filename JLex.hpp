@@ -64,6 +64,7 @@ public:
         Intend(1, "除", "/");
         Intend(1, "等于", "=");
         Intend(1, "相等", "==");
+        Intend(1, "分隔符", ";");
         Intend(2, "数字", "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
         Intend(2, "如果", "if");
         Intend(2, "条件循环", "while");
@@ -83,10 +84,10 @@ public:
         
 //        Merger(3, networks[0]);
 
-        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432    dqwcqwv = \"2gggggqqq1\"  = dw");
+//        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432    dqwcqwv = \"2gggggqqq1\"  = dw");
 //
         
-//        ReadSection("zxc\"2gggggqqq1\"ssad");
+        ReadSection("zxc\"2gggggqqq1\"ssad");
         
         LOG_PRINT("tokens: ", tokens);
     }
@@ -99,9 +100,10 @@ private:
     static const int netlength = 4;
     JNetwork<int, char> networks[netlength];
     int neti = 0, netj = 0;
-    JString section;
-    char peek;
+    char peek = '\0';
+    bool first = true;
     
+    JString section;
     JString value;
     JList<JToken> tokens;
     
@@ -123,16 +125,19 @@ private:
             peek = section.Get(i);
             Follow();
         }
-        
         TryExport();
     }
     
     void Follow() {
         
         for (int i = netlength - 1; i > neti; i--) {
-            if (AcceptBetter(i)) {
+            if (AcceptBetterPeek(i)) {
                 TryExport();
-                FollowBetter(i);
+                FollowBetterPeek(i);
+                return;
+            } else if (AcceptBetterEmpty(i)) {
+                TryExport();
+                FollowBetterEmpty(i);
                 return;
             }
         }
@@ -141,16 +146,19 @@ private:
             FollowPeek();
             return;
         } else if (AcceptEmpty()) {
+            // \0表示匹配所有
             FollowEmpty();
-            // 匹配所有
             return;
         }
         
         for (int i = neti - 1; i >= 0; i--) {
-            
-            if (AcceptBetter(i)) {
+            if (AcceptBetterPeek(i)) {
                 TryExport();
-                FollowBetter(i);
+                FollowBetterPeek(i);
+                return;
+            } else if (AcceptBetterEmpty(i)) {
+                TryExport();
+                FollowBetterEmpty(i);
                 return;
             }
         }
@@ -160,19 +168,30 @@ private:
         // 重置
         neti = 0;
         netj = 0;
-        
     }
     
-    bool AcceptBetter(int i) {
+    bool AcceptBetterPeek(int i) {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         return networks[i].NextVertex(0, peek) != JLIST_FALG_NOT_EXIST;
     }
     
-    void FollowBetter(int i) {
+    void FollowBetterPeek(int i) {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         value.Merge(peek);
         neti = i;
         netj = networks[neti].NextVertex(0, peek);
+    }
+    
+    bool AcceptBetterEmpty(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[i].NextVertex(0, '\0') != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowBetterEmpty(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        value.Merge(peek);
+        neti = i;
+        netj = networks[neti].NextVertex(0, '\0');
     }
     
     bool AcceptPeek() {
@@ -197,31 +216,13 @@ private:
         netj = networks[neti].NextVertex(netj, '\0');
     }
     
-//    void Export() {
-//        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-//        int v = networks[neti].Get(netj).value;
-//        LOG_INFO("OK!!! value: ", v);
-//
-//        JIntend& it = intends.Get(v);
-//        LOG_INFO("OK!!! intends: ", it);
-//
-//        int i = tokens.Create();
-//        JToken& tk = tokens.Get(i);
-//        tk.lable.Assign(it.lable);
-//        tk.value.Assign(value);
-//        value.Clean();
-//        LOG_INFO("OK!!! tokens: ", tk);
-//
-//    }
-//
-//    void Token(const JIntend& intend, const char *regulation) {
-//
-//    }
-    
     void TryExport() {
         if (networks[neti].Get(netj).value < 0) {
+            if (first) {
+                first = false;
+                return;
+            }
             LOG_WARN("ERR!!!");
-            
             return;
         }
         
@@ -238,6 +239,10 @@ private:
         tk.value.Assign(value);
         value.Clean();
         LOG_INFO("OK!!! tokens: ", tk);
+        
+//        // 重置
+//        neti = 0;
+//        netj = 0;
     }
     
    
@@ -450,7 +455,6 @@ private:
     }
     
     void Merger(int priority, JNetwork<int, char>& adopter) {
-//    void Merger(int priority, JNetwork<int, char>& adopter) {
         JGraph<char> NFA;
         JSet<int> firstStatus;
         JMap<int, int> empty2lable;

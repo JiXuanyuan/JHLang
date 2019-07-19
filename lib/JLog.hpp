@@ -11,7 +11,7 @@
 
 #ifdef DEBUG
     #undef DEBUG
-    #define INFO
+//    #define INFO
 #endif
 
 #include <iostream>
