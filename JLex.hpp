@@ -41,52 +41,33 @@ public:
     };
     
     void Test() {
-        LOG_INFO("==============Hello world!==============");
-        JDFA dfa;
-        dfa.Regulation("(a|b)*abb");
-//        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
-        JNetwork<int, char>& net = dfa.ObtainDFA();
-        LOG_INFO(net);
-//
-        JString str("abababaabb");
-//        follow(str, net);
-        
-        LOG_INFO("==============Hello world!==============");
-        JDFA dfa2;
-        dfa2.Regulation("q(\0*)w", 6);
-        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
-        LOG_INFO(net2);
+//        LOG_INFO("==============Hello world!==============");
+//        JDFA dfa;
+//        dfa.Regulation("(a|b)*abb");
+//        JNetwork<int, char>& net = dfa.ObtainDFA();
+//        LOG_INFO(net);
+//        JString str("abababaabb");
+//        
+//        LOG_INFO("==============Hello world!==============");
+//        JDFA dfa2;
+//        dfa2.Regulation("q(\0*)w", 6);
+//        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
+//        LOG_INFO(net2);
         LOG_INFO("==============Hello world!==============");
         
-//        JDFAMerger merger;
-//        merger.Intend(1, "if1", "qwe");
-//        merger.Intend(1, "if2", "asd");
-//        merger.Intend(1, "if3", "zxc");
-//        merger.Intend(2, "add1", "+");
-//        merger.Intend(3, "sub1", "=");
-//
-//
-//        merger.Merger(1, networks[0]);
-//        merger.Merger(2, networks[1]);
-//        merger.Merger(3, networks[2]);
-        
-
-        Intend(1, "(", "\\(");
-        Intend(1, ")", "\\)");
-        Intend(1, "+", "+");
-        Intend(1, "-", "-");
-        Intend(1, "*", "\\*");
-        Intend(1, "/", "/");
-        Intend(1, "=", "=");
-        Intend(2, "number", "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
-        Intend(2, "if", "if");
-        Intend(2, "while", "while");
-        Intend(2, "for", "for");
-        Intend(2, "id", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
-//        Intend(3, "换行", "\n\n*");
-//        Intend(3, "tab", "\t\t*");
-//        Intend(3, "空白", "  *");
-        
+        Intend(1, "左括号", "\\(");
+        Intend(1, "右括号", "\\)");
+        Intend(1, "加", "+");
+        Intend(1, "减", "-");
+        Intend(1, "乘", "\\*");
+        Intend(1, "除", "/");
+        Intend(1, "等于", "=");
+        Intend(1, "相等", "==");
+        Intend(2, "数字", "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
+        Intend(2, "如果", "if");
+        Intend(2, "条件循环", "while");
+        Intend(2, "循环", "for");
+        Intend(2, "关键词", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
         Intend(3, "空白", "( |\n|\t)( |\n|\t)*");
         
         Merger(1, networks[2]);
@@ -94,7 +75,7 @@ public:
         Merger(3, networks[0]);
 
         
-        ReadSection("zxc = if(qwe + asd) + 1231       \n\t24432");
+        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432");
         
         
         
