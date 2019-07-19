@@ -136,7 +136,6 @@ JBinaryTree<JDFARegNode> * JDFA::HandleReg2Syntax(const JString& reg) {
 }
 
 JBinaryTree<JDFARegNode> * JDFA::Reg2SyntaxBySingle(const JString& reg, int& i, char endChar) {
-    LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
     JStack<JBinaryTree<JDFARegNode> *> nodes(NULL);
@@ -228,12 +227,12 @@ inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JDFARegNode> *tree, bool le
 void JDFA::ObtainNodeNullableAndMergeFLPosition(JBinaryTree<JDFARegNode> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
     JDFARegNode& n = tree->Node();
+    LOG_INFO("node: ", n);
     
     if (n.IsCharacter()) {
         n.nullable = false;
         n.firstPos.Add(n.RegIndex());
         n.lastPos.Add(n.RegIndex());
-        LOG_INFO("node: ", tree->Node());
         return;
     }
     
@@ -253,7 +252,6 @@ void JDFA::ObtainNodeNullableAndMergeFLPosition(JBinaryTree<JDFARegNode> *tree) 
             ObtainNodeFirstPosition(tree, true, NodeNullable(tree->LeftChild()));
             ObtainNodeLastPosition(tree, NodeNullable(tree->RightChild()), true);
         }
-        LOG_INFO("node: ", tree->Node());
         return;
     }
     
@@ -281,6 +279,7 @@ inline void JDFA::ObtainNodeFollowPosition(JGraph<int>& followPos, JMap<int, int
 
 void JDFA::MergeNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
     JDFARegNode& n = tree->Node();
+    LOG_INFO("node: ", n);
     
     if (n.IsCharacter()) {
         int k = n.RegIndex();
@@ -306,7 +305,6 @@ void JDFA::MergeNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& 
         return;
     }
     
-    LOG_WARN("node, type = 0");
 }
 
 /*
@@ -383,7 +381,7 @@ inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dsta
 inline void JDFA::CreateDFAFollow(JNetwork<int, char>& DFA, const JMap<int, int>& stat2ver, int start, int end, char ch) {
     int s = stat2ver.GetByKey(start);
     int e = stat2ver.GetByKey(end);
-    LOG_INFO("arc: ", s, ", ", e, ", ", ch);
+    LOG_INFO("add, arc: ", s, ", ", e, ", ", ch);
     DFA.AddArc(s, e, ch);
 }
 

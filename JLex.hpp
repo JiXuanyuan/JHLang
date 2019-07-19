@@ -47,7 +47,7 @@ public:
 //        JNetwork<int, char>& net = dfa.ObtainDFA();
 //        LOG_INFO(net);
 //        JString str("abababaabb");
-//        
+//
 //        LOG_INFO("==============Hello world!==============");
 //        JDFA dfa2;
 //        dfa2.Regulation("q(\0*)w", 6);
@@ -79,7 +79,7 @@ public:
         
         
         
-        LOG_INFO("tokens: ", tokens);
+        LOG_PRINT("tokens: ", tokens);
     }
     
     
@@ -107,12 +107,10 @@ private:
     void ReadPeek() {
         int l = section.Length();
         
-        
         LOG_INFO("networks[0]: ", networks[0]);
         LOG_INFO("networks[1]: ", networks[1]);
         LOG_INFO("networks[2]: ", networks[2]);
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        
         
         for (int i = 0; i < l; i++) {
             peek = section.Get(i);
@@ -120,33 +118,14 @@ private:
         }
         
         TryExport();
-//        if (AcceptEmpty()) {
-//            FollowEmpty();
-//            Export();
-//        } else {
-//            LOG_WARN("ERR!!!");
-//        }
     }
     
     void Follow() {
         
         for (int i = 2; i > neti; i--) {
             if (AcceptBetter(i)) {
-//                if (AcceptEmpty()) {
-////                    FollowEmpty();
-//                    Export();
-//                    //                    value.Clean();
-//                } else {
-//                    LOG_WARN("ERR!!!");
-//                    //                    value.Clean();
-//                }
-                
                 TryExport();
-                
-                
-                
                 FollowBetter(i);
-                
                 return;
             }
         }
@@ -159,31 +138,13 @@ private:
         for (int i = neti - 1; i >= 0; i--) {
             
             if (AcceptBetter(i)) {
-//                if (AcceptEmpty()) {
-//                    FollowEmpty();
-//                    Export();
-//                } else {
-//                    LOG_WARN("ERR!!!");
-//                }
-                
                 TryExport();
-                
-                
                 FollowBetter(i);
-                
                 return;
             }
         }
         
         TryExport();
-        
-//        if (AcceptEmpty()) {
-//            FollowEmpty();
-//            Export();
-//        } else {
-//            LOG_WARN("ERR!!!");
-//        }
-        
     }
     
     bool AcceptBetter(int i) {
@@ -220,26 +181,26 @@ private:
         netj = networks[neti].NextVertex(netj, '\0');
     }
     
-    void Export() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        int v = networks[neti].Get(netj).value;
-        LOG_INFO("OK!!! value: ", v);
-        
-        JIntend& it = intends.Get(v);
-        LOG_INFO("OK!!! intends: ", it);
-        
-        int i = tokens.Create();
-        JToken& tk = tokens.Get(i);
-        tk.lable.Assign(it.lable);
-        tk.value.Assign(value);
-        value.Clean();
-        LOG_INFO("OK!!! tokens: ", tk);
-        
-    }
-    
-    void Token(const JIntend& intend, const char *regulation) {
-        
-    }
+//    void Export() {
+//        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+//        int v = networks[neti].Get(netj).value;
+//        LOG_INFO("OK!!! value: ", v);
+//
+//        JIntend& it = intends.Get(v);
+//        LOG_INFO("OK!!! intends: ", it);
+//
+//        int i = tokens.Create();
+//        JToken& tk = tokens.Get(i);
+//        tk.lable.Assign(it.lable);
+//        tk.value.Assign(value);
+//        value.Clean();
+//        LOG_INFO("OK!!! tokens: ", tk);
+//
+//    }
+//
+//    void Token(const JIntend& intend, const char *regulation) {
+//
+//    }
     
     void TryExport() {
         if (networks[neti].Get(netj).value < 0) {
@@ -247,8 +208,6 @@ private:
             return;
         }
         
-        
-        
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         int v = networks[neti].Get(netj).value;
         LOG_INFO("OK!!! value: ", v);
@@ -262,24 +221,9 @@ private:
         tk.value.Assign(value);
         value.Clean();
         LOG_INFO("OK!!! tokens: ", tk);
-        
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
     
     /*void ReadPeek() {
         int l = section.Length();
