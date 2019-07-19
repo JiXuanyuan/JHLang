@@ -81,15 +81,12 @@ public:
         Intend(4, "tab", "\t\t*");
         Intend(3, "空白", "  *");
         
-//        Merger(1, networks[0]);
-//        Merger(2, networks[1]);
-//        Merger(3, networks[2]);
+        Merger(1, networks[0]);
+        Merger(2, networks[1]);
+        Merger(3, networks[2]);
         
-//        Merger(1, networks[0], empty2lable[0]);
-//        Merger(2, networks[1], empty2lable[1]);
-//        Merger(3, networks[2], empty2lable[2]);
         
-//        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
         
         
         
@@ -336,7 +333,7 @@ private:
             if (it.priority == priority) {
                 LOG_INFO("intends: ", it);
                 
-                JDFA::TransformRegulation2NFA(NFA, firstStatus, it.regulation);
+                JDFA::TransformRegulation2NFA(it.regulation, NFA, firstStatus);
                 // 每次取得新的NFA，末尾节点的标志都为'\0'
                 empty2lable.Add(NFA.Length() - 1, i);
             }

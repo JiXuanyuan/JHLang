@@ -32,27 +32,47 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("regulation = ", regulation);
     
-    if (!dfa.Empty()) {
-        return dfa;
+    if (!mDFA.Empty()) {
+        return mDFA;
     }
+
+    JGraph<char> NFA;
+    JSet<int> firstStatus;
+    JMap<int, int> empty2lable;
     
-    // 获得语法树
-    JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
     
-    // 由语法树遍历，获得NFA
-    Translator tran;
-    synt.TraversePostorder(&tran);
-    JGraph<char>& nfa = tran.ObtainNFA(synt.Tree(), regulation);
-    JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+    JDFA::TransformRegulation2NFA(regulation, NFA, firstStatus);
+    // 每次取得新的NFA，末尾节点的标志都为'\0'
+    empty2lable.Add(NFA.Length() - 1, -1);
     
-    // 由NFA转换为DFA
-    NFA2DFA(nfa, first, dfa);
+    LOG_INFO("empty2lable: ", empty2lable);
     
-    return dfa;
+    // 将以整合的NFA转换为DFA
+    //        adopter.priority = priority;
+    
+    JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, mDFA);
+    
+    LOG_INFO("dfa: ", mDFA);
+    
+    
+    //
+//    // 获得语法树
+//    JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
+//
+//    // 由语法树遍历，获得NFA
+//    Translator tran;
+//    synt.TraversePostorder(&tran);
+//    JGraph<char>& nfa = tran.ObtainNFA(synt.Tree(), regulation);
+//    JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
+//
+//    // 由NFA转换为DFA
+//    NFA2DFA(nfa, first, dfa);
+    
+    return mDFA;
 }
 
 /*
- 
+    1 将正则表达式转为语法树
  */
 inline bool JDFA::OperatorPrecede(char op1, char op2) {
     // 比较 '&', '|', '*' 运算的优先级
@@ -98,10 +118,7 @@ inline JBinaryTree<JDFARegNode> * JDFA::CreateNodeOperator(char op, JStack<JBina
     return fn;
 }
 
-/*
-    实现将正则表达式转为语法树
- */
-JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg) {
+JBinaryTree<JDFARegNode> * JDFA::TransformReg2Syntax(const JString& reg) {
     int i = 0;
     return Reg2Syntax(reg, i, '\0');
 }
@@ -166,7 +183,7 @@ JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char end
 }
 
 /*
- 
+    2.1 从语法树计算nullable、firstPos、lastPos
  */
 inline bool JDFA::NodeNullable(JBinaryTree<JDFARegNode> *tree) {
     if (tree == NULL) {
@@ -195,10 +212,7 @@ inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JDFARegNode> *tree, bool le
     }
 }
 
-/*
- 
- */
-void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JDFARegNode> *tree) {
+void JDFA::ObtainNodeNullableAndMergeFLPosition(JBinaryTree<JDFARegNode> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
     JDFARegNode& n = tree->Node();
     
@@ -234,9 +248,9 @@ void JDFA::ObtainNodeNullableAndFirstLastPosition(JBinaryTree<JDFARegNode> *tree
 }
 
 /*
- 
+    2.2 从语法树计算followPos
  */
-inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos) {
+inline void JDFA::ObtainNodeFollowPosition(JGraph<int>& followPos, JMap<int, int>& pos2ver, JSet<int>& startPos, JSet<int>& endPos) {
     int ls = startPos.Length();
     int le = endPos.Length();
     int s = 0;
@@ -252,10 +266,7 @@ inline void JDFA::ObtainNodeFollowGraphArc(JGraph<int>& followPos, JMap<int, int
     }
 }
 
-/*
- 
- */
-void JDFA::ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
+void JDFA::MergeNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
     JDFARegNode& n = tree->Node();
     
     if (n.IsCharacter()) {
@@ -266,7 +277,7 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>&
     }
     
     if (n.IsOperator() && n.Value() == '*') {
-        ObtainNodeFollowGraphArc(followPos, pos2ver,
+        ObtainNodeFollowPosition(followPos, pos2ver,
                                  tree->Node().lastPos,
                                  tree->Node().firstPos);
         return;
@@ -276,7 +287,7 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>&
         if (tree->LeftChild() == NULL || tree->RightChild() == NULL) {
             return;
         }
-        ObtainNodeFollowGraphArc(followPos, pos2ver,
+        ObtainNodeFollowPosition(followPos, pos2ver,
                                  tree->LeftChild()->Node().lastPos,
                                  tree->RightChild()->Node().firstPos);
         return;
@@ -285,68 +296,67 @@ void JDFA::ObtainNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>&
     LOG_WARN("node, type = 0");
 }
 
-
 /*
- 
+    2.4 遍历后，计算NFA、firstStatus
  */
-JGraph<char>& JDFA::Translator::ObtainNFA(JBinaryTree<JDFARegNode> *tree, const JString& regulation) {
-    if (!nfa.Empty() || tree == NULL) {
-        return nfa;
+void JDFA::Translator::ObtainNFAAndFirstStatus(JBinaryTree<JDFARegNode> *tree, const JString& regulation, JGraph<char>& NFA, JSet<int>& firstStatus) {
+    if (tree == NULL) {
+        return;
     }
     
+    // 1.输入的NFA可能已包含原NFA结构
+    //  两个NFA图之间为|关系运算，followPos关系保持不变，firstStatus为两者的并集
+    int offset = NFA.Length();
+    LOG_INFO("offset: ", offset);
+    
+    // 2.由followPos构建NFA，并将位置量转换成对应字符
     LOG_INFO("followPos: ", followPos);
-    for (JGraph<int>::Iterator it = followPos.ObtainIterator(); it.HasNext();) {
-        JGraphVertex<int>& ver = it.Next();
-        nfa.AddVerter(regulation.Get(ver.value));
-        nfa.GetTail().arcs.Add(ver.arcs);
+    for (JGraph<int>::Iterator it1 = followPos.ObtainIterator(); it1.HasNext();) {
+        JGraphVertex<int>& ver = it1.Next();
+        
+        int i = NFA.AddVerter(regulation.Get(ver.value));
+        JSet<int>& arcs = NFA.Get(i).arcs;
+        for (JSet<int>::Iterator it2 = ver.arcs.ObtainIterator(); it2.HasNext();) {
+            arcs.Add(it2.Next() + offset);
+        }
+        LOG_INFO("copy, i: ", i, ", arcs: ", arcs);
     }
     
-    // 在NFA尾部节点加入一个空节点和指向空节点的弧
-    int v = nfa.AddVerter('\0');
-    //
+    // 3.在NFA尾部节点加入一个空节点，和指向空节点的弧，
+    int v = NFA.AddVerter('\0');
+    // 特殊处理便于获取接受节点的位置，实际中接受节点不指向任何节点（2019/07/18）
+    NFA.Get(v).arcs.Add(v);
+    
+    // 原followPos树与'\0'为&关系运算，左节点为followPos树、右节点为'\0'
+    // 4.&运算，计算新结构的followPos，左节点lastPos中的每个i，都有followPos(i)为右节点firstPos集合
     LOG_INFO("lastPos:", tree->Node().lastPos);
     for (JSet<int>::Iterator it = tree->Node().lastPos.ObtainIterator(); it.HasNext();) {
-        int l = pos2ver.GetByKey(it.Next());
-        LOG_INFO("arc: ", l, ", ", v);
-        nfa.Get(l).arcs.Add(v);
+        int l = pos2ver.GetByKey(it.Next()) + offset;
+        
+        LOG_INFO("end, arc: ", l, ", ", v);
+        NFA.Get(l).arcs.Add(v);
     }
-    // 更新起始节点
+    
+    // 计算firstStatus，为两个DFA的firstPos并集
+    // 5.&运算，计算新结构的firstPos，等于左节点firstPos、与右节点nullable时firstPos的并集
     LOG_INFO("firstPos:", tree->Node().firstPos);
     for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
-        firstStat.Add(pos2ver.GetByKey(it.Next()));
+        int l = pos2ver.GetByKey(it.Next()) + offset;
+        
+        LOG_INFO("start, i: ", l);
+        firstStatus.Add(l);
     }
-    
-    // 如果为nullable
     LOG_INFO("nullable:", tree->Node().nullable);
     if (tree->Node().nullable) {
-        firstStat.Add(v);
+        firstStatus.Add(v);
     }
     
-    LOG_INFO("firstStat:", firstStat);
-    
-    LOG_INFO("NFA: ", nfa);
-    return nfa;
+    LOG_INFO("NFA: ", NFA);
+    LOG_INFO("firstStat:", firstStatus);
 }
 
 /*
- 
- */
-JSet<int>& JDFA::Translator::ObtainFirstStatus(JBinaryTree<JDFARegNode> *tree) {
-    if (!firstStat.Empty() || tree == NULL) {
-        return firstStat;
-    }
-    
-//    LOG_INFO("firstPos:", tree->Node().firstPos);
-//    for (JSet<int>::Iterator it = tree->Node().firstPos.ObtainIterator(); it.HasNext();) {
-//        firstStat.Add(pos2ver.Get(it.Next()));
-//    }
-//
-//    LOG_INFO("firstStat:", firstStat);
-    return firstStat;
-}
-
-/*
- 
+    3 由NFA，从firstStatus开始，转化成DFA
  */
 inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
     int k = Dstatus.Add(status);
@@ -369,10 +379,7 @@ inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>
     DFA.AddArc(s, e, '\0');
 }
 
-/*
- 
- */
-inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
+inline void JDFA::ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
     LOG_INFO("transform: ", status);
     
     // 清空分类器
@@ -395,8 +402,8 @@ inline void JDFA::TransformDFAStatus(const JGraph<char>& NFA, JSet<int>& status,
     LOG_INFO("classify: ", classify);
 }
 
-
-void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwork<int, char>& DFA) {
+void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
+    LOG_FUNCTION_ENTRY;
     JSet<JSet<int>> Dstatus;
     JMap<int, int> stat2ver;
     JStack<int> Ustat(-1);
@@ -407,27 +414,30 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
     
     // 处理未标记的状态
     JMap<char, JSet<int>> classify;
-//    while (!Ustat.Empty()) {
+    //        while (!Ustat.Empty()) {
     while (Ustat.GetTop() != -1) {
-        int statPos = Ustat.Pop();
         
+        int statPos = Ustat.Pop();
+        LOG_INFO("statPos: ", statPos);
         // 对未标记状态，以字符进行归类
-        TransformDFAStatus(NFA, Dstatus.Get(statPos), classify);
+        ClassifyDFAStatus(NFA, Dstatus.Get(statPos), classify);
         
         // 检测状态是否标记
         for (JMap<char, JSet<int>>::Iterator it = classify.ObtainIterator(); it.HasNext();) {
             JMapPair<char, JSet<int>>& map = it.Next();
             LOG_INFO("map: ", map);
             
-//            // 无转化量时，为终止状态
-//            if (map.value.Empty()) {
-//                CreateDFAFollowAccept(DFA, stat2ver, statPos);
-//                continue;
-//            }
+//                // 无转化量时，为终止状态
+//                if (map.value.Empty()) {
+//                    CreateDFAFollowAccept(DFA, stat2ver, statPos);
+//                    continue;
+//                }
             
             // 无转化量时，为终止状态
             if (map.key == '\0') {
-                CreateDFAFollowAccept(DFA, stat2ver, statPos, -1);
+                int fl = empty2lable.GetByKey(map.value.Get(0));
+                LOG_INFO("flag: ", fl);
+                CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
                 continue;
             }
             
@@ -445,7 +455,4 @@ void JDFA::NFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, JNetwo
     }
     
     LOG_INFO("DFA: ", DFA);
-    LOG_INFO("Dstatus: ", Dstatus);
 }
-
-
