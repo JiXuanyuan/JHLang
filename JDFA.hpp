@@ -22,7 +22,9 @@
 class JDFA {
 public:
     
-    JDFA& Regulation(const char *reg);
+    void Regulation(const char *reg);
+    
+    void Regulation(const char *reg, int length);
     
     JNetwork<int, char>& ObtainDFA();
     
@@ -97,11 +99,13 @@ private:
      */
     static int CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status);
     
-    static void CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch);
+    static void CreateDFAFollow(JNetwork<int, char>& DFA, const JMap<int, int>& stat2ver, int start, int end, char ch);
     
-    static void CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int flag);
+    static void CreateDFAVertexAccept(JNetwork<int, char>& DFA, int start, int flag);
     
-    static void ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify);
+    static void ClassifyDFAStatus(const JGraph<char>& NFA, const JSet<int>& status, JMap<char, JSet<int>>& classify);
+    
+    static int SearchDFAFollowEmpty(const JGraph<char>& NFA, const JSet<int>& status);
     
     static void HandleNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA);
     

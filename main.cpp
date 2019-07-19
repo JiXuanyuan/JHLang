@@ -30,8 +30,8 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
  
-    Hello h;
-    h.test();
+//    Hello h;
+//    h.test();
     
 //    JDFA dfa("(a|b)*abb");
 ////    dfa.Regulation("(q|k|j h|j h 88*a|bn|h)*a\\*bbgv*|v|f*|fjf");
@@ -40,8 +40,14 @@ int main(int argc, const char * argv[]) {
 //    LOG_INFO(dfa.ObtainDFA());
 //    LOG_INFO(dfa.ObtainDFA());
     
-    JLex lex;
-    lex.Test();
+//    JLex lex;
+//    lex.Test();
+    
+    
+    if (argc > 1) {
+        JLex lex;
+        lex.Input(argv[1]);
+    }
     
     return 0;
 }

@@ -11,7 +11,7 @@
 
 #ifdef DEBUG
     #undef DEBUG
-    #define INFO
+//    #define INFO
 #endif
 
 #include <iostream>
@@ -172,6 +172,7 @@ public:
 #define LOG_LEVEL_WARN          3
 #define LOG_LEVEL_ERROR         4
 #define LOG_LEVEL_OFF           9
+#define LOG_LEVEL_PRINT         10
 #define LOG_ACROSS_LEVEL        LOG_LEVEL_DEBUG
 
 #define _LOG(level, tag, ...)    \
@@ -183,11 +184,14 @@ public:
             } \
         } while(0)
 
+#define LOG_FUNCTION_ENTRY      _LOG(LOG_LEVEL_ALL, "Function entry", "")
+
 #define LOG_DEBUG(...)          _LOG(LOG_LEVEL_DEBUG, "DEBUG", __VA_ARGS__)
 #define LOG_INFO(...)           _LOG(LOG_LEVEL_INFO, "INFO", __VA_ARGS__)
 #define LOG_WARN(...)           _LOG(LOG_LEVEL_WARN, "WARN", __VA_ARGS__)
 #define LOG_ERROR(...)          _LOG(LOG_LEVEL_ERROR, "ERROR", __VA_ARGS__)
-#define LOG_FUNCTION_ENTRY      _LOG(LOG_LEVEL_ALL, "Function entry", "")
+
+#define LOG_PRINT(...)          _LOG(LOG_LEVEL_PRINT, "Print", __VA_ARGS__)
 
 /*
     开发模式：DEBUG（调试）、INFO、 其他

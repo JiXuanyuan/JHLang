@@ -20,12 +20,16 @@
 /*
     public方法
  */
-JDFA& JDFA::Regulation(const char *reg) {
+void JDFA::Regulation(const char *reg) {
     LOG_FUNCTION_ENTRY;
     
-    this->regulation.Assign(reg);
+    regulation.Assign(reg);
+}
+
+void JDFA::Regulation(const char *reg, int length) {
+    LOG_FUNCTION_ENTRY;
     
-    return *this;
+    regulation.Assign(reg, length);
 }
 
 JNetwork<int, char>& JDFA::ObtainDFA() {
@@ -46,7 +50,7 @@ JNetwork<int, char>& JDFA::ObtainDFA() {
 //    tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
     
     JMap<int, int> empty2lable;
-    empty2lable.Add(NFA.Length() - 1, -1);
+    empty2lable.Add(NFA.Length() - 1, 20190719);
     // 由NFA转换为DFA
     TransformNFA2DFA(NFA, firstStatus, empty2lable, mDFA);
     LOG_INFO("DFA: ", mDFA);
@@ -126,11 +130,12 @@ inline JBinaryTree<JDFARegNode> * JDFA::CreateNodeOperator(char op, JStack<JBina
 
 JBinaryTree<JDFARegNode> * JDFA::HandleReg2Syntax(const JString& reg) {
     int i = 0;
+    // 由于规则使用\0作为结束符，且*前面必须有个符号，
+    // 所以用(\0*)匹配所有字符，且输入规则时要指定长度
     return Reg2SyntaxBySingle(reg, i, '\0');
 }
 
 JBinaryTree<JDFARegNode> * JDFA::Reg2SyntaxBySingle(const JString& reg, int& i, char endChar) {
-    LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
     JStack<JBinaryTree<JDFARegNode> *> nodes(NULL);
@@ -222,12 +227,12 @@ inline void JDFA::ObtainNodeLastPosition(JBinaryTree<JDFARegNode> *tree, bool le
 void JDFA::ObtainNodeNullableAndMergeFLPosition(JBinaryTree<JDFARegNode> *tree) {
     // 后序遍历处理，遍历过程tree不为NULL
     JDFARegNode& n = tree->Node();
+    LOG_INFO("node: ", n);
     
     if (n.IsCharacter()) {
         n.nullable = false;
         n.firstPos.Add(n.RegIndex());
         n.lastPos.Add(n.RegIndex());
-        LOG_INFO("node: ", tree->Node());
         return;
     }
     
@@ -247,7 +252,6 @@ void JDFA::ObtainNodeNullableAndMergeFLPosition(JBinaryTree<JDFARegNode> *tree) 
             ObtainNodeFirstPosition(tree, true, NodeNullable(tree->LeftChild()));
             ObtainNodeLastPosition(tree, NodeNullable(tree->RightChild()), true);
         }
-        LOG_INFO("node: ", tree->Node());
         return;
     }
     
@@ -275,6 +279,7 @@ inline void JDFA::ObtainNodeFollowPosition(JGraph<int>& followPos, JMap<int, int
 
 void JDFA::MergeNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& followPos, JMap<int, int>& pos2ver) {
     JDFARegNode& n = tree->Node();
+    LOG_INFO("node: ", n);
     
     if (n.IsCharacter()) {
         int k = n.RegIndex();
@@ -300,7 +305,6 @@ void JDFA::MergeNodeFollowPosition(JBinaryTree<JDFARegNode> *tree, JGraph<int>& 
         return;
     }
     
-    LOG_WARN("node, type = 0");
 }
 
 /*
@@ -332,7 +336,7 @@ void JDFA::Translator::ObtainNFAAndFirstStatus(JBinaryTree<JDFARegNode> *tree, c
     // 3.在NFA尾部节点加入一个空节点，和指向空节点的弧，
     int v = NFA.AddVerter('\0');
     // 特殊处理便于获取接受节点的位置，实际中接受节点不指向任何节点（2019/07/18）
-    NFA.Get(v).arcs.Add(v);
+//    NFA.Get(v).arcs.Add(v);
     
     // 原followPos树与'\0'为&关系运算，左节点为followPos树、右节点为'\0'
     // 4.&运算，计算新结构的followPos，左节点lastPos中的每个i，都有followPos(i)为右节点firstPos集合
@@ -368,26 +372,46 @@ void JDFA::Translator::ObtainNFAAndFirstStatus(JBinaryTree<JDFARegNode> *tree, c
  */
 inline int JDFA::CreateDFAVertex(JNetwork<int, char>& DFA, JSet<JSet<int>>& Dstatus, JMap<int, int>& stat2ver, const JSet<int>& status) {
     int k = Dstatus.Add(status);
-    int v = DFA.AddVertex(0);
+    // 顶点的值表示接受状态的标签，一般节点为-1
+    int v = DFA.AddVertex(-1);
     stat2ver.Add(k, v);
     return k;
 }
 
-inline void JDFA::CreateDFAFollow(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int end, char ch) {
+inline void JDFA::CreateDFAFollow(JNetwork<int, char>& DFA, const JMap<int, int>& stat2ver, int start, int end, char ch) {
     int s = stat2ver.GetByKey(start);
     int e = stat2ver.GetByKey(end);
-    LOG_INFO("arc: ", s, ", ", e, ", ", ch);
+    LOG_INFO("add, arc: ", s, ", ", e, ", ", ch);
     DFA.AddArc(s, e, ch);
 }
 
-inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, JMap<int, int>& stat2ver, int start, int flag) {
-    int s = stat2ver.GetByKey(start);
-    int e = DFA.AddVertex(flag);
-    LOG_INFO("arc: ", s, ", ", e);
-    DFA.AddArc(s, e, '\0');
+inline void JDFA::CreateDFAVertexAccept(JNetwork<int, char>& DFA, int start, int flag) {
+    LOG_INFO("set, start: ", start, "; flag: ", flag);
+    // 顶点的值表示接受状态的标签，一般节点为-1
+    DFA.Get(start).value = flag;
 }
 
-inline void JDFA::ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, JMap<char, JSet<int>>& classify) {
+//inline void JDFA::CreateDFAFollowAccept(JNetwork<int, char>& DFA, const JMap<int, int>& stat2ver, int start, int flag) {
+//    int s = stat2ver.GetByKey(start);
+//    // 顶点的值表示接受状态的标签，一般节点为-1
+//    int e = DFA.AddVertex(flag);
+//    LOG_INFO("arc: ", s, ", ", e);
+//    DFA.AddArc(s, e, '\0');
+//}
+
+inline int JDFA::SearchDFAFollowEmpty(const JGraph<char>& NFA, const JSet<int>& status) {
+    int l = status.Length();
+    for (int j = 0; j < l; j++) {
+        int i = status.Get(j);
+        
+        if (NFA.Get(i).arcs.Empty()) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+inline void JDFA::ClassifyDFAStatus(const JGraph<char>& NFA, const JSet<int>& status, JMap<char, JSet<int>>& classify) {
     LOG_INFO("transform: ", status);
     
     // 清空分类器
@@ -396,8 +420,12 @@ inline void JDFA::ClassifyDFAStatus(const JGraph<char>& NFA, JSet<int>& status, 
     }
     classify.Clean();
     
-    for (JSet<int>::Iterator it1 = status.ObtainIterator(); it1.HasNext();) {
-        int i = it1.Next();
+    int l = status.Length();
+    for (int j = 0; j < l; j++) {
+        int i = status.Get(j);
+//    for (JSet<int>::Iterator it1 = status.ObtainIterator(); it1.HasNext();) {
+//        int i = it1.Next();
+        
         JGraphVertex<char> ver = NFA.Get(i);
         LOG_INFO("i: ", i , ", ver: ", ver);
         
@@ -435,19 +463,34 @@ inline void JDFA::HandleNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstS
             JMapPair<char, JSet<int>>& map = it.Next();
             LOG_INFO("map: ", map);
             
-//                // 无转化量时，为终止状态
-//                if (map.value.Empty()) {
-//                    CreateDFAFollowAccept(DFA, stat2ver, statPos);
-//                    continue;
-//                }
-            
             // 无转化量时，为终止状态
-            if (map.key == '\0') {
-                int fl = empty2lable.GetByKey(map.value.Get(0));
+            if (map.value.Empty()) {
+                int here = SearchDFAFollowEmpty(NFA, Dstatus.Get(statPos));
+                LOG_INFO("here: ", here);
+                int fl = empty2lable.GetByKey(here);
                 LOG_INFO("flag: ", fl);
-                CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
+//                CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
+                CreateDFAVertexAccept(DFA, statPos, fl);
                 continue;
             }
+            
+//            // 无转化量时，为终止状态
+//            if (map.value.Empty()) {
+//                int here = SearchDFAFollowEmpty(NFA, Dstatus.Get(statPos));
+//                LOG_INFO("here: ", here);
+//                int fl = empty2lable.GetByKey(here);
+//                LOG_INFO("flag: ", fl);
+//                CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
+//                continue;
+//            }
+            
+//            // 无转化量时，为终止状态
+//            if (map.key == '\0') {
+//                int fl = empty2lable.GetByKey(map.value.Get(0));
+//                LOG_INFO("flag: ", fl);
+//                CreateDFAFollowAccept(DFA, stat2ver, statPos, fl);
+//                continue;
+//            }
             
             // 一般情况，为基础状态，先判断状态是否已存在
             int k = Dstatus.ExistPosition(map.value);

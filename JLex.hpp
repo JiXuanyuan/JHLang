@@ -40,71 +40,124 @@ public:
         }
     };
     
-    void Test() {
+ /*   void Test() {
+//        LOG_INFO("==============Hello world!==============");
+//        JDFA dfa;
+//        dfa.Regulation("(a|b)*abb");
+//        JNetwork<int, char>& net = dfa.ObtainDFA();
+//        LOG_INFO(net);
+//        JString str("abababaabb");
+//
+//        LOG_INFO("==============Hello world!==============");
+//        JDFA dfa2;
+//        dfa2.Regulation("q(\0*)w", 6);
+//        JNetwork<int, char>& net2 = dfa2.ObtainDFA();
+//        LOG_INFO(net2);
         LOG_INFO("==============Hello world!==============");
-        JDFA dfa;
-        dfa.Regulation("(a|b)*abb");
-//        JDFA dfa2("(0|1|2|3|4|5|6|7|8|9|0)*");
-        JNetwork<int, char>& net = dfa.ObtainDFA();
-        LOG_INFO(net);
-//
-        JString str("abababaabb");
-//        follow(str, net);
-        
-        LOG_INFO("==============Hello world!==============");
-//        JDFAMerger merger;
-//        merger.Intend(1, "if1", "qwe");
-//        merger.Intend(1, "if2", "asd");
-//        merger.Intend(1, "if3", "zxc");
-//        merger.Intend(2, "add1", "+");
-//        merger.Intend(3, "sub1", "=");
-//
-//
-//        merger.Merger(1, networks[0]);
-//        merger.Merger(2, networks[1]);
-//        merger.Merger(3, networks[2]);
-        
 
-        Intend(1, "(", "\\(");
-        Intend(1, ")", "\\)");
-        Intend(1, "+", "+");
-        Intend(1, "-", "-");
-        Intend(1, "*", "\\*");
-        Intend(1, "/", "/");
-        Intend(1, "=", "=");
-        Intend(2, "number", "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
-        Intend(2, "if", "if");
-        Intend(2, "while", "while");
-        Intend(2, "for", "for");
-        Intend(2, "id", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
-        Intend(4, "换行", "\n\n*");
-        Intend(4, "tab", "\t\t*");
-        Intend(3, "空白", "  *");
+        Intend(0, "空白", "( |\n|\t)( |\n|\t)*");
+        Intend(1, "左括号", "\\(");
+        Intend(1, "右括号", "\\)");
+        Intend(1, "加", "+");
+        Intend(1, "减", "-");
+        Intend(1, "乘", "\\*");
+        Intend(1, "除", "/");
+        Intend(1, "等于", "=");
+        Intend(1, "相等", "==");
+        Intend(1, "分隔符", ";");
+        Intend(2, "数字", "(1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
+        Intend(2, "如果", "if");
+        Intend(2, "条件循环", "while");
+        Intend(2, "循环", "for");
+        Intend(2, "关键词", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
         
-        Merger(1, networks[0]);
-        Merger(2, networks[1]);
-        Merger(3, networks[2]);
+        int i = intends.Create();
+        JIntend& it = intends.Get(i);
+        it.priority = 3;
+        it.lable = "字符串";
+        it.regulation.Assign("\"(\0*)\"", 6);
         
+        Merger(0, networks[0]);
+        Merger(1, networks[1]);
+        Merger(2, networks[2]);
+        Merger(3, networks[3]);
         
-        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+//        Merger(3, networks[0]);
+
+        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432    dqwcqwv = \"2gggggqqq1\"  = dw");
+     
+        LOG_PRINT("tokens: ", tokens);
+    }*/
+    
+    
+    void Input(const char *input) {
+        Intend(0, "空白", "( |\n|\t)( |\n|\t)*");
         
+        Intend(1, "数字", "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*");
+        Intend(1, "关键词", "(_|q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m|Q|W|E|R|T|Y|U|I|O|P|A|S|D|F|G|H|J|K|L|Z|X|C|V|B|N|M)(_|q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m|Q|W|E|R|T|Y|U|I|O|P|A|S|D|F|G|H|J|K|L|Z|X|C|V|B|N|M|0|1|2|3|4|5|6|7|8|9)*");
+        Intend(1, "如果", "if");
+        Intend(1, "条件循环", "while");
+        Intend(1, "循环", "for");
+        Intend(1, "类型定义", "typedef");
+        Intend(1, "整型", "int");
+        Intend(1, "长整型", "long");
+        Intend(1, "字符型", "char");
+        Intend(1, "浮点型", "float");
+        Intend(1, "双精度浮点型", "double");
+        Intend(1, "静态", "static");
+        Intend(1, "常量", "const");
+        Intend(1, "结构体", "struct");
+        Intend(1, "联合体", "union");
+        Intend(1, "枚举", "enum");
         
+        Intend(2, "加", "+");
+        Intend(2, "减", "-");
+        Intend(2, "乘", "\\*");
+        Intend(2, "除", "/");
+        Intend(2, "等于", "=");
+        Intend(2, "相等", "==");
+        Intend(2, "大于", ">");
+        Intend(2, "大于等于", ">=");
+        Intend(2, "小于", "<");
+        Intend(2, "小于等于", "<=");
+        Intend(2, "自加1", "++");
+        Intend(2, "自减1", "--");
+        Intend(2, "分隔符", ";");
         
-        LOG_INFO("tokens: ", tokens);
+        Intend(3, "左方括号", "\\[");
+        Intend(3, "右方括号", "\\]");
+        Intend(4, "左大括号", "\\{");
+        Intend(4, "右大括号", "\\}");
+        Intend(5, "左括号", "\\(");
+        Intend(5, "右括号", "\\)");
+        
+        int i = intends.Create();
+        JIntend& it = intends.Get(i);
+        it.priority = 6;
+        it.lable = "字符串";
+        it.regulation.Assign("\"(\0*)\"", 6);
+        
+        for (int i = 0; i < netlength; i++) {
+            Merger(i, networks[i]);
+        }
+        
+        ReadSection(input);
+        LOG_PRINT("input: ", input);
+        LOG_PRINT("tokens: ", tokens);
     }
-    
-    
     
     
 private:
     
     JList<JIntend> intends;
-    JNetwork<int, char> networks[3];
-    int neti = 0, netj = 0;
-    JString section;
-//    int secl = 0, secr = 0;
-    char peek;
     
+    static const int netlength = 7;
+    JNetwork<int, char> networks[netlength];
+    int neti = 0, netj = 0;
+    char peek = '\0';
+    int pos = 0;
+    
+    JString section;
     JString value;
     JList<JToken> tokens;
     
@@ -116,52 +169,26 @@ private:
     void ReadPeek() {
         int l = section.Length();
         
-        
-        LOG_INFO("networks[0]: ", networks[0]);
-        LOG_INFO("networks[1]: ", networks[1]);
-        LOG_INFO("networks[2]: ", networks[2]);
-//        LOG_INFO("empty2lable[0]: ", empty2lable[0]);
-//        LOG_INFO("empty2lable[1]: ", empty2lable[1]);
-//        LOG_INFO("empty2lable[2]: ", empty2lable[2]);
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        
         
         for (int i = 0; i < l; i++) {
             peek = section.Get(i);
-//            secr = i;
+            pos = i;
             Follow();
         }
-        
-//        secr++;
-        
-//        value.Merge(peek);
-        if (AcceptEmpty()) {
-            FollowEmpty();
-            Export();
-//            value.Clean();
-        } else {
-           LOG_WARN("ERR!!!");
-//            value.Clean();
-        }
+        TryExport();
     }
-    
     
     void Follow() {
         
-        for (int i = 2; i > neti; i--) {
-            if (AcceptBetter(i)) {
-                if (AcceptEmpty()) {
-                    FollowEmpty();
-                    Export();
-//                    value.Clean();
-                } else {
-                    LOG_WARN("ERR!!!");
-//                    value.Clean();
-                }
-                
-                
-                FollowBetter(i);
-                
+        for (int i = netlength - 1; i > neti; i--) {
+            if (AcceptBetterPeek(i)) {
+                TryExport();
+                FollowBetterPeek(i);
+                return;
+            } else if (AcceptBetterEmpty(i)) {
+                TryExport();
+                FollowBetterEmpty(i);
                 return;
             }
         }
@@ -169,44 +196,53 @@ private:
         if (AcceptPeek()) {
             FollowPeek();
             return;
+        } else if (AcceptEmpty()) {
+            // \0表示匹配所有
+            FollowEmpty();
+            return;
         }
         
         for (int i = neti - 1; i >= 0; i--) {
-            
-            if (AcceptBetter(i)) {
-                if (AcceptEmpty()) {
-                    FollowEmpty();
-                    Export();
-                } else {
-                    LOG_WARN("ERR!!!");
-                }
-                
-                FollowBetter(i);
-                
+            if (AcceptBetterPeek(i)) {
+                TryExport();
+                FollowBetterPeek(i);
+                return;
+            } else if (AcceptBetterEmpty(i)) {
+                TryExport();
+                FollowBetterEmpty(i);
                 return;
             }
         }
         
+        TryExport();
         
-        if (AcceptEmpty()) {
-            FollowEmpty();
-            Export();
-        } else {
-            LOG_WARN("ERR!!!");
-        }
-        
+        // 重置
+        neti = 0;
+        netj = 0;
     }
     
-    bool AcceptBetter(int i) {
+    bool AcceptBetterPeek(int i) {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         return networks[i].NextVertex(0, peek) != JLIST_FALG_NOT_EXIST;
     }
     
-    void FollowBetter(int i) {
+    void FollowBetterPeek(int i) {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         value.Merge(peek);
         neti = i;
         netj = networks[neti].NextVertex(0, peek);
+    }
+    
+    bool AcceptBetterEmpty(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        return networks[i].NextVertex(0, '\0') != JLIST_FALG_NOT_EXIST;
+    }
+    
+    void FollowBetterEmpty(int i) {
+        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
+        value.Merge(peek);
+        neti = i;
+        netj = networks[neti].NextVertex(0, '\0');
     }
     
     bool AcceptPeek() {
@@ -227,17 +263,31 @@ private:
     
     void FollowEmpty() {
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-//        value.Merge(peek);
+        value.Merge(peek);
         netj = networks[neti].NextVertex(netj, '\0');
     }
     
-    void Export() {
+    void TryExport() {
+        if (networks[neti].Get(netj).value < 0) {
+            if (pos == 0) {
+                return;
+            }
+            
+            LOG_WARN("ERR!!! position: ", pos);
+            return;
+        }
+        
         LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
         int v = networks[neti].Get(netj).value;
         LOG_INFO("OK!!! value: ", v);
         
         JIntend& it = intends.Get(v);
         LOG_INFO("OK!!! intends: ", it);
+        
+        // 优先级0的 空白符
+        if (it.priority == 0) {
+            return;
+        }
         
         int i = tokens.Create();
         JToken& tk = tokens.Get(i);
@@ -246,71 +296,10 @@ private:
         value.Clean();
         LOG_INFO("OK!!! tokens: ", tk);
         
+//        // 重置
+//        neti = 0;
+//        netj = 0;
     }
-    
-    void Token(const JIntend& intend, const char *regulation) {
-        
-    }
-    
-    
-    
-    
-//
-//    bool Accept() {
-//        return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
-//    }
-//
-//    void FollowEmpty() {
-//        int i = networks[neti].NextVertex(netj, '\0');
-//        if(i == JLIST_FALG_NOT_EXIST) {
-//            return;
-//        }
-//        netj = i;
-//    }
-    
-    
-    
-//    bool Accept(int i) {
-//        return networks[i].NextVertex(0, peek) == JLIST_FALG_NOT_EXIST;
-//    }
-//
-//    bool FollowEmpty() {
-//        return true;
-//    }
-//
-//    void Change() {
-//
-//    }
-    
-//    bool AcceptAndFollowEmpty(const JNetwork<int, char>& net, int& status) {
-//        bool ret = AcceptAndFollow(net, status, '\0');
-//        if (ret) {
-//            LOG_INFO("!!!!!accept, status: ", status, "; ver: ", net.Get(status).value);
-//        }
-//        return ret;
-//    }
-//
-//    bool AcceptAndFollow(const JNetwork<int, char>& net, int& status, char ch) {
-//
-//        LOG_INFO("ch: ", ch);
-//
-//        int outDegree = net.NextVertex(status, ch);
-//        LOG_INFO("outDegree: ", outDegree);
-//        if (outDegree == JLIST_FALG_NOT_EXIST) {
-//            LOG_INFO("not accept, status: ", status, ", ch: ", ch);
-//            return false;
-//        }
-//
-//        status = outDegree;
-//        LOG_INFO("accept, status: ", status, "; ver: ", net.Get(status).value);
-//
-//        return true;
-//    }
-    
-    
-
-
-    
     
     void Intend(int priority, const char *label, const char *regulation) {
         int i = intends.Create();
@@ -321,7 +310,6 @@ private:
     }
     
     void Merger(int priority, JNetwork<int, char>& adopter) {
-//    void Merger(int priority, JNetwork<int, char>& adopter) {
         JGraph<char> NFA;
         JSet<int> firstStatus;
         JMap<int, int> empty2lable;
