@@ -83,16 +83,18 @@ public:
         Intend(2, "while", "while");
         Intend(2, "for", "for");
         Intend(2, "id", "(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)(q|w|e|r|t|y|u|i|o|p|a|s|d|f|g|h|j|k|l|z|x|c|v|b|n|m)*");
-        Intend(4, "换行", "\n\n*");
-        Intend(4, "tab", "\t\t*");
-        Intend(3, "空白", "  *");
+//        Intend(3, "换行", "\n\n*");
+//        Intend(3, "tab", "\t\t*");
+//        Intend(3, "空白", "  *");
         
-        Merger(1, networks[0]);
+        Intend(3, "空白", "( |\n|\t)( |\n|\t)*");
+        
+        Merger(1, networks[2]);
         Merger(2, networks[1]);
-        Merger(3, networks[2]);
+        Merger(3, networks[0]);
 
         
-        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+        ReadSection("zxc = if(qwe + asd) + 1231       \n\t24432");
         
         
         
@@ -261,6 +263,7 @@ private:
     void TryExport() {
         if (networks[neti].Get(netj).value < 0) {
             LOG_WARN("ERR!!!");
+            return;
         }
         
         
