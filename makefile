@@ -1,6 +1,6 @@
 VPATH	=	.:lib
 CC	=	clang++
-CFLAGS	=	-I lib -std=c++11 #-D BATE
+CFLAGS	=	-I lib -std=c++11 #-D INFO
 COMMONH	:=	JBinaryTree.hpp	JList.hpp	JMap.hpp	JSet.hpp \
 			JGraph.hpp	JLog.hpp	JNetwork.hpp	JStack.hpp \
 			JString.hpp
