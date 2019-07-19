@@ -9,11 +9,6 @@
 #ifndef JLog_hpp
 #define JLog_hpp
 
-#ifdef DEBUG
-    #undef DEBUG
-//    #define INFO
-#endif
-
 #include <iostream>
 
 /*
