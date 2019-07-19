@@ -81,12 +81,12 @@ public:
         Intend(4, "tab", "\t\t*");
         Intend(3, "空白", "  *");
         
-        Merger(1, networks[0]);
-        Merger(2, networks[1]);
-        Merger(3, networks[2]);
-        
-        
-        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
+//        Merger(1, networks[0]);
+//        Merger(2, networks[1]);
+//        Merger(3, networks[2]);
+//        
+//        
+//        ReadSection("zxc = if(qwe + asd) + 1231       \n24432");
         
         
         

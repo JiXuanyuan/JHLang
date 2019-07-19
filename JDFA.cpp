@@ -31,41 +31,24 @@ JDFA& JDFA::Regulation(const char *reg) {
 JNetwork<int, char>& JDFA::ObtainDFA() {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("regulation = ", regulation);
-    
     if (!mDFA.Empty()) {
         return mDFA;
     }
-
+    
     JGraph<char> NFA;
     JSet<int> firstStatus;
+    // 获得语法树
+    JBinaryTree<JDFARegNode>::Root synt = HandleReg2Syntax(regulation);
+    // 由语法树遍历，获得NFA
+    Translator tran;
+    synt.TraversePostorder(&tran);
+    tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
+    
     JMap<int, int> empty2lable;
-    
-    JDFA::TransformRegulation2NFA(regulation, NFA, firstStatus);
-    // 每次取得新的NFA，末尾节点的标志都为'\0'
     empty2lable.Add(NFA.Length() - 1, -1);
-    
-    LOG_INFO("empty2lable: ", empty2lable);
-    
-    // 将以整合的NFA转换为DFA
-    //        adopter.priority = priority;
-    
-    JDFA::TransformNFA2DFA(NFA, firstStatus, empty2lable, mDFA);
-    
-    LOG_INFO("dfa: ", mDFA);
-    
-    
-    //
-//    // 获得语法树
-//    JBinaryTree<JDFARegNode>::Root synt = Reg2Syntax(regulation);
-//
-//    // 由语法树遍历，获得NFA
-//    Translator tran;
-//    synt.TraversePostorder(&tran);
-//    JGraph<char>& nfa = tran.ObtainNFA(synt.Tree(), regulation);
-//    JSet<int>& first = tran.ObtainFirstStatus(synt.Tree());
-//
-//    // 由NFA转换为DFA
-//    NFA2DFA(nfa, first, dfa);
+    // 由NFA转换为DFA
+    HandleNFA2DFA(NFA, firstStatus, empty2lable, mDFA);
+    LOG_INFO("DFA: ", mDFA);
     
     return mDFA;
 }
