@@ -126,10 +126,10 @@ inline JBinaryTree<JDFARegNode> * JDFA::CreateNodeOperator(char op, JStack<JBina
 
 JBinaryTree<JDFARegNode> * JDFA::HandleReg2Syntax(const JString& reg) {
     int i = 0;
-    return Reg2Syntax(reg, i, '\0');
+    return Reg2SyntaxBySingle(reg, i, '\0');
 }
 
-JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char endChar) {
+JBinaryTree<JDFARegNode> * JDFA::Reg2SyntaxBySingle(const JString& reg, int& i, char endChar) {
     LOG_FUNCTION_ENTRY;
     LOG_INFO("start, reg = ", reg, ", i = ", i);
     JStack<char> ops('\0');  // 优先级比'&', '|', '*'低的符号
@@ -151,7 +151,7 @@ JBinaryTree<JDFARegNode> * JDFA::Reg2Syntax(const JString& reg, int& i, char end
             chn = CreateNodeCharacter(reg, ++i);
         } else if (ch == '(') {
             op = '&';
-            chn = Reg2Syntax(reg, ++i, ')');
+            chn = Reg2SyntaxBySingle(reg, ++i, ')');
         } else if (ch == endChar) {
             LOG_INFO("ch = ", ch, ", break");
             break;

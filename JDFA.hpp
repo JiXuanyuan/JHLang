@@ -46,7 +46,7 @@ private:
     
     static JBinaryTree<JDFARegNode> * HandleReg2Syntax(const JString& reg);
     
-    static JBinaryTree<JDFARegNode> * Reg2Syntax(const JString& reg, int& i, char endChar);
+    static JBinaryTree<JDFARegNode> * Reg2SyntaxBySingle(const JString& reg, int& i, char endChar);
     
     /*
         2.1 从语法树计算nullable、firstPos、lastPos
