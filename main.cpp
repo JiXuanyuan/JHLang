@@ -40,8 +40,14 @@ int main(int argc, const char * argv[]) {
 //    LOG_INFO(dfa.ObtainDFA());
 //    LOG_INFO(dfa.ObtainDFA());
     
-    JLex lex;
-    lex.Test();
+//    JLex lex;
+//    lex.Test();
+    
+    
+    if (argc > 1) {
+        JLex lex;
+        lex.Input(argv[1]);
+    }
     
     return 0;
 }
