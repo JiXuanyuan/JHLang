@@ -87,7 +87,7 @@ public:
 //        ReadSection("zxc = if(qwe + asd) + 12==31       \n\t24432    dqwcqwv = \"2gggggqqq1\"  = dw");
 //
         
-        ReadSection("zxc\"2gggggqqq1\"ssad");
+        ReadSection("zxc\"2gggggqqq1\"s$sad");
         
         LOG_PRINT("tokens: ", tokens);
     }
@@ -101,7 +101,7 @@ private:
     JNetwork<int, char> networks[netlength];
     int neti = 0, netj = 0;
     char peek = '\0';
-    bool first = true;
+    int pos = 0;
     
     JString section;
     JString value;
@@ -123,6 +123,7 @@ private:
         
         for (int i = 0; i < l; i++) {
             peek = section.Get(i);
+            pos = i;
             Follow();
         }
         TryExport();
@@ -218,11 +219,11 @@ private:
     
     void TryExport() {
         if (networks[neti].Get(netj).value < 0) {
-            if (first) {
-                first = false;
+            if (pos == 0) {
                 return;
             }
-            LOG_WARN("ERR!!!");
+            
+            LOG_WARN("ERR!!! position: ", pos);
             return;
         }
         
@@ -244,207 +245,6 @@ private:
 //        neti = 0;
 //        netj = 0;
     }
-    
-   
-    
-    /*void ReadPeek() {
-        int l = section.Length();
-        
-        
-        LOG_INFO("networks[0]: ", networks[0]);
-        LOG_INFO("networks[1]: ", networks[1]);
-        LOG_INFO("networks[2]: ", networks[2]);
-//        LOG_INFO("empty2lable[0]: ", empty2lable[0]);
-//        LOG_INFO("empty2lable[1]: ", empty2lable[1]);
-//        LOG_INFO("empty2lable[2]: ", empty2lable[2]);
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        
-        
-        for (int i = 0; i < l; i++) {
-            peek = section.Get(i);
-//            secr = i;
-            Follow();
-        }
-        
-//        secr++;
-        
-//        value.Merge(peek);
-        if (AcceptEmpty()) {
-            FollowEmpty();
-            Export();
-//            value.Clean();
-        } else {
-           LOG_WARN("ERR!!!");
-//            value.Clean();
-        }
-    }
-    
-    
-    void Follow() {
-        
-        for (int i = 2; i > neti; i--) {
-            if (AcceptBetter(i)) {
-                if (AcceptEmpty()) {
-                    FollowEmpty();
-                    Export();
-//                    value.Clean();
-                } else {
-                    LOG_WARN("ERR!!!");
-//                    value.Clean();
-                }
-                
-                
-                FollowBetter(i);
-                
-                return;
-            }
-        }
-        
-        if (AcceptPeek()) {
-            FollowPeek();
-            return;
-        }
-        
-        for (int i = neti - 1; i >= 0; i--) {
-            
-            if (AcceptBetter(i)) {
-                if (AcceptEmpty()) {
-                    FollowEmpty();
-                    Export();
-                } else {
-                    LOG_WARN("ERR!!!");
-                }
-                
-                FollowBetter(i);
-                
-                return;
-            }
-        }
-        
-        
-        if (AcceptEmpty()) {
-            FollowEmpty();
-            Export();
-        } else {
-            LOG_WARN("ERR!!!");
-        }
-        
-    }
-    
-    bool AcceptBetter(int i) {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        return networks[i].NextVertex(0, peek) != JLIST_FALG_NOT_EXIST;
-    }
-    
-    void FollowBetter(int i) {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        value.Merge(peek);
-        neti = i;
-        netj = networks[neti].NextVertex(0, peek);
-    }
-    
-    bool AcceptPeek() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
-    }
-    
-    void FollowPeek() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        value.Merge(peek);
-        netj = networks[neti].NextVertex(netj, peek);
-    }
-    
-    bool AcceptEmpty() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        return networks[neti].NextVertex(netj, '\0') != JLIST_FALG_NOT_EXIST;
-    }
-    
-    void FollowEmpty() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-//        value.Merge(peek);
-        netj = networks[neti].NextVertex(netj, '\0');
-    }
-    
-    void Export() {
-        LOG_INFO("neti: ", neti, "; netj: ", netj, "; peek: ", peek);
-        int v = networks[neti].Get(netj).value;
-        LOG_INFO("OK!!! value: ", v);
-        
-        JIntend& it = intends.Get(v);
-        LOG_INFO("OK!!! intends: ", it);
-        
-        int i = tokens.Create();
-        JToken& tk = tokens.Get(i);
-        tk.lable.Assign(it.lable);
-        tk.value.Assign(value);
-        value.Clean();
-        LOG_INFO("OK!!! tokens: ", tk);
-        
-    }
-    
-    void Token(const JIntend& intend, const char *regulation) {
-        
-    }
-    */
-    
-    
-    
-//
-//    bool Accept() {
-//        return networks[neti].NextVertex(netj, peek) != JLIST_FALG_NOT_EXIST;
-//    }
-//
-//    void FollowEmpty() {
-//        int i = networks[neti].NextVertex(netj, '\0');
-//        if(i == JLIST_FALG_NOT_EXIST) {
-//            return;
-//        }
-//        netj = i;
-//    }
-    
-    
-    
-//    bool Accept(int i) {
-//        return networks[i].NextVertex(0, peek) == JLIST_FALG_NOT_EXIST;
-//    }
-//
-//    bool FollowEmpty() {
-//        return true;
-//    }
-//
-//    void Change() {
-//
-//    }
-    
-//    bool AcceptAndFollowEmpty(const JNetwork<int, char>& net, int& status) {
-//        bool ret = AcceptAndFollow(net, status, '\0');
-//        if (ret) {
-//            LOG_INFO("!!!!!accept, status: ", status, "; ver: ", net.Get(status).value);
-//        }
-//        return ret;
-//    }
-//
-//    bool AcceptAndFollow(const JNetwork<int, char>& net, int& status, char ch) {
-//
-//        LOG_INFO("ch: ", ch);
-//
-//        int outDegree = net.NextVertex(status, ch);
-//        LOG_INFO("outDegree: ", outDegree);
-//        if (outDegree == JLIST_FALG_NOT_EXIST) {
-//            LOG_INFO("not accept, status: ", status, ", ch: ", ch);
-//            return false;
-//        }
-//
-//        status = outDegree;
-//        LOG_INFO("accept, status: ", status, "; ver: ", net.Get(status).value);
-//
-//        return true;
-//    }
-    
-    
-
-
-    
     
     void Intend(int priority, const char *label, const char *regulation) {
         int i = intends.Create();
