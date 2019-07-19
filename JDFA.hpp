@@ -26,23 +26,9 @@ public:
     
     JNetwork<int, char>& ObtainDFA();
     
-    static void TransformRegulation2NFA(const JString& regulation, JGraph<char>& NFA, JSet<int>& firstStatus) {
-        LOG_FUNCTION_ENTRY;
-        LOG_INFO("regulation: ", regulation);
-        
-        // 获得语法树
-        JBinaryTree<JDFARegNode>::Root synt = HandleReg2Syntax(regulation);
-        
-        // 由语法树遍历，获得NFA
-        Translator tran;
-        synt.TraversePostorder(&tran);
-        tran.ObtainNFAAndFirstStatus(synt.Tree(), regulation, NFA, firstStatus);
-    }
+    static void TransformRegulation2NFA(const JString& regulation, JGraph<char>& NFA, JSet<int>& firstStatus);
     
-    static void TransformNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA) {
-        LOG_FUNCTION_ENTRY;
-        HandleNFA2DFA(NFA, firstStatus, empty2lable, DFA);
-    }
+    static void TransformNFA2DFA(const JGraph<char>& NFA, const JSet<int>& firstStatus, const JMap<int, int>& empty2lable, JNetwork<int, char>& DFA);
     
 private:
     
